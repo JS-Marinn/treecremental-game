@@ -1,0 +1,160 @@
+# Treecremental -- Game World & Systems Entity Registry
+# Single source of truth for all named identifiers across design docs, data files, and code.
+
+schema_version: 1
+revised: 2026-10-30
+
+acts:
+  - id: act_1
+    name_key: KEY_ACT_1_NAME
+    biome: meadow
+    trees: [pine, birch, oak]
+    worker_cap: 30
+    tool_cap: 3
+    sawmill_cap: 4
+    breakthrough_gate_species: oak
+    breakthrough_gate_logs: 247000
+  - id: act_2
+    name_key: KEY_ACT_2_NAME
+    biome: blossom_boreal
+    trees: [sakura, canadian_maple, fir]
+    worker_cap: 50
+    tool_cap: 5
+    sawmill_cap: 7
+    breakthrough_gate_species: fir
+    breakthrough_gate_logs: 7160000
+  - id: act_3
+    name_key: KEY_ACT_3_NAME
+    biome: ancient_grove
+    trees: [baobab, socotra_dragon_tree, giant_sequoia]
+    worker_cap: 70
+    tool_cap: 6
+    sawmill_cap: 10
+    breakthrough_gate_species: giant_sequoia
+    breakthrough_gate_logs: 46200000
+
+species:
+  - { id: pine, tier: 0, act: 1, biome: meadow, base_chop_s: 2.0, unlock_cost_prev_logs: 0, score_weight: 1.00 }
+  - { id: birch, tier: 1, act: 1, biome: meadow, base_chop_s: 3.1, unlock_cost_prev_logs: 150, score_weight: 1.90 }
+  - { id: oak, tier: 2, act: 1, biome: meadow, base_chop_s: 4.8, unlock_cost_prev_logs: 330, score_weight: 3.61 }
+  - { id: sakura, tier: 3, act: 2, biome: blossom_vale, base_chop_s: 7.4, unlock_cost_prev_logs: 726, score_weight: 6.86 }
+  - { id: canadian_maple, tier: 4, act: 2, biome: blossom_vale, base_chop_s: 11.5, unlock_cost_prev_logs: 1597, score_weight: 13.03 }
+  - { id: fir, tier: 5, act: 2, biome: boreal, base_chop_s: 17.9, unlock_cost_prev_logs: 3514, score_weight: 24.76 }
+  - { id: baobab, tier: 6, act: 3, biome: savanna, base_chop_s: 27.7, unlock_cost_prev_logs: 7730, score_weight: 47.05 }
+  - { id: socotra_dragon_tree, tier: 7, act: 3, biome: desert, base_chop_s: 43.0, unlock_cost_prev_logs: 17007, score_weight: 89.39 }
+  - { id: giant_sequoia, tier: 8, act: 3, biome: ancient_grove, base_chop_s: 66.6, unlock_cost_prev_logs: 37415, score_weight: 169.84 }
+
+currencies:
+  - { id: logs_<species>, scope: per_species, resets_on_breakthrough: true, source: logging_camp }
+  - { id: planks_<species>, scope: per_species, resets_on_breakthrough: true, source: sawmill }
+  - { id: charcoal, scope: global, resets_on_breakthrough: true, source: charcoal_kilns }
+  - { id: ash, scope: global, resets_on_breakthrough: true, source: charcoal_kilns }
+  - { id: birdseed, scope: global, resets_on_breakthrough: false, source: canopy_aviary }
+  - { id: spores, scope: global, resets_on_breakthrough: false, source: mycelium_network }
+  - { id: sap, scope: global, resets_on_breakthrough: false, source: heartwood_ascension }
+
+gameplay_loops:
+  - { id: logging_camp, role: primary, resets_on_breakthrough: true }
+  - { id: sawmill, role: secondary_a, resets_on_breakthrough: true }
+  - { id: charcoal_kilns, role: secondary_b, resets_on_breakthrough: true }
+  - { id: canopy_aviary, role: tertiary_isolated_a, resets_on_breakthrough: false }
+  - { id: mycelium_network, role: tertiary_isolated_b, resets_on_breakthrough: false }
+  - { id: heartwood_ascension, role: prestige_layer, resets_on_breakthrough: false }
+
+upgrades:
+  logging_per_species_hire:
+    - hire_pine
+    - hire_birch
+    - hire_oak
+    - hire_sakura
+    - hire_canadian_maple
+    - hire_fir
+    - hire_baobab
+    - hire_socotra_dragon_tree
+    - hire_giant_sequoia
+  logging_per_species_tool:
+    - tool_pine
+    - tool_birch
+    - tool_oak
+    - tool_sakura
+    - tool_canadian_maple
+    - tool_fir
+    - tool_baobab
+    - tool_socotra_dragon_tree
+    - tool_giant_sequoia
+  logging_global:
+    - log_whetstone_bench
+    - log_hickory_hafts
+    - log_felling_wedges
+    - log_skid_road
+    - log_oxen_team
+    - log_cant_hooks
+    - log_silk_cordage
+    - log_sap_lubrication
+    - log_highland_crampons
+    - log_block_and_tackle
+    - log_crimson_varnish
+    - log_skyline_yarder
+  sawmill_per_species:
+    - mill_pine
+    - mill_birch
+    - mill_oak
+    - mill_sakura
+    - mill_canadian_maple
+    - mill_fir
+    - mill_baobab
+    - mill_socotra_dragon_tree
+    - mill_giant_sequoia
+  sawmill_global:
+    - mill_undershot_wheel
+    - mill_kerf_thinning
+    - mill_roller_conveyor
+    - mill_gang_saw
+    - mill_kiln_drying_rack
+    - mill_flywheel_governor
+    - mill_hydraulic_carriage
+    - mill_sawdust_briquetter
+  charcoal_kilns:
+    - kiln_clay_lining
+    - kiln_draft_vents
+    - kiln_boiler_manifold
+    - kiln_hardwood_retort
+    - kiln_auto_stoker
+    - kiln_ash_sifter
+    - kiln_bellows_turbine
+    - kiln_white_charcoal
+  canopy_aviary:
+    - aviary_bird_woodpecker
+    - aviary_bird_waxwing
+    - aviary_bird_falcon
+    - aviary_bird_songbird
+    - aviary_bird_phoenix
+    - aviary_seed_hopper
+    - aviary_suet_cakes
+    - aviary_gilded_weathervane
+  mycelium_network:
+    - myc_phosphorus_exchange
+    - myc_spore_bloom
+    - myc_saprophyte_enzymes
+    - myc_rhizomorph_conduit
+    - myc_truffle_symbiosis
+    - myc_alkaline_mulch
+    - myc_fairy_ring_pulse
+    - myc_mother_tree_nexus
+  heartwood_prestige:
+    - sap_heartwood_resonance_1
+    - sap_pioneer_charter
+    - sap_amber_distillation
+    - sap_seasoned_joinery
+    - sap_eternal_embers
+    - sap_canopy_sanctuary_bond
+    - sap_heartwood_resonance_2
+    - sap_guild_headquarters
+    - sap_bulk_contracting
+    - sap_cambium_overflow
+    - sap_mycorrhizal_awakening
+    - sap_crucible_steel
+    - sap_titan_feller
+    - sap_golden_bough
+    - sap_ancient_harmony
+    - sap_world_tree_crown

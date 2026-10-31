@@ -1,0 +1,47 @@
+schema_version: 1
+
+project:
+  name: "Treecremental"
+  stage: "planning"
+  genre: "2d-pixel-art-incremental"
+  session_model: "active-session-only"
+  offline_progression: false
+  target_duration_hours:
+    main_campaign: 3.0
+    completionist_100: 4.0
+
+engine:
+  name: "godot"
+  version: "4.7.2.stable"
+  renderer: "gl_compatibility"
+  language: "GDScript"
+  viewport:
+    width: 640
+    height: 360
+    stretch_mode: "canvas_items"
+    scale_mode: "integer"
+    texture_filter: "nearest"
+
+paths:
+  code_root: "src/"
+  data_root: "data/"
+  design_root: "design/"
+  docs_root: "docs/"
+  i18n_root: "i18n/"
+  test_root: "tests/"
+  tools_root: "tools/"
+  session_state: "production/session-state/active.md"
+  entity_registry: "design/registry/entities.yaml"
+  master_design_doc: "docs/architecture/treecremental_design_doc.md"
+  art_blueprint: "design/art/art_steam_blueprint.md"
+
+standards:
+  zero_hardcoded_values: true
+  zero_offline_mechanics: true
+  zero_emojis: true
+  zero_ai_artifacts: true
+  base_locale: "en"
+  supported_locales:
+    - "en"
+    - "es_419"
+    - "es_ES"

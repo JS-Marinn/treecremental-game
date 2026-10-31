@@ -1,28 +1,34 @@
 """
-Generates the DRAFT v0.2 balance .tres files for Treecremental (9-Species Plateau Curve model).
-Syncs with balance_sim/sim.py parameters.
-After export, designers tune .tres files directly in Godot's inspector.
+Generates the baseline .tres files for Treecremental from the balance simulator parameters.
 """
-import os, math, sys, glob
+import glob
+import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "balance_sim"))
 from sim import PARAMS as P
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-KIND = dict(CONSTANT=0, LINEAR=1, POLYNOMIAL=2, EXPONENTIAL=3, LOGARITHMIC=4, HYPERBOLIC_SOFTCAP=5,
-            POWER_SOFTCAP=6, EXPRESSION=7, TABLE=8)
+KIND = dict(
+    CONSTANT=0,
+    LINEAR=1,
+    POLYNOMIAL=2,
+    EXPONENTIAL=3,
+    LOGARITHMIC=4,
+    HYPERBOLIC_SOFTCAP=5,
+    POWER_SOFTCAP=6,
+    EXPRESSION=7,
+    TABLE=8,
+)
 ROUND_FLOOR = 1
 
-# 9 Species across 3 Acts
 SPECIES = [
-    # Act I: Temperate Woods
     ("pine", "meadow"),
     ("birch", "meadow"),
     ("oak", "meadow"),
-    # Act II: Blossom & Boreal
     ("sakura", "blossom_vale"),
     ("canadian_maple", "blossom_vale"),
     ("fir", "boreal"),
-    # Act III: Exotic & Ancient Grove
     ("baobab", "savanna"),
     ("socotra_dragon_tree", "desert"),
     ("giant_sequoia", "ancient_grove"),
@@ -45,17 +51,18 @@ def write(path, text):
 
 
 def curve_file(path, kind, **kw):
-    write(path, '[gd_resource type="Resource" script_class="FormulaCurve" load_steps=2 format=3]\n\n'
-                '[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="1"]\n\n'
-                '[resource]\nscript = ExtResource("1")\n' + curve_body(kind, **kw) + "\n")
+    write(
+        path,
+        '[gd_resource type="Resource" script_class="FormulaCurve" load_steps=2 format=3]\n\n'
+        '[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="1"]\n\n'
+        '[resource]\nscript = ExtResource("1")\n' + curve_body(kind, **kw) + "\n",
+    )
 
 
-# Base Curves
 curve_file("data/balance/curves/hire_cost.tres", "EXPONENTIAL", base=P["hire_cost_base"], growth=P["hire_cost_growth"])
 curve_file("data/balance/curves/tool_cost.tres", "EXPONENTIAL", base=P["tool_cost_base"], growth=P["tool_cost_growth"])
 curve_file("data/balance/curves/sawmill_cost.tres", "EXPONENTIAL", base=P["sawmill_cost_base"], growth=P["sawmill_cost_growth"])
 
-# --- BalanceConfig ---
 sap_gain_scale = P["sap_divisor"] ** (-P["sap_exponent"])
 bal = f'''[gd_resource type="Resource" script_class="BalanceConfig" load_steps=5 format=3]
 
@@ -96,7 +103,6 @@ prestige_min_sap = 5.0
 '''
 write("data/balance/balance_default.tres", bal)
 
-# Clean existing species directory first
 species_dir = os.path.join(ROOT, "data", "species")
 os.makedirs(species_dir, exist_ok=True)
 for f in glob.glob(os.path.join(species_dir, "*.tres")):
@@ -105,10 +111,9 @@ for f in glob.glob(os.path.join(species_dir, "*.tres")):
     except OSError:
         pass
 
-# --- Species ---
 for i, (sid, biome) in enumerate(SPECIES):
-    unlock = 0.0 if i == 0 else P["unlock_cost_base"] * P["unlock_cost_growth"] ** (i - 1)
-    chop = P["chop_time_base_s"] * P["chop_time_tier_growth"] ** i
+    unlock = 0.0 if i == 0 else P["unlock_cost_base"] * (P["unlock_cost_growth"] ** (i - 1))
+    chop = P["chop_time_base_s"] * (P["chop_time_tier_growth"] ** i)
     weight = P["value_growth"] ** i
     txt = f'''[gd_resource type="Resource" script_class="SpeciesData" load_steps=6 format=3]
 
@@ -136,4 +141,4 @@ sawmill_cost = ExtResource("5")
 '''
     write(f"data/species/{sid}.tres", txt)
 
-print(f"Successfully generated {len(SPECIES)} species .tres and balance configs.")
+print(f"Generated {len(SPECIES)} species resources and balance profile.")

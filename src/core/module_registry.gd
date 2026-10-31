@@ -1,9 +1,8 @@
 class_name ModuleRegistry
 extends Node
-## Central manager for all plug-and-play GameModule instances.
-## Discovers, topologically sorts, and updates active gameplay modules.
+## Lifecycle and dependency manager for active GameModule instances.
 
-var _modules: Dictionary = {}  # StringName -> GameModule
+var _modules: Dictionary = {}
 var _ordered_modules: Array[GameModule] = []
 
 
@@ -44,12 +43,6 @@ func _process(delta: float) -> void:
 	for mod in _ordered_modules:
 		if mod.is_active:
 			mod.tick(delta)
-
-
-func process_offline_progress(seconds: float) -> void:
-	for mod in _ordered_modules:
-		if mod.is_active:
-			mod.offline_step(seconds)
 
 
 func serialize_all() -> Dictionary:
