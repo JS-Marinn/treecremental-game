@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="NotationConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/notation_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+group_size = 1000.0
+decimals = 2
+below_threshold_decimals = 0
+suffixes = PackedStringArray("", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc")
+scientific_format = "%se%d"
+engineering_step = 3

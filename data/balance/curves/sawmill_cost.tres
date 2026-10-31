@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="FormulaCurve" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+kind = 3
+base = 200.0
+growth = 3.2

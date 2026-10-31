@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="BalanceConfig" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/balance_config.gd" id="1"]
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
+
+[sub_resource type="Resource" id="eco"]
+script = ExtResource("2")
+kind = 1
+base = 1.0
+scale = 0.06
+
+[sub_resource type="Resource" id="sap_gain"]
+script = ExtResource("2")
+kind = 2
+scale = 0.022360679774997897
+exponent = 0.5
+rounding = 1
+
+[sub_resource type="Resource" id="sap_mult"]
+script = ExtResource("2")
+kind = 2
+base = 1.0
+scale = 0.6
+exponent = 0.5
+
+[resource]
+script = ExtResource("1")
+trees_per_act = 3
+worker_caps = PackedInt32Array(30, 50, 70)
+tool_caps = PackedInt32Array(3, 5, 6)
+sawmill_caps = PackedInt32Array(4, 7, 10)
+breakthrough_gate_logs = PackedFloat64Array(247000.0, 7160000.0, 46200000.0)
+milestone_counts = PackedInt32Array(10, 25, 50)
+milestone_multiplier = 1.5
+tool_multiplier = 2.0
+tool_max_level = 6
+sawmill_gain_per_level = 0.2
+sawmill_max_level = 10
+ecosystem_per_species = SubResource("eco")
+tertiary_multiplier_cap = 1.0
+tertiary_half_point_minutes = 90.0
+sap_gain = SubResource("sap_gain")
+sap_multiplier = SubResource("sap_mult")
+prestige_min_sap = 5.0

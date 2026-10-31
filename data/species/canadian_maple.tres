@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SpeciesData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/species_data.gd" id="1"]
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
+[ext_resource type="Resource" path="res://data/balance/curves/hire_cost.tres" id="3"]
+[ext_resource type="Resource" path="res://data/balance/curves/tool_cost.tres" id="4"]
+[ext_resource type="Resource" path="res://data/balance/curves/sawmill_cost.tres" id="5"]
+
+[sub_resource type="Resource" id="unlock"]
+script = ExtResource("2")
+kind = 0
+base = 1597.2
+
+[resource]
+script = ExtResource("1")
+id = &"canadian_maple"
+tier = 4
+biome = &"blossom_vale"
+base_chop_time_s = 11.544
+score_weight = 13.0321
+unlock_cost = SubResource("unlock")
+hire_cost = ExtResource("3")
+tool_cost = ExtResource("4")
+sawmill_cost = ExtResource("5")
