@@ -1,0 +1,261 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://assets/ui/default_theme.tres" id="1"]
+[ext_resource type="Script" path="res://src/ui/main_screen.gd" id="2"]
+
+[node name="MainScreen" type="Control"]
+custom_minimum_size = Vector2(640, 360)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1")
+script = ExtResource("2")
+
+[node name="MainSplit" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="LeftCompoundColumn" type="VBoxContainer" parent="MainSplit"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(432, 360)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="TopResourceBar" type="PanelContainer" parent="MainSplit/LeftCompoundColumn"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(432, 28)
+layout_mode = 2
+
+[node name="ResourceBarHBox" type="HBoxContainer" parent="MainSplit/LeftCompoundColumn/TopResourceBar"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="CoinsLabel" type="Label" parent="MainSplit/LeftCompoundColumn/TopResourceBar/ResourceBarHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.85, 0.35, 1)
+text = "Coins: 0"
+
+[node name="ProcessedLogsLabel" type="Label" parent="MainSplit/LeftCompoundColumn/TopResourceBar/ResourceBarHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.72, 0.56, 1)
+text = "Logs: 0"
+
+[node name="CharcoalLabel" type="Label" parent="MainSplit/LeftCompoundColumn/TopResourceBar/ResourceBarHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.55, 0.38, 1)
+text = "Charcoal: 0"
+
+[node name="SapLabel" type="Label" parent="MainSplit/LeftCompoundColumn/TopResourceBar/ResourceBarHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.76, 0.24, 1)
+text = "Sap: 0"
+
+[node name="ActBadgeLabel" type="Label" parent="MainSplit/LeftCompoundColumn/TopResourceBar/ResourceBarHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.88, 0.62, 1)
+text = "Act I"
+
+[node name="BreakthroughProgressBar" type="ProgressBar" parent="MainSplit/LeftCompoundColumn/TopResourceBar/ResourceBarHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 10)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 247000.0
+show_percentage = false
+
+[node name="AscendButton" type="Button" parent="MainSplit/LeftCompoundColumn/TopResourceBar/ResourceBarHBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Ascend"
+
+[node name="CompoundViewportContainer" type="PanelContainer" parent="MainSplit/LeftCompoundColumn"]
+unique_name_in_owner = true
+clip_contents = true
+custom_minimum_size = Vector2(432, 332)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ClearingBackdrop" type="ColorRect" parent="MainSplit/LeftCompoundColumn/CompoundViewportContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.184314, 0.294118, 0.160784, 1)
+
+[node name="WorldRoot" type="Node2D" parent="MainSplit/LeftCompoundColumn/CompoundViewportContainer"]
+unique_name_in_owner = true
+y_sort_enabled = true
+
+[node name="ClearingStatusOverlay" type="MarginContainer" parent="MainSplit/LeftCompoundColumn/CompoundViewportContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="OverlayTopRow" type="HBoxContainer" parent="MainSplit/LeftCompoundColumn/CompoundViewportContainer/ClearingStatusOverlay"]
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="SynergyBannerLabel" type="Label" parent="MainSplit/LeftCompoundColumn/CompoundViewportContainer/ClearingStatusOverlay/OverlayTopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.92, 1)
+text = ""
+
+[node name="ThermalOverclockBar" type="ProgressBar" parent="MainSplit/LeftCompoundColumn/CompoundViewportContainer/ClearingStatusOverlay/OverlayTopRow"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(72, 8)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 100.0
+show_percentage = false
+
+[node name="RightCommandDock" type="PanelContainer" parent="MainSplit"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(208, 360)
+layout_mode = 2
+
+[node name="DockVBox" type="VBoxContainer" parent="MainSplit/RightCommandDock"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="LoopTabBar" type="HBoxContainer" parent="MainSplit/RightCommandDock/DockVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="TabTreesButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/LoopTabBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+button_pressed = true
+text = "Trees"
+
+[node name="TabCrewButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/LoopTabBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Crew"
+
+[node name="TabMillButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/LoopTabBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Mill"
+
+[node name="TabRootsButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/LoopTabBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Roots"
+
+[node name="BulkBuyBar" type="HBoxContainer" parent="MainSplit/RightCommandDock/DockVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="BuyX1Button" type="Button" parent="MainSplit/RightCommandDock/DockVBox/BulkBuyBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 18)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+text = "x1"
+
+[node name="BuyX10Button" type="Button" parent="MainSplit/RightCommandDock/DockVBox/BulkBuyBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+toggle_mode = true
+text = "x10"
+
+[node name="BuyMaxButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/BulkBuyBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 18)
+layout_mode = 2
+toggle_mode = true
+text = "MAX"
+
+[node name="SimpleLumberjackPoolLabel" type="Label" parent="MainSplit/RightCommandDock/DockVBox/BulkBuyBar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 2
+theme_override_colors/font_color = Color(0.76, 0.88, 0.96, 1)
+theme_override_font_sizes/font_size = 8
+text = "0/1"
+
+[node name="UpgradeScroll" type="ScrollContainer" parent="MainSplit/RightCommandDock/DockVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="UpgradeList" type="VBoxContainer" parent="MainSplit/RightCommandDock/DockVBox/UpgradeScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="DockFooter" type="HBoxContainer" parent="MainSplit/RightCommandDock/DockVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="PrestigeModalButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/DockFooter"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Heartwood"
+
+[node name="AchievementsModalButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/DockFooter"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Feats"
+
+[node name="SettingsModalButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/DockFooter"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Settings"
+
+[node name="ModalLayer" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+layer = 10
+
+[node name="ModalHost" type="Control" parent="ModalLayer"]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
