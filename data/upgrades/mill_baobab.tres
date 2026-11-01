@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="UpgradeDefinitionData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/upgrade_definition_data.gd" id="1"]
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
+[ext_resource type="Script" path="res://src/core/data/stat_modifier_data.gd" id="3"]
+
+[sub_resource type="Resource" id="cost_curve"]
+script = ExtResource("2")
+kind = 3
+base = 1002.24
+growth = 1.55
+
+[sub_resource type="Resource" id="mod_curve_0"]
+script = ExtResource("2")
+kind = 1
+base = 0.0
+scale = 0.25
+
+[sub_resource type="Resource" id="mod_0"]
+script = ExtResource("3")
+modifier_id = &"species_coin_mult"
+target_domain = &"species_coin_value"
+stat_key = &"baobab"
+operation = 1
+curve = SubResource("mod_curve_0")
+
+[sub_resource type="Resource" id="mod_curve_1"]
+script = ExtResource("2")
+kind = 7
+expression = "floor(x / 3.0)"
+base = 0.0
+scale = 1.0
+
+[sub_resource type="Resource" id="mod_1"]
+script = ExtResource("3")
+modifier_id = &"species_mill_slots"
+target_domain = &"sawmill_station_slots"
+stat_key = &"baobab"
+operation = 0
+curve = SubResource("mod_curve_1")
+
+[resource]
+script = ExtResource("1")
+id = &"mill_baobab"
+loop_id = &"sawmill"
+category = &"sawmill_per_species_value_and_slots"
+target_entity_id = &"baobab"
+cost_currency_id = &"processed_logs"
+cost_curve = SubResource("cost_curve")
+act_level_caps = PackedInt32Array(4, 7, 10)
+max_level = 10
+initial_level = 0
+resets_on_breakthrough = true
+modifiers = Array[StatModifierData]([SubResource("mod_0"), SubResource("mod_1")])

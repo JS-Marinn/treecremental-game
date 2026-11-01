@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="UpgradeDefinitionData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/upgrade_definition_data.gd" id="1"]
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
+[ext_resource type="Script" path="res://src/core/data/stat_modifier_data.gd" id="3"]
+
+[sub_resource type="Resource" id="cost_curve"]
+script = ExtResource("2")
+kind = 3
+base = 250.0
+growth = 1.7
+
+[sub_resource type="Resource" id="mod_curve_0"]
+script = ExtResource("2")
+kind = 1
+base = 0.0
+scale = 0.18
+
+[sub_resource type="Resource" id="mod_0"]
+script = ExtResource("3")
+modifier_id = &"myc_truffle_symbiosis"
+target_domain = &"timberfall_jackpot_bonus"
+stat_key = &"all"
+operation = 1
+curve = SubResource("mod_curve_0")
+
+[resource]
+script = ExtResource("1")
+id = &"myc_truffle_symbiosis"
+loop_id = &"mycelium_network"
+category = &"mycelium_network"
+target_entity_id = &""
+cost_currency_id = &"spores"
+cost_curve = SubResource("cost_curve")
+act_level_caps = PackedInt32Array(0, 3, 5)
+max_level = 5
+initial_level = 0
+resets_on_breakthrough = false
+modifiers = Array[StatModifierData]([SubResource("mod_0")])

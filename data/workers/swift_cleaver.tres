@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="WorkerArchetypeData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/worker_archetype_data.gd" id="1"]
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
+
+[sub_resource type="Resource" id="hire_curve"]
+script = ExtResource("2")
+kind = 3
+base = 120.0
+growth = 1.2
+
+[sub_resource type="Resource" id="gear_curve"]
+script = ExtResource("2")
+kind = 3
+base = 500.0
+growth = 3.4
+
+[resource]
+script = ExtResource("1")
+id = &"swift_cleaver"
+tier_index = 2
+role = &"high_tempo_crit_and_synergy_specialist"
+footprint_px = Vector2i(16, 16)
+move_speed = 1.4
+attack_rate = 1.8
+base_damage = 0.7
+crit_chance = 0.25
+armor_penetration = 1
+ignore_all_bark_hardness = false
+synergy_trigger_weight = 2.0
+can_chop_all_trees = true
+allowed_loop_ids = PackedStringArray("logging_camp")
+act_roster_caps = PackedInt32Array(5, 10, 15)
+hire_cost_curve = SubResource("hire_curve")
+gear_cost_curve = SubResource("gear_curve")

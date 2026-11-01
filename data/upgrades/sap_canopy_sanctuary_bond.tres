@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="UpgradeDefinitionData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/upgrade_definition_data.gd" id="1"]
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
+[ext_resource type="Script" path="res://src/core/data/stat_modifier_data.gd" id="3"]
+
+[sub_resource type="Resource" id="cost_curve"]
+script = ExtResource("2")
+kind = 3
+base = 20.0
+growth = 1.0
+
+[sub_resource type="Resource" id="mod_curve_0"]
+script = ExtResource("2")
+kind = 0
+base = 1.0
+
+[sub_resource type="Resource" id="mod_0"]
+script = ExtResource("3")
+modifier_id = &"sap_canopy_sanctuary_bond"
+target_domain = &"aviary_persist_breakthrough"
+stat_key = &"all"
+operation = 0
+curve = SubResource("mod_curve_0")
+
+[resource]
+script = ExtResource("1")
+id = &"sap_canopy_sanctuary_bond"
+loop_id = &"heartwood_ascension"
+category = &"heartwood_prestige"
+target_entity_id = &""
+cost_currency_id = &"sap"
+cost_curve = SubResource("cost_curve")
+act_level_caps = PackedInt32Array(1, 1, 1)
+max_level = 1
+initial_level = 0
+resets_on_breakthrough = false
+modifiers = Array[StatModifierData]([SubResource("mod_0")])

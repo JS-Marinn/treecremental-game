@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="WorkerArchetypeData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/worker_archetype_data.gd" id="1"]
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
+
+[sub_resource type="Resource" id="hire_curve"]
+script = ExtResource("2")
+kind = 3
+base = 10.0
+growth = 1.15
+
+[sub_resource type="Resource" id="gear_curve"]
+script = ExtResource("2")
+kind = 3
+base = 100.0
+growth = 3.2
+
+[resource]
+script = ExtResource("1")
+id = &"simple_lumberjack"
+tier_index = 0
+role = &"versatile_chopper_and_shared_miller"
+footprint_px = Vector2i(16, 16)
+move_speed = 1.0
+attack_rate = 1.0
+base_damage = 1.0
+crit_chance = 0.05
+armor_penetration = 0
+ignore_all_bark_hardness = false
+synergy_trigger_weight = 1.0
+can_chop_all_trees = true
+allowed_loop_ids = PackedStringArray("logging_camp", "sawmill")
+act_roster_caps = PackedInt32Array(14, 24, 34)
+hire_cost_curve = SubResource("hire_curve")
+gear_cost_curve = SubResource("gear_curve")

@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="UpgradeDefinitionData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/upgrade_definition_data.gd" id="1"]
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
+[ext_resource type="Script" path="res://src/core/data/stat_modifier_data.gd" id="3"]
+
+[sub_resource type="Resource" id="cost_curve"]
+script = ExtResource("2")
+kind = 3
+base = 1597.2
+growth = 1.65
+
+[sub_resource type="Resource" id="mod_curve_0"]
+script = ExtResource("2")
+kind = 7
+expression = "100.0 * pow(1.35, max(0.0, x - 1.0))"
+base = 100.0
+scale = 1.35
+
+[sub_resource type="Resource" id="mod_0"]
+script = ExtResource("3")
+modifier_id = &"spawn_weight"
+target_domain = &"species_spawn_weight"
+stat_key = &"canadian_maple"
+operation = 0
+curve = SubResource("mod_curve_0")
+
+[sub_resource type="Resource" id="mod_curve_1"]
+script = ExtResource("2")
+kind = 1
+base = 2.0
+scale = 1.5
+rounding = 1
+
+[sub_resource type="Resource" id="mod_1"]
+script = ExtResource("3")
+modifier_id = &"max_quantity"
+target_domain = &"species_max_quantity"
+stat_key = &"canadian_maple"
+operation = 0
+curve = SubResource("mod_curve_1")
+
+[resource]
+script = ExtResource("1")
+id = &"prop_canadian_maple"
+loop_id = &"logging_camp"
+category = &"species_propagation"
+target_entity_id = &"canadian_maple"
+cost_currency_id = &"coins"
+cost_curve = SubResource("cost_curve")
+act_level_caps = PackedInt32Array(4, 7, 10)
+max_level = 10
+initial_level = 0
+resets_on_breakthrough = true
+modifiers = Array[StatModifierData]([SubResource("mod_0"), SubResource("mod_1")])

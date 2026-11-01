@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="UpgradeDefinitionData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/upgrade_definition_data.gd" id="1"]
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
+[ext_resource type="Script" path="res://src/core/data/stat_modifier_data.gd" id="3"]
+
+[sub_resource type="Resource" id="cost_curve"]
+script = ExtResource("2")
+kind = 3
+base = 10.0
+growth = 1.15
+
+[sub_resource type="Resource" id="mod_curve_0"]
+script = ExtResource("2")
+kind = 1
+base = 0.0
+scale = 1.0
+
+[sub_resource type="Resource" id="mod_0"]
+script = ExtResource("3")
+modifier_id = &"roster_count"
+target_domain = &"worker_roster_count"
+stat_key = &"simple_lumberjack"
+operation = 0
+curve = SubResource("mod_curve_0")
+
+[resource]
+script = ExtResource("1")
+id = &"hire_simple_lumberjack"
+loop_id = &"logging_camp"
+category = &"worker_roster_and_gear"
+target_entity_id = &"simple_lumberjack"
+cost_currency_id = &"coins"
+cost_curve = SubResource("cost_curve")
+act_level_caps = PackedInt32Array(14, 24, 34)
+max_level = 34
+initial_level = 1
+resets_on_breakthrough = true
+modifiers = Array[StatModifierData]([SubResource("mod_0")])

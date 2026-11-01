@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="UpgradeDefinitionData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/core/data/upgrade_definition_data.gd" id="1"]
+[ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
+[ext_resource type="Script" path="res://src/core/data/stat_modifier_data.gd" id="3"]
+
+[sub_resource type="Resource" id="cost_curve"]
+script = ExtResource("2")
+kind = 3
+base = 250.0
+growth = 3.3
+
+[sub_resource type="Resource" id="mod_curve_0"]
+script = ExtResource("2")
+kind = 3
+base = 1.0
+growth = 2.0
+
+[sub_resource type="Resource" id="mod_0"]
+script = ExtResource("3")
+modifier_id = &"gear_chop_mult"
+target_domain = &"worker_chop_power"
+stat_key = &"heavy_sawyer"
+operation = 2
+curve = SubResource("mod_curve_0")
+
+[resource]
+script = ExtResource("1")
+id = &"gear_heavy_sawyer"
+loop_id = &"logging_camp"
+category = &"worker_roster_and_gear"
+target_entity_id = &"heavy_sawyer"
+cost_currency_id = &"coins"
+cost_curve = SubResource("cost_curve")
+act_level_caps = PackedInt32Array(3, 5, 6)
+max_level = 6
+initial_level = 0
+resets_on_breakthrough = true
+modifiers = Array[StatModifierData]([SubResource("mod_0")])

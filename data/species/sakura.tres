@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SpeciesData" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="SpeciesData" load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://src/core/data/species_data.gd" id="1"]
 [ext_resource type="Script" path="res://src/core/data/formula_curve.gd" id="2"]
@@ -11,13 +11,45 @@ script = ExtResource("2")
 kind = 0
 base = 726.0
 
+[sub_resource type="Resource" id="spawn_weight"]
+script = ExtResource("2")
+kind = 7
+expression = "100.0 * pow(1.35, max(0.0, x - 1.0))"
+base = 100.0
+scale = 1.35
+
+[sub_resource type="Resource" id="max_qty"]
+script = ExtResource("2")
+kind = 1
+base = 2.0
+scale = 1.5
+rounding = 1
+
+[sub_resource type="Resource" id="prop_cost"]
+script = ExtResource("2")
+kind = 3
+base = 726.0
+growth = 1.65
+
 [resource]
 script = ExtResource("1")
 id = &"sakura"
 tier = 3
-biome = &"blossom_vale"
+act_index = 2
+biome = &"blossom_boreal"
+base_hp = 120.0
+bark_hardness = 2
+base_coin_value = 12.0
+trunk_clearance_radius = 14.0
 base_chop_time_s = 7.4478
 score_weight = 6.859
+synergy_id = &"cherry_petal_rain"
+synergy_proc_chance = 0.15
+synergy_duration_s = 8.0
+synergy_magnitude = 0.35
+spawn_weight_curve = SubResource("spawn_weight")
+max_quantity_curve = SubResource("max_qty")
+prop_cost_curve = SubResource("prop_cost")
 unlock_cost = SubResource("unlock")
 hire_cost = ExtResource("3")
 tool_cost = ExtResource("4")
