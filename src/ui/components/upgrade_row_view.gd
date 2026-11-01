@@ -146,15 +146,50 @@ func _format_effect_preview() -> String:
 		return ""
 	var next_lv: int = maxi(1, current_level)
 	var val: float = mod.evaluate(next_lv)
+	var label: String = _short_domain(mod.target_domain)
 	match mod.operation:
 		StatModifierData.Operation.ADD:
-			return "+%s %s" % [NumberFormatter.format(val), String(mod.target_domain).replace("_", " ")]
+			return "+%s %s" % [NumberFormatter.format(val), label]
 		StatModifierData.Operation.MUL_ADD:
-			return "+%d%% %s" % [int(round(val * 100.0)), String(mod.target_domain).replace("_", " ")]
+			return "+%d%% %s" % [int(round(val * 100.0)), label]
 		StatModifierData.Operation.MUL_COMPOUND:
-			return "x%.2f %s" % [val, String(mod.target_domain).replace("_", " ")]
+			return "x%.2f %s" % [val, label]
 		_:
-			return String(mod.target_domain)
+			return label
+
+
+func _short_domain(domain: StringName) -> String:
+	match domain:
+		&"species_spawn_weight":
+			return "spawn weight"
+		&"species_max_quantity":
+			return "max trees"
+		&"worker_roster_count":
+			return "crew count"
+		&"worker_chop_power":
+			return "chop power"
+		&"worker_attack_rate":
+			return "swing speed"
+		&"worker_move_speed":
+			return "move speed"
+		&"worker_crit_chance":
+			return "crit chance"
+		&"worker_crit_damage":
+			return "crit damage"
+		&"species_coin_value":
+			return "tree value"
+		&"global_coin_multiplier":
+			return "all coin value"
+		&"sawmill_work_speed":
+			return "mill speed"
+		&"sawmill_max_workers":
+			return "mill capacity"
+		&"kiln_cycle_speed":
+			return "kiln speed"
+		&"global_work_speed":
+			return "global speed"
+		_:
+			return String(domain).replace("_", " ")
 
 
 func _short_currency(cid: StringName) -> String:

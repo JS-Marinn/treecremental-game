@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://src/ui/components/upgrade_row_view.gd" id="2"]
 
 [node name="UpgradeRowTemplate" type="PanelContainer"]
-custom_minimum_size = Vector2(190, 44)
+custom_minimum_size = Vector2(184, 42)
 theme = ExtResource("1")
 script = ExtResource("2")
 

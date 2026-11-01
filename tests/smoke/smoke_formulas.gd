@@ -211,6 +211,10 @@ func _test_milestone_2_ui() -> void:
 		and top_bar != null and top_bar.custom_minimum_size == Vector2(432, 28)
 		and clearing_vp != null and clearing_vp.custom_minimum_size == Vector2(432, 332)
 		and right_dock != null and right_dock.custom_minimum_size == Vector2(208, 360))
+	var main_split: Control = main_screen.get_node_or_null("MainSplit") as Control
+	var split_min: Vector2 = main_split.get_combined_minimum_size() if main_split != null else Vector2.ZERO
+	_check("MainSplit combined minimum size fits strictly within 640x360",
+		split_min.x <= 640.0 and split_min.y <= 360.0, str(split_min))
 
 	main_screen.select_tab(MainScreen.DockTab.TREES)
 	var trees_count: int = main_screen.get_visible_upgrade_ids().size()
