@@ -22,6 +22,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 EventBus="*res://src/core/event_bus.gd"
+StatAggregator="*res://src/core/stat_aggregator.gd"
 Balance="*res://src/core/balance.gd"
 
 [display]

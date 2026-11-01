@@ -9,8 +9,11 @@ signal resource_spent(resource_id: StringName, amount: float, sink_id: StringNam
 signal resource_total_changed(resource_id: StringName, new_total: float)
 
 signal species_unlocked(species_id: StringName)
-signal worker_hired(species_id: StringName, new_count: int)
+signal worker_hired(worker_id: StringName, new_count: int)
+signal worker_assigned(worker_id: StringName, loop_id: StringName, target_id: StringName, assigned_count: int)
 signal upgrade_purchased(upgrade_id: StringName, new_level: int)
+signal stat_invalidated(domain: StringName, stat_key: StringName)
+signal synergy_triggered(species_id: StringName, synergy_id: StringName, duration_s: float)
 signal breakthrough_reached(act_index: int)
 signal prestige_performed(sap_gained: float, sap_total: float)
 
