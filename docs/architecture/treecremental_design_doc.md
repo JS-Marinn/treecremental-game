@@ -80,9 +80,9 @@ All **3 worker types can chop all 9 tree species** in the main clearing, but eac
 
 ---
 
-### 2.3 Editable Godot `.tscn` UI Groundwork Specification (Division of Labor)
+### 2.3 Editable Godot `.tscn` UI & `TileMapLayer` Groundwork Specification (Division of Labor)
 
-When development begins, the AI will provide a clean, **human-editable Godot `.tscn` Control groundwork** using the right-hand docked layout so you can visually customize, resize, and skin all containers in the Godot 2D Editor:
+When development begins, the AI will provide a clean, **human-editable Godot `.tscn` groundwork** using the right-hand docked layout and native Godot 4.7 `TileMapLayer` nodes so you can visually paint terrain, customize UI containers, and swap sprites in the Godot 2D Editor:
 
 ```text
 MainScreen (Control - Full Rect 640x360) [scenes/ui/main_screen.tscn]
@@ -94,7 +94,11 @@ MainScreen (Control - Full Rect 640x360) [scenes/ui/main_screen.tscn]
 |   |   +-- CompoundViewportContainer (SubViewportContainer - size = 432x332, stretch = true)
 |   |       +-- CompoundViewport (SubViewport - size = 432x332, snap_2d_transforms_to_pixel = true)
 |   |           +-- LoggingCompoundWorld (Node2D - y_sort_enabled = true)
-|   |               +-- %PlotManager, %WorkerManager, %SawmillKilnCorner, %FloatingTextLayer
+|   |               +-- %GroundBaseLayer (TileMapLayer - 16x16 grass/soil base, z_index = -2)
+|   |               +-- %TerrainDetailLayer (TileMapLayer - 3x3 minimal autotile dirt trails/edges, z_index = -1)
+|   |               +-- %PerimeterTreelineLayer (TileMapLayer - Y-sorted outer forest border)
+|   |               +-- %TreeSpawnZone (Polygon2D / Area2D - editable free-space spawn region)
+|   |               +-- %TreeSpawner, %WorkerManager, %SawmillKilnCorner, %FloatingTextLayer
 |   +-- RightDockedHUD (PanelContainer - custom_minimum_size = Vector2(208, 360))
 |       +-- DockMargin (MarginContainer)
 |           +-- DockVBox (VBoxContainer)
@@ -108,12 +112,12 @@ MainScreen (Control - Full Rect 640x360) [scenes/ui/main_screen.tscn]
 
 ---
 
-## 3. Core Gameplay Systems & Hyper-Modular Architecture
+## 3. Core Gameplay Systems, Grid-Free Tree Spawning & Hyper-Modular Architecture
 
 ```mermaid
 flowchart TD
   subgraph Loop 1: Main Logging Clearing - Single Currency: Coins
-    PROP[Species Propagation Upgrades: Spawn Chance W_i & Max Quantity Q_i] -->|Spawns Trees on Plots| PLOTS[Active Clearing Plots: 9 Species + Maturity Ranks]
+    PROP[Species Propagation Upgrades: Spawn Chance W_i & Max Quantity Q_i] -->|Poisson-Disc Free-Space Roll| PLOTS[Organic Map Spawning: 9 Species + Separation Radius r_i]
     CREW[3 Worker Types: Simple Lumberjacks, Heavy Sawyers, Swift Cleavers] -->|All 3 Chop All Trees| PLOTS
     PLOTS -->|Generates Money Directly| COINS[Main Currency: Coins]
     PLOTS -->|9 Unique Species Synergies e.g. Sakura Petal Rain| CREW
@@ -146,10 +150,24 @@ flowchart TD
    - Every log of species $i$ chopped in the main clearing immediately awards more **`coins`**.
 3. **Processed Logs Upgrade Loop**:
    - **Processed Logs (`processed_logs`)** accumulated in the Sawmill are spent exclusively on Sawmill upgrades to increase:
-     1. **The Quantity of Simple Lumberjacks Sent to Work** in the Sawmill (`mill_station_<species>` slot caps and `mill_crew_quarters` global allocation cap), and
+     1. **The Quantity of Simple Lumberjacks Sent to Work** in the Sawmill (`mill_<species>` slot caps and `mill_crew_quarters` global allocation cap), and
      2. **Their Working Speed & Value-Gain Rate** (`mill_undershot_wheel`, `mill_kerf_thinning`, `mill_gang_saw`, etc.).
 
-### 3.2 Hyper-Modular Composable Architecture (Strict Zero-Refactor Design Guarantee)
+### 3.2 `TileMapLayer` Terrain & Grid-Free Continuous Random Tree Spawning (Poisson-Disc Separation)
+1. **Zero Grid-Locked Plots**: Trees do **not** spawn on fixed grid cells or rigid dirt squares. Instead, they emerge organically at **continuous random $(x, y)$ coordinates** (`Vector2` snapped to integer pixels) across the entire walkable clearing of Loop 1.
+2. **Godot 4.7 `TileMapLayer` & `TileSet` Custom Data Mask**:
+   - The Loop 1 map uses modular Godot 4.7 `TileMapLayer` nodes (`%GroundBaseLayer`, `%TerrainDetailLayer`, `%PerimeterTreelineLayer`) sharing `res://assets/tilesets/clearing_tileset.tres` (`16x16 px` tiles with 3x3 minimal terrain autotiling for dirt paths, grass transitions, and water edges).
+   - The `TileSet` defines a boolean Custom Data Layer `can_spawn_tree` (`true` on open forest floor/grass tiles; `false` on the central campfire, water stream, Sawmill/Kiln corner, and outer border wall). You can freely paint or reshape the clearing in the Godot Editor and the spawner automatically respects your painted tiles.
+3. **Poisson-Disc Minimum Separation Radius ($r_{\text{min}}$)**:
+   - Each tree species defines a `trunk_clearance_radius` ($r_i$, e.g., $14\text{ px}$ for Pine/Birch, $20\text{ px}$ for Oak/Maple, $28\text{ px}$ for Baobab/Sequoia) in its `SpeciesData` `.tres` resource.
+   - When the clearing is below its total canopy capacity ($N_{\text{current}} < N_{\text{max}}$, expandable from $12$ to $32$ via `camp_plot_expansion`), the spawner:
+     1. Rolls species $i$ using its upgraded **Spawn Probability Weight ($W_i$)** among all species currently below their **Max Concurrent Quantity Cap ($Q_i$)**:
+        $$P(\text{spawn } i) = \frac{W_i(L_i)}{\sum_{k \text{ where } c_k < Q_k(L_k)} W_k(L_k)}$$
+     2. Samples a candidate point $\mathbf{p} = (x, y)$ on `can_spawn_tree == true` tiles that satisfies the **Minimum Separation Condition** against every active tree $j$ on the map:
+        $$\|\mathbf{p} - \mathbf{p}_j\| \ge r_i + r_j \quad \forall j$$
+   - This guarantees an organic, non-overlapping forest layout with enough clearance around every trunk for all 3 worker types to approach and chop cleanly.
+
+### 3.3 Hyper-Modular Composable Architecture (Strict Zero-Refactor Design Guarantee)
 To ensure that any future design adjustment (such as adding/removing a worker type, changing which loops a worker can enter, altering currencies, or reworking an upgrade's effect) never breaks existing code or requires refactoring:
 
 1. **Data-Driven Entity Schemas (`src/core/data/`)**:

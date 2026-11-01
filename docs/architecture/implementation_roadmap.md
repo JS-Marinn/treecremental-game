@@ -54,12 +54,13 @@ flowchart LR
 
 ---
 
-## Milestone 3: Loop 1 -- 3/4 Logging Clearing, Dynamic Tree Propagation & 3 Worker Types
+## Milestone 3: Loop 1 -- 3/4 Logging Clearing, `TileMapLayer` Terrain, Poisson-Disc Random Spawning & 3 Worker Types
 
-**Goal**: Bring the 3/4 top-down clearing (`432x332 px`, `y_sort_enabled = true`) to life with dynamic plot spawning, Old-Growth maturity scaling, 9 species synergies, and the 3 autonomous worker types.
+**Goal**: Bring the 3/4 top-down clearing (`432x332 px`, `y_sort_enabled = true`) to life with a modular Godot 4.7 `TileMapLayer` stack, grid-free continuous random tree spawning with minimum separation radius, Old-Growth maturity scaling, 9 species synergies, and the 3 autonomous worker types.
 
-1. **Step 3.1 -- Plot Manager & Weighted Spawn Ecology (`LoggingCampModule`)**:
-   - Implement dirt growth plots ($12 \rightarrow 32$ plots via `camp_plot_expansion`) and the weighted plot spawn roll driven by `prop_<species>` Spawn Probability Weight ($W_i$) and Max Concurrent Quantity Cap ($Q_i$).
+1. **Step 3.1 -- `TileMapLayer` Terrain Stack & Grid-Free Poisson-Disc Tree Spawner (`LoggingCampModule`)**:
+   - Set up the 3-layer `TileMapLayer` stack (`%GroundBaseLayer`, `%TerrainDetailLayer` with 3x3 minimal terrain autotiling, and Y-sorted `%PerimeterTreelineLayer`) sharing `res://assets/tilesets/clearing_tileset.tres` (`16x16 px` tiles) with a boolean Custom Data Layer `can_spawn_tree`.
+   - Implement the **Grid-Free Continuous Random Tree Spawner** (Poisson-disc / radius-rejection sampling): trees never spawn on fixed grid plots; instead, they spawn at random pixel-snapped `Vector2(x, y)` coordinates across `can_spawn_tree == true` tiles while enforcing a minimum separation distance $\|\mathbf{p} - \mathbf{p}_j\| \ge r_i + r_j$ (`trunk_clearance_radius` in `SpeciesData`) and rolling species via `prop_<species>` Spawn Probability Weight ($W_i$) and Max Concurrent Quantity Cap ($Q_i$).
 2. **Step 3.2 -- Tree Durability (HP), Bark Hardness & Old-Growth Maturity Ranks**:
    - Implement tree instances with overhead world-space HP bars, Old-Growth Maturity Ranks ($m \in \{0..4\}$, scaling HP by $4.0^m$ and Coin Yield by $4.2^m$ to clamp fell time to $2.5\text{ s}$--$8.0\text{ s}$), Chip Yield ($30\%$) with floating `+$COINS` popups, and Timberfall Jackpot ($70\%$).
 3. **Step 3.3 -- The 3 Autonomous Worker Archetypes**:
