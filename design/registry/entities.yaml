@@ -1,16 +1,16 @@
-# Treecremental -- Game World & Systems Entity Registry
+# Treecremental -- Game World & Systems Entity Registry (v0.5)
 # Single source of truth for all named identifiers across design docs, data files, and code.
 
-schema_version: 1
-revised: 2026-10-30
+schema_version: 2
+revised: 2026-10-31
 
 acts:
   - id: act_1
     name_key: KEY_ACT_1_NAME
     biome: meadow
     trees: [pine, birch, oak]
-    worker_cap: 30
-    tool_cap: 3
+    prop_cap: 4
+    gear_cap: 3
     sawmill_cap: 4
     breakthrough_gate_species: oak
     breakthrough_gate_logs: 247000
@@ -18,8 +18,8 @@ acts:
     name_key: KEY_ACT_2_NAME
     biome: blossom_boreal
     trees: [sakura, canadian_maple, fir]
-    worker_cap: 50
-    tool_cap: 5
+    prop_cap: 7
+    gear_cap: 5
     sawmill_cap: 7
     breakthrough_gate_species: fir
     breakthrough_gate_logs: 7160000
@@ -27,22 +27,28 @@ acts:
     name_key: KEY_ACT_3_NAME
     biome: ancient_grove
     trees: [baobab, socotra_dragon_tree, giant_sequoia]
-    worker_cap: 70
-    tool_cap: 6
+    prop_cap: 10
+    gear_cap: 6
     sawmill_cap: 10
     breakthrough_gate_species: giant_sequoia
     breakthrough_gate_logs: 46200000
 
+worker_types:
+  - { id: axemen, role: front_line_chopper, footprint_px: "16x16", act_caps: [12, 20, 28] }
+  - { id: sawyers, role: heavy_armor_piercer, footprint_px: "20x16", act_caps: [6, 12, 18] }
+  - { id: haulers, role: skid_team_logistics, footprint_px: "24x16", act_caps: [4, 8, 12] }
+  - { id: artisans, role: mill_and_kiln_operator, footprint_px: "16x16", act_caps: [4, 8, 12] }
+
 species:
-  - { id: pine, tier: 0, act: 1, biome: meadow, base_chop_s: 2.0, unlock_cost_prev_logs: 0, score_weight: 1.00 }
-  - { id: birch, tier: 1, act: 1, biome: meadow, base_chop_s: 3.1, unlock_cost_prev_logs: 150, score_weight: 1.90 }
-  - { id: oak, tier: 2, act: 1, biome: meadow, base_chop_s: 4.8, unlock_cost_prev_logs: 330, score_weight: 3.61 }
-  - { id: sakura, tier: 3, act: 2, biome: blossom_vale, base_chop_s: 7.4, unlock_cost_prev_logs: 726, score_weight: 6.86 }
-  - { id: canadian_maple, tier: 4, act: 2, biome: blossom_vale, base_chop_s: 11.5, unlock_cost_prev_logs: 1597, score_weight: 13.03 }
-  - { id: fir, tier: 5, act: 2, biome: boreal, base_chop_s: 17.9, unlock_cost_prev_logs: 3514, score_weight: 24.76 }
-  - { id: baobab, tier: 6, act: 3, biome: savanna, base_chop_s: 27.7, unlock_cost_prev_logs: 7730, score_weight: 47.05 }
-  - { id: socotra_dragon_tree, tier: 7, act: 3, biome: desert, base_chop_s: 43.0, unlock_cost_prev_logs: 17007, score_weight: 89.39 }
-  - { id: giant_sequoia, tier: 8, act: 3, biome: ancient_grove, base_chop_s: 66.6, unlock_cost_prev_logs: 37415, score_weight: 169.84 }
+  - { id: pine, tier: 0, act: 1, base_hp: 20, bark_hardness: 0, score_weight: 1.00, synergy_id: pitch_sap_splatter }
+  - { id: birch, tier: 1, act: 1, base_hp: 35, bark_hardness: 1, score_weight: 1.90, synergy_id: silver_bark_kindling }
+  - { id: oak, tier: 2, act: 1, base_hp: 65, bark_hardness: 2, score_weight: 3.61, synergy_id: acorn_mast_shower }
+  - { id: sakura, tier: 3, act: 2, base_hp: 120, bark_hardness: 2, score_weight: 6.86, synergy_id: cherry_petal_rain }
+  - { id: canadian_maple, tier: 4, act: 2, base_hp: 220, bark_hardness: 3, score_weight: 13.03, synergy_id: sugarbush_sap_flow }
+  - { id: fir, tier: 5, act: 2, base_hp: 400, bark_hardness: 4, score_weight: 24.76, synergy_id: boreal_frost_shatter }
+  - { id: baobab, tier: 6, act: 3, base_hp: 750, bark_hardness: 4, score_weight: 47.05, synergy_id: monsoon_reservoir_surge }
+  - { id: socotra_dragon_tree, tier: 7, act: 3, base_hp: 1400, bark_hardness: 5, score_weight: 89.39, synergy_id: cinnabar_dragons_blood }
+  - { id: giant_sequoia, tier: 8, act: 3, base_hp: 2800, bark_hardness: 6, score_weight: 169.84, synergy_id: seismic_timberfall }
 
 currencies:
   - { id: logs_<species>, scope: per_species, resets_on_breakthrough: true, source: logging_camp }
@@ -62,39 +68,39 @@ gameplay_loops:
   - { id: heartwood_ascension, role: prestige_layer, resets_on_breakthrough: false }
 
 upgrades:
-  logging_per_species_hire:
-    - hire_pine
-    - hire_birch
-    - hire_oak
-    - hire_sakura
-    - hire_canadian_maple
-    - hire_fir
-    - hire_baobab
-    - hire_socotra_dragon_tree
-    - hire_giant_sequoia
-  logging_per_species_tool:
-    - tool_pine
-    - tool_birch
-    - tool_oak
-    - tool_sakura
-    - tool_canadian_maple
-    - tool_fir
-    - tool_baobab
-    - tool_socotra_dragon_tree
-    - tool_giant_sequoia
-  logging_global:
-    - log_whetstone_bench
-    - log_hickory_hafts
-    - log_felling_wedges
-    - log_skid_road
-    - log_oxen_team
-    - log_cant_hooks
-    - log_silk_cordage
-    - log_sap_lubrication
-    - log_highland_crampons
-    - log_block_and_tackle
-    - log_crimson_varnish
-    - log_skyline_yarder
+  species_propagation:
+    - prop_pine
+    - prop_birch
+    - prop_oak
+    - prop_sakura
+    - prop_canadian_maple
+    - prop_fir
+    - prop_baobab
+    - prop_socotra_dragon_tree
+    - prop_giant_sequoia
+  worker_roster_and_gear:
+    - hire_axemen
+    - hire_sawyers
+    - hire_haulers
+    - hire_artisans
+    - gear_axemen
+    - gear_sawyers
+    - gear_haulers
+    - gear_artisans
+  compound_and_synergy:
+    - camp_plot_expansion
+    - camp_old_growth_stewardship
+    - camp_synergy_resonator
+    - camp_whetstone_bench
+    - camp_hickory_hafts
+    - camp_felling_wedges
+    - camp_skid_road
+    - camp_kerf_softening
+    - camp_silk_cordage
+    - camp_sap_lubrication
+    - camp_highland_crampons
+    - camp_crimson_varnish
+    - camp_skyline_yarder
   sawmill_per_species:
     - mill_pine
     - mill_birch

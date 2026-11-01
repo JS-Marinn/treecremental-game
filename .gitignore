@@ -5,9 +5,17 @@ export.cfg
 export_credentials.cfg
 *.translation
 /android/
+
 # Python tooling
 __pycache__/
 tools/balance_sim/search_out.txt
+
 # Local / session
 production/session-state/
 *.local.*
+
+# AI-Assisted Testing & Autopilot-Godot Isolation (Never commit)
+addons/autopilot/
+.autopilot/
+tests/autopilot/
+override.cfg

@@ -1,4 +1,4 @@
-# Treecremental — Master Architecture, UI Mockups & Unabridged Upgrade Specification (v0.4)
+# Treecremental — Master Architecture, UI Mockups & Unabridged Upgrade Specification (v0.5)
 
 > [!NOTE]
 > **Project Status:** Planning Stage Only (Development Paused).
@@ -8,226 +8,230 @@
 
 ---
 
-## 1. Executive Summary of v0.4 Architecture & Design Refinements
+## 1. Executive Summary of v0.5 Architecture & Design Refinements
 
-| Design Pillar | v0.4 Specification | Engineering & Design Rationale |
+| Design Pillar | v0.5 Specification | Engineering & Design Rationale |
 |---|---|---|
-| **Camera & Spatial Layout** | **Oblique 3/4 Top-Down Clearing + Perimeter HUD** | Modeled on the user's reference layout (`reference_camera_and_hud_layout.jpg` — strictly for camera angle and HUD placement, **not** art style). The forest clearing fills 100% of the `640x360` viewport (`y_sort_enabled = true`) with a central campfire hub, radial tree clusters, roaming lumberjacks, floating `+LOGS` popups, and a minimalist perimeter HUD with toggleable modal overlays. |
-| **Editable UI Groundwork** | **Modular Godot `.tscn` Control Wireframes** | During future development, the AI will not build heavy, rigid UIs from scratch. Instead, it will deliver clean, human-editable Godot `.tscn` mockup scenes (`MarginContainer`, `VBoxContainer`, `HBoxContainer`, `PanelContainer`, `%UniqueNodeNames`) so you can visually rearrange, resize, and skin the UI directly inside the Godot 2D Editor. |
-| **Session Model (Zero Offline)** | **100% Active / In-Session Play** | Because the game is a tight 3-to-4-hour experience, all offline progression (`offline_step`, away-from-keyboard catchup, and offline bird buffs) has been eliminated. Every upgrade rewards active session play. |
-| **Loop Architecture** | **5 Loops + Heartwood Prestige** | **Loop 1:** Logging Camp (Primary). **Loop 2:** Water-Powered Sawmill (Secondary A). **Loop 3:** Brick Charcoal Kilns & Boiler (Secondary B). **Loop 4:** Canopy Aviary (Tertiary Isolated A). **Loop 5:** Mycelium Root Network (Tertiary Isolated B — replaces the derivative slot-machine / generic bonsai concepts). |
-| **Unabridged Upgrade Catalog** | **87 Upgrade Tracks (552 Levels)** | Every single upgrade in the game is itemized below with its canonical ID, max level, currency, cost scaling formula, and exact per-level mechanical effect. No summaries or placeholders. |
-| **Duration & Purchase Pacing** | **~2.90h Campaign / ~4.0h 100%** | Purchasing 552 upgrade levels across 180 minutes yields an average cadence of ~3.0 meaningful upgrade purchases per minute (~1 every 15–20s during Climb phases, ~1 every 45–60s during Plateau phases). |
-| **Repository Navigation** | **CCGS File-Backed Handoff System** | Built on the *Claude-Code-Game-Studios* foundation (`CLAUDE.md`, `project.yaml`, `docs/NAVIGATION.md`, `production/session-state/active.md`, `design/registry/entities.yaml`, and `.claude/rules/`). |
-| **Code & Doc Hygiene** | **Strict ASCII, Zero AI Artifacts** | Emojis, decorative Unicode symbols, and conversational AI comments are prohibited across all scripts, data files, and documentation. |
+| **Right-Hand Docked HUD & 3/4 Compound** | **Left 3/4 World (`432x360`) + Right UI Dock (`208x360`)** | The forest does not occupy 100% of the screen. The left ~68% displays the 3/4 top-down Logging Compound (divided into Timber Plots, Central Stockpile, and the Millrace/Kiln Yard) beneath a `28 px` top resource bar, while the right ~32% houses a permanently docked Command Panel so players see immediate in-world feedback as they buy upgrades. |
+| **Tree Progression via Spawn Chance & Quantity** | **Zero Direct Shop Unlocks (`prop_<species>`)** | New tree species are **never** bought as static items in a shop. Instead, players level up **Species Propagation Upgrades** that unlock and increase each species' **Spawn Probability Weight ($W_i$)** and **Maximum Concurrent Quantity ($Q_i$)** across the clearing's active growth plots. |
+| **Strict 4-Worker-Type Scope** | **Axemen, Sawyers, Haulers & Artisans** | Limited strictly to **4 visually and mechanically distinct worker types**: **1. Axemen** (fast choppers), **2. Sawyers** (heavy armor-piercing saws), **3. Haulers** (skid-team logistics carriers), and **4. Artisans** (Sawmill & Kiln operatives in the compound's Millrace corner). |
+| **Durability vs. Yield & Tree Synergies** | **Old-Growth Maturity Ranks + 9 Species Events** | Trees scale in **Maturity Ranks ($m \in \{0..4\}$)** ($4.0^m$ HP vs. $4.2^m$ Log Yield) and **Bark Hardness** so late-game workers never 1-frame insta-chop trees (clamping fell time to $2.5\text{ s}$–$8.0\text{ s}$). Each of the 9 species also triggers a unique ecological synergy (e.g., Sakura's *Cherry Petal Rain*). |
+| **Editable UI Groundwork** | **Modular Godot `.tscn` Control Wireframes** | During future development, the AI will deliver clean, human-editable Godot `.tscn` mockup scenes (`HBoxContainer`, `MarginContainer`, `VBoxContainer`, `PanelContainer`, `%UniqueNodeNames`) so you can visually rearrange and skin the UI inside the Godot 2D Editor. |
+| **Session Model (Zero Offline)** | **100% Active / In-Session Play** | All offline progression (`offline_step`, away-from-keyboard catchup, and offline bird buffs) is eliminated. Every upgrade rewards active session play across the 3-to-4-hour run. |
+| **Testing & Git Hygiene** | **Zero-Trace `Autopilot-Godot` Isolation** | Automated playtesting via `C:\Users\MrSeb\Downloads\Autopilot-Godot` is isolated through `.gitignore`, directory junctions, `override.cfg`, and `project.godot` sanitization so zero AI test scripts or plugin entries ever enter Git history. |
 
 ---
 
-## 2. Camera Reference, Interface Visuals & Editable Godot UI Groundwork
+## 2. Right-Hand Docked UI Layout, Visual Mockups & Editable Godot Groundwork
 
 > [!IMPORTANT]
-> **Reference Image Usage Rule:** The first slide below (`reference_camera_and_hud_layout.jpg`) is used **strictly as the reference for the 3/4 top-down camera angle, central forest clearing composition, roaming worker behavior, and minimalist perimeter HUD placement**—**NOT** for art style. Our in-game art style follows our crisp `640x360` Aseprite pixel-art direction shown in the subsequent mockups.
+> **Reference Image Usage Rule:** `reference_camera_and_hud_layout.jpg` is used **strictly as a camera-angle reference for the 3/4 top-down clearing perspective and roaming workers**—**NOT** for the HUD layout or art style. The HUD is **right-hand docked**, and the 3/4 world includes distinct compound zones and 4 worker types.
 
 ````carousel
-![Camera Angle, Spatial Clearing & Minimalist Perimeter HUD Reference (Layout Only — Not Art Style)](C:/Users/MrSeb/.gemini/antigravity/brain/74c80f91-f186-4615-95a3-04405ab56525/reference_camera_and_hud_layout.jpg)
+![Finalized v0.5 Right-Hand Docked UI, 3/4 Compound Zones, 4 Worker Types & Tree Propagation Mockup](C:/Users/MrSeb/.gemini/antigravity/brain/74c80f91-f186-4615-95a3-04405ab56525/mockup_gameplay_v05_final_1793499653845.jpg)
 <!-- slide -->
-![Treecremental Pixel-Art 3/4 Top-Down Logging Camp Clearing & Perimeter HUD Mockup](C:/Users/MrSeb/.gemini/antigravity/brain/74c80f91-f186-4615-95a3-04405ab56525/logging_camp_pixel_art_mockup_1793417590016.jpg)
+![Camera Angle Reference Only (3/4 Top-Down Perspective — Not HUD Layout or Art Style)](C:/Users/MrSeb/.gemini/antigravity/brain/74c80f91-f186-4615-95a3-04405ab56525/reference_camera_and_hud_layout.jpg)
 <!-- slide -->
-![Toggleable Overlay Modal: Secondary and Tertiary Loops Split-View Panel Mockup](C:/Users/MrSeb/.gemini/antigravity/brain/74c80f91-f186-4615-95a3-04405ab56525/mockup_subloops_panel_1793416826036.jpg)
+![Secondary and Tertiary Loops Split-View Panel Mockup](C:/Users/MrSeb/.gemini/antigravity/brain/74c80f91-f186-4615-95a3-04405ab56525/mockup_subloops_panel_1793416826036.jpg)
 <!-- slide -->
-![Toggleable Overlay Modal: Heartwood Ascension Prestige Constellation Mockup](C:/Users/MrSeb/.gemini/antigravity/brain/74c80f91-f186-4615-95a3-04405ab56525/mockup_prestige_tree_1793416850736.jpg)
+![Heartwood Ascension Prestige Constellation Mockup](C:/Users/MrSeb/.gemini/antigravity/brain/74c80f91-f186-4615-95a3-04405ab56525/mockup_prestige_tree_1793416850736.jpg)
 <!-- slide -->
-![Toggleable Overlay Modal: System Settings, Accessibility and Localization Mockup](C:/Users/MrSeb/.gemini/antigravity/brain/74c80f91-f186-4615-95a3-04405ab56525/mockup_settings_i18n_1793416878264.jpg)
+![System Settings, Accessibility and Localization Modal Mockup](C:/Users/MrSeb/.gemini/antigravity/brain/74c80f91-f186-4615-95a3-04405ab56525/mockup_settings_i18n_1793416878264.jpg)
 ````
 
-### 2.1 3/4 Top-Down Clearing & Minimalist Perimeter HUD Layout (640x360 Base)
-
-Unlike a split-screen layout with a permanently docked side panel, the primary gameplay viewport is an **oblique 3/4 top-down forest arena** occupying 100% of the `640x360` screen, framed by a dense treeline border and a lightweight perimeter HUD:
+### 2.1 Right-Hand Docked HUD & 3/4 Compound Split Specification (640x360 Base)
 
 ```text
-+----------------------------------------------------------------------------------+
-| (O) 10,277,711              LOGGING CAMP - ACT I              [ACHIEVEMENTS] [=] |
-|     181.9K/S             [=========>          ] 48%                              |
-| [ UPGRADES        ]                                                              |
-| [ SAWMILL & KILNS ]       /\  /\                         / \   / \               |
-| [ AVIARY & ROOTS  ]      /  \/  \   +25 LOGS            |   | |   |              |
-| [ PRESTIGE        ]      |  ||  |   [====  ]            \ /   \ /               |
-|                          [W][W]       /\                  |     |                |
-|                                      /  \    (Campfire)   [W] [W]  +50 LOGS      |
-|       /~~~\  /~~~\                   |  |      [W]  (*)    Birch Grove           |
-|      (     )(     )                  [W]              [W]                        |
-|       \   /  \   /                Pine Stand                                     |
-|        | |    | |                                         /~~~\                  |
-|      +50 LOGS [W][W]                                     (     ) [===   ]        |
-|        Oak Stand                 /\  /\                   \   /  +25 LOGS        |
-|                                 /  \/  \                   | |   [W][W]          |
-|                                 |  ||  |                                         |
-|                                 /\ /\ /\ /\ /\ /\                                |
-|                            4.8M / SEC LOGGING RATE                               |
-|                         /\ /\ /\ /\ /\ /\ /\ /\ /\ /\                            |
-+----------------------------------------------------------------------------------+
++-----------------------------------------------------+----------------------------+
+| TOP RESOURCE & GATE STRIP (432x28 px)               | RIGHT-HAND DOCKED HUD      |
+| [Logs: 142.5K] [Planks: 19.2K] [Coal: 4.1K] [Sap:38]| (208x360 px)               |
+| Act I Gate: [====================>        ] 68%     | [Trees][Crew][Mill][Roots] |
++-----------------------------------------------------+----------------------------+
+| 3/4 TOP-DOWN LOGGING COMPOUND (432x332 px)          | Bulk Buy: [x1] [x10] [MAX] |
+|                                                     | +------------------------+ |
+|    /\  /\ (Pine)          / \ (Birch)    /~~~\      | | Birch Propagation Lv.4 | |
+|   /  \/  \ [==== ]       |   | [===  ]  (Sakura)    | | Spawn: 28% | Max: 6    | |
+|   |  ||  | +30 LOGS       \ /  +45 LOGS  \   /      | | [ BUY: 850 Pine Logs ] | |
+|   [Ax][Ax]                 |   *petal*    | |       | +------------------------+ |
+|                           [Ax]  *rain*   [Sw][Sw]   | | Oak Propagation   Lv.2 | |
+|      /~~~\ (Oak)                                    | | Spawn: 14% | Max: 3    | |
+|     (     ) [======]       [Hl] --> (Stockpile)     | | [ BUY: 2.4K Birch ]    | |
+|      \   /  (Hard Bark)    (Hauler carrying logs)   | +------------------------+ |
+|       | |   [Sw][Sw]                                | | Hire Sawyers   Lv.8/16 | |
+|                                                     | | Heavy Armor-Piercing   | |
+|  +------------------------+                         | | [ BUY: 1.9K Oak Logs ] | |
+|  | MILLRACE & KILN YARD   |    (Campfire &          | +------------------------+ |
+|  | [Waterwheel] [Kilns]   |     Spawn Trail)        | | Old-Growth Rank Lv.2/5 | |
+|  |   [Ar]        [Ar]     |                         | | Tree HP x4 / Yield x4.2| |
+|  +------------------------+                         | +------------------------+ |
+|  LOGGING RATE: 4.8M / SEC          [Achv] [Settings]| [Ascend: Heartwood Tree]   |
++-----------------------------------------------------+----------------------------+
 ```
 
-1. **Full-Viewport 3/4 Top-Down Clearing (`Node2D` World with `y_sort_enabled = true`)**:
-   - **Central Campfire & Spawn Hub**: Hired lumberjacks spawn around the central campfire clearing and autonomously pathfind outward along dirt trails to unlocked tree groves.
-   - **Radial Tree Groves**: Each unlocked tree species in the current Act spawns in distinct spatial clusters around the clearing (e.g., *Pine Stand* to the north-west/center, *Birch Grove* to the east, *Oak Stand* to the south-west), encircled by a dense outer forest boundary.
-   - **World-Space Feedback**: Active trees display compact overhead green health/chop-progress bars (`TextureProgressBar`), while each axe/saw strike spawns a rising pixel-art floating text label (`+25 LOGS`, `+50 LOGS`) with slight horizontal jitter.
-2. **Minimalist Perimeter HUD (`CanvasLayer` Overlay)**:
-   - **Top-Left Cluster**: Primary resource icon + total count (`10,277,711`), sub-label showing secondary/passive rate (`181.9K/S`), and vertically stacked quick-toggle buttons (`[UPGRADES]`, `[SAWMILL & KILNS]`, `[AVIARY & ROOTS]`, `[PRESTIGE]`).
-   - **Top-Center Header**: Zone title (`LOGGING CAMP`), current Act/Stage subtitle (`ACT I - TEMPERATE WOODS`), and a compact Breakthrough Gate progress bar.
-   - **Top-Right Cluster**: `[ACHIEVEMENTS]` button and `[SETTINGS]` button (`[=]`).
-   - **Bottom-Center Readout**: Large, high-contrast live throughput counter (`4.8M / SEC` over `LOGGING RATE`) centered above the bottom treeline.
-3. **Toggleable Overlay Modals (Closed by Default)**:
-   - Clicking `[UPGRADES]`, `[SAWMILL & KILNS]`, `[AVIARY & ROOTS]`, `[PRESTIGE]`, `[ACHIEVEMENTS]`, or `[SETTINGS]` opens a centered, toggleable modal window (`mockup_subloops_panel.jpg`, `mockup_prestige_tree.jpg`, `mockup_settings_i18n.jpg`) over the live clearing without leaving the main scene.
+1. **Left/Center Column (`432x360 px` — 67.5% Width)**:
+   - **Top Resource & Breakthrough Strip (`432x28 px`)**: Displays live formatted counts for Logs, Planks, Charcoal, Ash, and Sap alongside the current Act's Breakthrough Gate progress bar and active Synergy Buff icons (e.g., *Petal Rain 8s*).
+   - **3/4 Top-Down Compound Viewport (`432x332 px`, `y_sort_enabled = true`)**: Divided into three readable spatial zones so the world feels like a living operation rather than just uniform trees:
+     1. **Dynamic Forest Plots (Upper & Center-Right Arc)**: Up to 32 dirt growth plots where unlocked tree species dynamically spawn according to their upgraded **Spawn Probability Weight ($W_i$)** and **Max Concurrent Quantity Cap ($Q_i$)**.
+     2. **Central Skid Yard & Stockpile (Center)**: Where **Haulers (`[Hl]`)** deliver felled timber bundles from stumps to multiply batch log value.
+     3. **Millrace & Kiln Yard (Lower-Left Compound Corner)**: Visible in-world Water-Powered Sawmill wheel and smoking Brick Charcoal Kilns tended by **Artisans (`[Ar]`)**.
+2. **Right-Hand Docked Command Panel (`208x360 px` — 32.5% Width)**:
+   - Permanently docked on the right edge so purchasing an upgrade immediately shows new workers or higher tree spawn density in the compound on the left.
+   - Top navigation tabs switch the scrollable drawer between **`[Trees]`** (Species Spawn Chance & Quantity upgrades + Clearing/Maturity upgrades), **`[Crew]`** (the 4 Worker Types, Tool Tiers, and Masteries), **`[Mill]`** (Sawmill & Charcoal Kiln upgrades), and **`[Roots]`** (Canopy Aviary & Mycelium Root Network), with a footer button to open the **Heartwood Prestige Constellation** modal.
+3. **The 4 Visually Distinct Worker Types in the 3/4 Compound**:
+   - **`[Ax]` Axemen (`16x16 px`)**: Red flannel cap & axe swing arc; fast front-line choppers (`1.0x` move/swing speed) that excel at chipping standard bark and proccing critical/on-hit effects.
+   - **`[Sw]` Sawyers (`20x16 px`)**: Brown leather apron, wide-brim hat & heavy two-man/steam crosscut saw; slower walk (`0.75x`) but high *Armor Penetration* that shreds high-hardness trees (Oak, Maple, Fir, Sequoia).
+   - **`[Hl]` Haulers (`24x16 px`)**: Heavy timber backpack frame / ox-skid; patrol between felled stumps and the Central Stockpile without chopping, collecting dropped log bundles for a batch value multiplier.
+   - **`[Ar]` Artisans (`16x16 px`)**: Canvas vest, goggles & coal shovel; stationed in the **Millrace & Kiln Yard** corner, operating the Sawmill carriages and stoking the Charcoal Steam Boiler.
 
 ---
 
 ### 2.2 Editable Godot `.tscn` UI Groundwork Specification (Division of Labor)
 
-When the project transitions from planning into development, **the AI will not build over-engineered, rigidly styled UIs**. Instead, the AI will lay down a clean, **human-editable Godot `.tscn` UI groundwork** so you can open the scenes in the Godot 2D Editor and freely move, resize, restyle, and skin every element yourself.
+When development begins, the AI will provide a clean, **human-editable Godot `.tscn` Control groundwork** using the right-hand docked layout so you can visually customize, resize, and skin all containers in the Godot 2D Editor:
 
 ```text
-MainHUD (CanvasLayer) [scenes/ui/hud_main.tscn]
-+-- PerimeterHUD (MarginContainer - Full Rect, mouse_filter = IGNORE)
-|   +-- TopBar (HBoxContainer)
-|   |   +-- TopLeftCluster (VBoxContainer)
-|   |   |   +-- CurrencyBox (HBoxContainer) -> %PrimaryIcon, %PrimaryAmountLabel, %PassiveRateLabel
-|   |   |   +-- NavButtons (VBoxContainer)  -> %BtnUpgrades, %BtnSubLoops, %BtnTertiary, %BtnPrestige
-|   |   +-- TopCenterHeader (VBoxContainer - SizeFlags: Expand Fill, Align Center)
-|   |   |   +-- %ZoneTitleLabel ("KEY_HUD_LOGGING_CAMP")
-|   |   |   +-- %ActSubtitleLabel ("KEY_ACT_I_SUBTITLE")
-|   |   |   +-- %BreakthroughProgressBar (ProgressBar)
-|   |   +-- TopRightCluster (HBoxContainer) -> %BtnAchievements, %BtnSettings
-|   +-- BottomCenterFooter (VBoxContainer - Anchor: Bottom Wide, Align Center)
-|       +-- %LoggingRateValueLabel ("4.8M / SEC")
-|       +-- %LoggingRateTitleLabel ("KEY_HUD_LOGGING_RATE")
-+-- ModalLayer (Control - Full Rect, mouse_filter = IGNORE)
-    +-- %DimmerBackdrop (ColorRect - visible = false)
-    +-- %UpgradesModal (PanelContainer - visible = false, instance of scenes/ui/modals/modal_upgrades.tscn)
-    +-- %SubLoopsModal (PanelContainer - visible = false, instance of scenes/ui/modals/modal_subloops.tscn)
-    +-- %PrestigeModal (PanelContainer - visible = false, instance of scenes/ui/modals/modal_prestige.tscn)
-    +-- %AchievementsModal (PanelContainer - visible = false, instance of scenes/ui/modals/modal_achievements.tscn)
-    +-- %SettingsModal (PanelContainer - visible = false, instance of scenes/ui/modals/modal_settings.tscn)
+MainScreen (Control - Full Rect 640x360) [scenes/ui/main_screen.tscn]
++-- MainSplit (HBoxContainer - Full Rect, separation = 0)
+|   +-- LeftCompoundColumn (VBoxContainer - custom_minimum_size = Vector2(432, 360))
+|   |   +-- TopResourceBar (PanelContainer - custom_minimum_size = Vector2(432, 28))
+|   |   |   +-- ResourceRow (HBoxContainer) -> %LogsLabel, %PlanksLabel, %CharcoalLabel, %SapLabel
+|   |   |   +-- GateRow (HBoxContainer)     -> %ActTitleLabel, %BreakthroughProgressBar, %ActiveBuffsBox
+|   |   +-- CompoundViewportContainer (SubViewportContainer - size = 432x332, stretch = true)
+|   |       +-- CompoundViewport (SubViewport - size = 432x332, snap_2d_transforms_to_pixel = true)
+|   |           +-- LoggingCompoundWorld (Node2D - y_sort_enabled = true)
+|   |               +-- %PlotManager, %WorkerManager, %MillKilnYard, %FloatingTextLayer
+|   +-- RightDockedHUD (PanelContainer - custom_minimum_size = Vector2(208, 360))
+|       +-- DockMargin (MarginContainer)
+|           +-- DockVBox (VBoxContainer)
+|               +-- %LoopTabBar (TabBar: Trees | Crew | Mill | Roots)
+|               +-- %BulkBuyBar (HBoxContainer: %BtnBuy1, %BtnBuy10, %BtnBuyMax)
+|               +-- %UpgradeScroll (ScrollContainer - SizeFlags: Expand Fill)
+|               |   +-- %UpgradeListVBox (VBoxContainer -> instances of upgrade_row_template.tscn)
+|               +-- %DockFooter (HBoxContainer: %BtnOpenPrestige, %BtnOpenAchievements, %BtnOpenSettings)
++-- ModalOverlayLayer (CanvasLayer - for full-art Prestige Tree, Achievements & Settings modals)
 ```
-
-#### Rules Governing the Editable Godot UI Groundwork
-1. **Standard Godot `Control` Containers Only**: Every UI mockup scene will be built strictly out of native `MarginContainer`, `VBoxContainer`, `HBoxContainer`, `GridContainer`, `ScrollContainer`, `TabContainer`, and `PanelContainer` nodes—never hardcoded pixel coordinates inside scripts.
-2. **Decoupled `%UniqueNodeNames` Binding**: Scripts will reference UI controls exclusively via scene-unique names (`%PrimaryAmountLabel`, `%LoggingRateValueLabel`, `%BtnUpgrades`). This allows you to drag nodes into different containers or rearrange layouts in the Godot Editor without breaking a single line of GDScript.
-3. **Single Shared Theme Resource (`assets/ui/theme_default.tres`)**: All colors, 9-slice `StyleBoxTexture` boxes, and pixel fonts will live in one Godot `Theme` resource attached to the root `Control` node, allowing you to restyle the entire game UI in one place.
-4. **Reusable Upgrade Row Prefab (`scenes/ui/components/upgrade_row_template.tscn`)**: A single clean `.tscn` card template (`%Icon`, `%TitleLabel`, `%LevelPips`, `%EffectLabel`, `%BuyButton`) that you can visually style once in the Godot Editor and have automatically populated by the `.tres` upgrade data.
 
 ---
 
-## 3. Gameplay Loops & Replacement of the Derivative Third Loop
+## 3. Core Gameplay Mechanics: Tree Spawn Ecology, Durability Scaling & Loops
 
 ```mermaid
 flowchart TD
-  subgraph Primary & Secondary Loops: Timber & Thermal Chain
-    LOG[Loop 1: Logging Camp - 9 Tree Species] -->|Raw Logs| MILL[Loop 2: Water-Powered Sawmill]
-    LOG -->|Raw Logs| KILN[Loop 3: Brick Charcoal Kilns & Boiler]
-    MILL -->|Planks Gate Tool Tiers 4-6 & Boost Value| LOG
+  subgraph Loop 1: 3/4 Logging Compound
+    PROP[Species Propagation Upgrades: Spawn Chance W_i & Max Quantity Q_i] -->|Spawns Trees on Plots| PLOTS[Active Clearing Plots: 9 Species + Maturity Ranks]
+    CREW[4 Worker Types: Axemen, Sawyers, Haulers, Artisans] -->|Chop, Saw & Haul| PLOTS
+    PLOTS -->|9 Unique Species Synergies e.g. Sakura Petal Rain| CREW
+  end
+
+  subgraph Secondary Processing: Millrace & Kiln Yard
+    PLOTS -->|Raw Logs| MILL[Loop 2: Water-Powered Sawmill]
+    PLOTS -->|Raw Logs| KILN[Loop 3: Brick Charcoal Kilns & Boiler]
+    MILL -->|Planks Gate Gear Tiers 4-6 & Boost Value| CREW
     KILN -->|Boiler Thermal Overclock 1.5x-2.0x| MILL
-    KILN -->|Boiler Thermal Overclock 1.5x-2.0x| LOG
+    KILN -->|Boiler Thermal Overclock 1.5x-2.0x| CREW
     KILN -->|Potash Wood Ash| MYC[Loop 5: Mycelium Root Network]
   end
 
   subgraph Tertiary Isolated Loops: Separate-Plane Session Amplifiers
-    AVIARY[Loop 4: Canopy Aviary & Bird Sanctuary] -.->|Active Session Perch Buffs| LOG
-    AVIARY -.->|Saw Speed & Kiln Heat Buffs| MILL
-    MYC -.->|Root Symbiosis: Cost Scaling & Regrowth Echo| LOG
+    AVIARY[Loop 4: Canopy Aviary & Bird Sanctuary] -.->|Active Session Perch Buffs| CREW
+    MYC -.->|Root Symbiosis: Cost Scaling & Spawn Echo| PLOTS
   end
 
-  LOG -->|Run Score Valuation| SAP[Prestige Layer: Heartwood Ascension]
-  SAP -->|Lifetime Sap Formula + 16 Constellation Nodes| LOG
+  PLOTS -->|Run Score Valuation| SAP[Prestige Layer: Heartwood Ascension]
+  SAP -->|Lifetime Sap Formula + 16 Constellation Nodes| CREW
 ```
 
-### Why the Mycelium Root Network Replaces the Previous Third Loop
-- **Problem with the previous design:** The *Resin Wheel* was a direct reskin of *Gambler's Table*'s slot machine, and a generic *Bonsai watering timer* adds repetitive chore friction.
-- **The Mycelium Root Network (`mycelium_network`) Solution:**
-  - Grounded in real forest ecology (*"the Wood Wide Web"*), underground fungal hyphae connect the root systems of all 9 tree species on a separate subterranean map layer.
-  - Felling trees above ground shakes loose **Spore Clusters** (`spores`), while burning logs in the Charcoal Kilns produces **Wood Ash** (`ash`) that acts as alkaline soil fertilizer.
-  - Inoculating root nodes with symbiotic fungi (*Chanterelle*, *Bioluminescent Mycena*, *Oyster Saprophyte*, *Black Truffle*, *Mother-Tree Nexus*) alters structural rules of the forest—lowering worker cost scaling exponents, echoing a percentage of harvest from one tree species into the next, and pulsing periodic progress into the Breakthrough Gate.
-  - Like the **Canopy Aviary**, Mycelium upgrades operate on an isolated plane and can be permanently bonded via the Heartwood Constellation so they never reset on Ascension.
+### 3.1 Dynamic Tree Unlocking via Spawn Probability ($W_i$) & Quantity Caps ($Q_i$)
+1. **No Shop-Bought Tree Stalls**: The clearing starts with $N_{\text{plots}} = 12$ active dirt plots (expandable up to $32$ via `camp_plot_expansion`). At the start of a run, only **Pine (`pine`)** can grow ($W_0 = 100$).
+2. **Weighted Plot Spawn Formula**:
+   - Purchasing Level 1 of a species' **Propagation Upgrade (`prop_<species>`)** introduces that species into the clearing's ecological pool with an initial **Spawn Weight $W_i(1)$** and **Max Concurrent Quantity Cap $Q_i(1)$**.
+   - Whenever an empty plot finishes its regrowth timer, it filters for all unlocked species whose current on-field count $c_i$ is strictly below their cap ($c_i < Q_i(L)$), and rolls species $i$ with probability:
+     $$P(\text{spawn } i) = \frac{W_i(L_i)}{\sum_{k \text{ where } c_k < Q_k(L_k)} W_k(L_k)}$$
+   - Leveling up `prop_<species>` (Lv. 1 to 10) simultaneously raises $W_i(L)$ (so the tree appears much more frequently) and raises $Q_i(L)$ (allowing more trees of that species to coexist in the clearing at once).
+
+### 3.2 Durability (HP / Bark Hardness) vs. Yield Scaling (Anti-Insta-Chop Model)
+To prevent high-level workers from 1-shotting trees in a single frame late-game:
+1. **Old-Growth Maturity Ranks ($m \in \{0, 1, 2, 3, 4\}$)**:
+   - Unlocked via `camp_old_growth_stewardship` and `prop_<species>` milestones, spawning trees at 5 visual maturity tiers: *Sapling ($m=0$)*, *Young ($m=1$)*, *Mature ($m=2$)*, *Old-Growth ($m=3$)*, and *Ancient Titan ($m=4$)*.
+   - Rank $m$ multiplies **Tree Durability (HP)** by $4.0^m$ and **Total Log Yield** by $4.2^m$ (giving a net $+5\%$ efficiency bonus per rank while compressing hit frequency so every tree takes a satisfying **$2.5\text{ s}$ to $8.0\text{ s}$** to fell across all 3 Acts).
+2. **Bark Hardness vs. Sawyer Armor Penetration**:
+   - Each tree species has a **Bark Hardness Rating ($B_i$)**. Standard Axemen deal $100\%$ damage when their Gear Tier meets or exceeds $B_i$, but suffer a glancing-blow penalty ($-50\%$ damage) against harder bark unless a **Sawyer (`[Sw]`)** is sawing the trunk (Sawyers bypass Bark Hardness and shred armor for nearby Axemen).
+3. **Chip Yield ($30\%$) + Timberfall Jackpot ($70\%$)**:
+   - $30\%$ of a tree's log yield is awarded steadily on each axe/saw hit (`+LOGS` popups), while bringing the tree's HP bar to $0$ triggers the **Timberfall Jackpot** ($70\%$ burst + species synergy proc roll).
 
 ---
 
-## 4. Complete, Unabridged, Itemized Upgrade Catalog (All 87 Tracks / 542 Levels)
+## 4. Complete, Unabridged, Itemized Upgrade Catalog (All 87 Tracks / 552 Levels)
 
-Every upgrade in *Treecremental* is specified below. Nothing is summarized.
+Every upgrade in *Treecremental* is itemized below with its canonical ID, max level, cost formula, and exact mechanical effect.
 
-### 4.1 Tree Species Progression & Unlock Table (9 Species)
+### 4.1 The 9 Tree Species: Base Durability, Bark Hardness & Unique Synergies
 
-| Tier | Species ID | Display Name | Act | Base Chop Time ($t_i$) | Unlock Cost (Paid in Tier $i-1$ Logs) | Sap Score Weight ($V_i$) |
-|---|---|---|---:|---:|---:|---:|
-| **0** | `pine` | Pine | Act I | $2.00\text{ s}$ | $0$ (Starter Tree) | $1.00$ |
-| **1** | `birch` | Birch | Act I | $3.10\text{ s}$ | $150$ `logs_pine` | $1.90$ |
-| **2** | `oak` | Oak | Act I | $4.81\text{ s}$ | $330$ `logs_birch` | $3.61$ |
-| **3** | `sakura` | Sakura | Act II | $7.45\text{ s}$ | $726$ `logs_oak` | $6.86$ |
-| **4** | `canadian_maple` | Canadian Maple | Act II | $11.54\text{ s}$ | $1,597$ `logs_sakura` | $13.03$ |
-| **5** | `fir` | Fir | Act II | $17.89\text{ s}$ | $3,514$ `logs_canadian_maple` | $24.76$ |
-| **6** | `baobab` | Baobab | Act III | $27.73\text{ s}$ | $7,730$ `logs_fir` | $47.05$ |
-| **7** | `socotra_dragon_tree` | Socotra Dragon Tree | Act III | $42.98\text{ s}$ | $17,007$ `logs_baobab` | $89.39$ |
-| **8** | `giant_sequoia` | Giant Sequoia | Act III | $66.62\text{ s}$ | $37,415$ `logs_socotra_dragon_tree` | $169.84$ |
+| Tier | Species ID | Display Name | Act | Base HP ($H_i$) | Bark Hardness | Sap Weight ($V_i$) | Unique Species Synergy / Ecological Event |
+|---:|---|---|---|---:|---:|---:|---|
+| **0** | `pine` | Pine | Act I | $20\text{ HP}$ | Tier 0 (Soft) | $1.00$ | **Pitch Sap Splatter (15% on fell):** Grants $+25\%$ Axemen swing speed for $8\text{ s}$ and $+10\%$ Kiln burn time. |
+| **1** | `birch` | Birch | Act I | $35\text{ HP}$ | Tier 1 | $1.90$ | **Silver-Bark Kindling (Every 10th felled):** Extends active Charcoal Boiler *Thermal Overclock* duration by $+4\text{ s}$ for free. |
+| **2** | `oak` | Oak | Act I | $65\text{ HP}$ | Tier 2 (Hard) | $3.61$ | **Acorn Mast Shower (12% on fell):** Doubles `birdseed` drops for $10\text{ s}$ and boosts Canopy Aviary bird effects by $+50\%$. |
+| **3** | `sakura` | Sakura | Act II | $120\text{ HP}$ | Tier 2 | $6.86$ | **Cherry Petal Rain (12% on fell / 100% every 12th):** Pink petals drift across the clearing for $12\text{ s}$, granting $+35\%$ Worker Move Speed and $+20\%$ Crit Chance camp-wide. |
+| **4** | `canadian_maple` | Canadian Maple | Act II | $220\text{ HP}$ | Tier 3 (Hard) | $13.03$ | **Sugarbush Sap Flow (Active Aura):** While at least 1 Maple is being chopped, Haulers and Artisans gain $+25\%$ Plank conversion yield. |
+| **5** | `fir` | Fir | Act II | $400\text{ HP}$ | Tier 4 (Dense) | $24.76$ | **Boreal Frost Shatter (On fell):** Cold-brittle trunk shatters on impact, dealing $20\%$ splash chop damage to all adjacent trees. |
+| **6** | `baobab` | Baobab | Act III | $750\text{ HP}$ | Tier 4 | $47.05$ | **Monsoon Reservoir Surge (On fell):** Floods the millrace for $15\text{ s}$, granting $2.0\times$ Sawmill Overdrive Speed and $+50\%$ Mycelium `spores` rate. |
+| **7** | `socotra_dragon_tree` | Socotra Dragon Tree | Act III | $1,400\text{ HP}$ | Tier 5 (Armored) | $89.39$ | **Cinnabar Dragon's Blood (On Crit):** Critical hits bleed resin that stacks $+2\%$ Global Log Value (up to $+40\%$) while Dragon Trees are on-field. |
+| **8** | `giant_sequoia` | Giant Sequoia | Act III | $2,800\text{ HP}$ | Tier 6 (Titan) | $169.84$ | **Seismic Timberfall (On fell):** Ground tremor knocks $15\%$ current HP off all active trees in the clearing and drops bonus `spores` & `birdseed`. |
 
 ---
 
-### 4.2 Loop 1: Logging Camp Upgrades (30 Upgrade Tracks / 243 Levels)
+### 4.2 Loop 1: Logging Compound Upgrades (30 Upgrade Tracks / 243 Levels)
 
-#### A. Per-Species Lumberjack Crew Hiring (9 Tracks — 1 per Species)
-- **Act Caps:** Capped at **30 workers** in Act I, **50 workers** in Act II, and **70 workers** in Act III (expandable up to 85 via `sap_guild_headquarters`).
-- **Crew Milestones:** Reaching **10**, **25**, and **50** workers on a species grants a multiplicative $\times 1.50$ output boost at each threshold ($\times 1.50^3 = \times 3.375$ at 50 workers; expandable to $\times 1.70^3 = \times 4.913$ via `log_highland_crampons`).
-- **Cost Formula:** $C(n) = \lfloor 10 \cdot r^n \rfloor$ where base growth $r = 1.150$ (reducible down to $1.130$ via `myc_phosphorus_exchange`), paid in that species' own logs.
+#### A. Species Propagation: Spawn Probability & Max Quantity Upgrades (9 Tracks × 10 Levels = 90 Levels)
+- **Act Caps:** Capped at **Lv. 4** in Act I, **Lv. 7** in Act II, and **Lv. 10** in Act III.
+- **Mechanical Effect:** New trees are unlocked and scaled strictly through these ecological propagation tracks. Buying Level 1 introduces the species into the clearing's spawn pool; each subsequent level increases both its **Spawn Weight ($W_i$)** and **Max Concurrent Quantity ($Q_i$)** on the field, while adding $+10\%$ species maturity yield per level.
 
-| Upgrade ID | Name | Target Species | Act Caps (I / II / III) | Cost Formula (Level $n$) | Effect per Level & Milestone Thresholds |
+| Upgrade ID | Name | Target Species | Act Caps (I / II / III) | Cost Formula (Level $L \in \{0..9\}$, paid in Tier $i-1$ Logs) | Spawn Weight $W_i(L)$ & Max Concurrent Quantity $Q_i(L)$ |
 |---|---|---|---|---|---|
-| `hire_pine` | Pine Lumberjack Crew | Pine | 30 / 50 / 70 | $10 \cdot 1.15^n$ `logs_pine` | $+1$ Pine worker ($+0.500\text{ base logs/s}$); $\times 1.5$ at 10, 25, 50 workers. |
-| `hire_birch` | Birch Lumberjack Crew | Birch | 30 / 50 / 70 | $10 \cdot 1.15^n$ `logs_birch` | $+1$ Birch worker ($+0.323\text{ base logs/s}$); $\times 1.5$ at 10, 25, 50 workers. |
-| `hire_oak` | Oak Lumberjack Crew | Oak | 30 / 50 / 70 | $10 \cdot 1.15^n$ `logs_oak` | $+1$ Oak worker ($+0.208\text{ base logs/s}$); $\times 1.5$ at 10, 25, 50 workers. |
-| `hire_sakura` | Sakura Lumberjack Crew | Sakura | — / 50 / 70 | $10 \cdot 1.15^n$ `logs_sakura` | $+1$ Sakura worker ($+0.134\text{ base logs/s}$); $\times 1.5$ at 10, 25, 50 workers. |
-| `hire_canadian_maple` | Maple Lumberjack Crew | Canadian Maple | — / 50 / 70 | $10 \cdot 1.15^n$ `logs_canadian_maple` | $+1$ Maple worker ($+0.087\text{ base logs/s}$); $\times 1.5$ at 10, 25, 50 workers. |
-| `hire_fir` | Fir Lumberjack Crew | Fir | — / 50 / 70 | $10 \cdot 1.15^n$ `logs_fir` | $+1$ Fir worker ($+0.056\text{ base logs/s}$); $\times 1.5$ at 10, 25, 50 workers. |
-| `hire_baobab` | Baobab Lumberjack Crew | Baobab | — / — / 70 | $10 \cdot 1.15^n$ `logs_baobab` | $+1$ Baobab worker ($+0.036\text{ base logs/s}$); $\times 1.5$ at 10, 25, 50 workers. |
-| `hire_socotra_dragon_tree` | Dragon Tree Crew | Socotra Dragon Tree | — / — / 70 | $10 \cdot 1.15^n$ `logs_socotra_dragon_tree` | $+1$ Dragon worker ($+0.023\text{ base logs/s}$); $\times 1.5$ at 10, 25, 50 workers. |
-| `hire_giant_sequoia` | Sequoia Titan Crew | Giant Sequoia | — / — / 70 | $10 \cdot 1.15^n$ `logs_giant_sequoia` | $+1$ Sequoia worker ($+0.015\text{ base logs/s}$); $\times 1.5$ at 10, 25, 50 workers. |
+| `prop_pine` | Pine Stand Management | Pine | 4 / 7 / 10 | $25 \cdot 2.1^L$ `logs_pine` | Baseline $W_0 = 100$; adds $+1$ Max Pine Plot cap/Lv ($12 \rightarrow 22$) and $+15\%$ Pine Old-Growth chance/Lv. |
+| `prop_birch` | Birch Catkin Dispersal | Birch | 4 / 7 / 10 | $120 \cdot 2.2^L$ `logs_pine` | Lv. 1 unlocks Birch. $W_1 = 15 + 8 \cdot L$ ($23 \rightarrow 95$); Max Quantity $Q_1 = 1 + L$ ($2 \rightarrow 11$ trees). |
+| `prop_oak` | Oak Acorn Afforestation | Oak | 4 / 7 / 10 | $280 \cdot 2.3^L$ `logs_birch` | Lv. 1 unlocks Oak. $W_2 = 12 + 7 \cdot L$ ($19 \rightarrow 82$); Max Quantity $Q_2 = 1 + L$ ($2 \rightarrow 11$ trees). |
+| `prop_sakura` | Sakura Blossom Grafting | Sakura | — / 7 / 10 | $650 \cdot 2.4^L$ `logs_oak` | Lv. 1 unlocks Sakura. $W_3 = 10 + 7 \cdot L$ ($17 \rightarrow 80$); Max Quantity $Q_3 = 1 + L$ ($2 \rightarrow 11$ trees). |
+| `prop_canadian_maple` | Maple Sugarbush Seeding | Canadian Maple | — / 7 / 10 | $1,450 \cdot 2.45^L$ `logs_sakura` | Lv. 1 unlocks Maple. $W_4 = 10 + 6 \cdot L$ ($16 \rightarrow 70$); Max Quantity $Q_4 = 1 + \lfloor 0.9 \cdot L \rfloor$ ($1 \rightarrow 10$ trees). |
+| `prop_fir` | Boreal Fir Cone Dispersal | Fir | — / 7 / 10 | $3,200 \cdot 2.5^L$ `logs_canadian_maple` | Lv. 1 unlocks Fir. $W_5 = 8 + 6 \cdot L$ ($14 \rightarrow 68$); Max Quantity $Q_5 = 1 + \lfloor 0.9 \cdot L \rfloor$ ($1 \rightarrow 10$ trees). |
+| `prop_baobab` | Baobab Savanna Planting | Baobab | — / — / 10 | $7,200 \cdot 2.55^L$ `logs_fir` | Lv. 1 unlocks Baobab. $W_6 = 8 + 5 \cdot L$ ($13 \rightarrow 58$); Max Quantity $Q_6 = 1 + \lfloor 0.8 \cdot L \rfloor$ ($1 \rightarrow 9$ trees). |
+| `prop_socotra_dragon_tree` | Dragon Sapling Cultivation | Socotra Dragon Tree | — / — / 10 | $16,000 \cdot 2.6^L$ `logs_baobab` | Lv. 1 unlocks Dragon Tree. $W_7 = 6 + 5 \cdot L$ ($11 \rightarrow 56$); Max Quantity $Q_7 = 1 + \lfloor 0.7 \cdot L \rfloor$ ($1 \rightarrow 8$ trees). |
+| `prop_giant_sequoia` | Sequoia Grove Sanctuary | Giant Sequoia | — / — / 10 | $35,000 \cdot 2.7^L$ `logs_socotra_dragon_tree` | Lv. 1 unlocks Giant Sequoia. $W_8 = 5 + 4 \cdot L$ ($9 \rightarrow 45$); Max Quantity $Q_8 = 1 + \lfloor 0.5 \cdot L \rfloor$ ($1 \rightarrow 6$ titan trees). |
 
-#### B. Per-Species Felling Tool Tiers (9 Tracks × 6 Named Tiers = 54 Levels)
-- **Act Caps:** Capped at **Lv. 3** in Act I, **Lv. 5** in Act II, and **Lv. 6** in Act III.
-- **Tier Names & Exact Costs (identical structure per species $i$, paid in `logs_i` plus `planks_i` for Tiers 4–6):**
-  - **Lv. 1 (Flint Hatchet):** Cost $120$ `logs_i` $\rightarrow \times 2.0$ harvest rate.
-  - **Lv. 2 (Wrought Iron Axe):** Cost $1,080$ `logs_i` $\rightarrow \times 4.0$ cumulative harvest rate.
-  - **Lv. 3 (Tempered Steel Broadaxe — Act I Cap):** Cost $9,720$ `logs_i` $\rightarrow \times 8.0$ cumulative harvest rate.
-  - **Lv. 4 (Two-Man Crosscut Saw):** Cost $87,480$ `logs_i` + $250$ `planks_i` $\rightarrow \times 16.0$ cumulative harvest rate.
-  - **Lv. 5 (Steam-Piston Bucking Saw — Act II Cap):** Cost $787,320$ `logs_i` + $1,500$ `planks_i` $\rightarrow \times 32.0$ cumulative harvest rate.
-  - **Lv. 6 (Heartwood Resonance Blade — Act III Cap):** Cost $7,085,880$ `logs_i` + $9,000$ `planks_i` $\rightarrow \times 64.0$ cumulative harvest rate (up to $\times 216.0$ with `sap_crucible_steel`).
+#### B. The 4 Worker Types: Roster Hiring & Equipment Tiers (8 Tracks = 88 Levels)
+- **Strict 4-Worker Scope:** Only 4 worker archetypes exist in the game (**Axemen**, **Sawyers**, **Haulers**, **Artisans**).
+- **Crew Milestones:** Reaching **10** and **20** workers in any archetype grants a $\times 1.50$ multiplicative efficiency boost to that archetype ($\times 2.25$ at 20 workers; expandable with `camp_highland_crampons`).
+- **Equipment Tiers (6 Levels Each):** Capped at **Lv. 3** in Act I, **Lv. 5** in Act II, and **Lv. 6** in Act III (Levels 4–6 require `planks`).
 
-| Upgrade ID | Name | Target Species | Max Lv (Act I / II / III) | Cost Formula (Level $k \in \{0..5\}$) | Effect per Level |
+| Upgrade ID | Name | Worker Type | Max Lv (Act I / II / III) | Cost Formula | Exact Mechanical Effect |
 |---|---|---|---|---|---|
-| `tool_pine` | Pine Felling Tools | Pine | 3 / 5 / 6 | $120 \cdot 9^k$ `logs_pine` (+ Planks $k \ge 3$) | Multiplies Pine chop rate by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
-| `tool_birch` | Birch Felling Tools | Birch | 3 / 5 / 6 | $120 \cdot 9^k$ `logs_birch` (+ Planks $k \ge 3$) | Multiplies Birch chop rate by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
-| `tool_oak` | Oak Felling Tools | Oak | 3 / 5 / 6 | $120 \cdot 9^k$ `logs_oak` (+ Planks $k \ge 3$) | Multiplies Oak chop rate by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
-| `tool_sakura` | Sakura Felling Tools | Sakura | — / 5 / 6 | $120 \cdot 9^k$ `logs_sakura` (+ Planks $k \ge 3$) | Multiplies Sakura chop rate by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
-| `tool_canadian_maple` | Maple Felling Tools | Canadian Maple | — / 5 / 6 | $120 \cdot 9^k$ `logs_canadian_maple` (+ Planks $k \ge 3$) | Multiplies Maple chop rate by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
-| `tool_fir` | Fir Felling Tools | Fir | — / 5 / 6 | $120 \cdot 9^k$ `logs_fir` (+ Planks $k \ge 3$) | Multiplies Fir chop rate by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
-| `tool_baobab` | Baobab Felling Tools | Baobab | — / — / 6 | $120 \cdot 9^k$ `logs_baobab` (+ Planks $k \ge 3$) | Multiplies Baobab chop rate by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
-| `tool_socotra_dragon_tree` | Dragon Felling Tools | Socotra Dragon Tree | — / — / 6 | $120 \cdot 9^k$ `logs_socotra_dragon_tree` (+ Planks $k \ge 3$) | Multiplies Dragon chop rate by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
-| `tool_giant_sequoia` | Sequoia Felling Tools | Giant Sequoia | — / — / 6 | $120 \cdot 9^k$ `logs_giant_sequoia` (+ Planks $k \ge 3$) | Multiplies Sequoia chop rate by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
+| `hire_axemen` | Hire Axemen Crew | 1. Axemen (`[Ax]`) | 12 / 20 / 28 | $10 \cdot 1.16^n$ Logs | Spawns $+1$ Axeman in the clearing ($1.0\text{ hits/s}$, fast front-line chopper). |
+| `hire_sawyers` | Hire Sawyer Crew | 2. Sawyers (`[Sw]`) | 6 / 12 / 18 | $35 \cdot 1.18^n$ Logs | Spawns $+1$ Heavy Sawyer ($2.5\text{ DPS}$ continuous sawing; ignores Bark Hardness). |
+| `hire_haulers` | Hire Skid-Team Haulers | 3. Haulers (`[Hl]`) | 4 / 8 / 12 | $60 \cdot 1.20^n$ Logs | Spawns $+1$ Logistics Hauler; collects felled timber bundles and multiplies delivered log value by $+15\%$ per Hauler. |
+| `hire_artisans` | Hire Mill & Kiln Artisans | 4. Artisans (`[Ar]`) | 4 / 8 / 12 | $80 \cdot 1.22^n$ Logs | Spawns $+1$ Compound Artisan in the Millrace & Kiln Yard ($+20\%$ Sawmill & Kiln cycle speed per Artisan). |
+| `gear_axemen` | Axemen Felling Axes | 1. Axemen (`[Ax]`) | 3 / 5 / 6 | $120 \cdot 9^k$ Logs (+ Planks $k \ge 3$) | Upgrades axes (*Flint -> Iron -> Steel -> Double-Bit -> Steam-Assisted -> Heartwood*); multiplies Axemen chop power by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
+| `gear_sawyers` | Sawyer Bucking Blades | 2. Sawyers (`[Sw]`) | 3 / 5 / 6 | $250 \cdot 9^k$ Logs (+ Planks $k \ge 3$) | Upgrades saws (*Rip-Saw -> Crosscut -> Raker-Tooth -> Carbide -> Steam-Piston -> Resonance Blade*); multiplies Sawyer DPS by $\times 2.0^k$ and raises Armor Penetration tier to $k+1$. |
+| `gear_haulers` | Hauler Skid Rigging | 3. Haulers (`[Hl]`) | 3 / 5 / 6 | $180 \cdot 8.5^k$ Logs (+ Planks $k \ge 3$) | Upgrades hauling gear (*Hemp Ropes -> Cant Hooks -> Logging Arch -> Oxen Yoke -> Steam Donkey Sled -> Skyline Rig*); multiplies Hauler capacity & value bonus by $\times 1.65^k$. |
+| `gear_artisans` | Artisan Millwright Kit | 4. Artisans (`[Ar]`) | 3 / 5 / 6 | $220 \cdot 8.5^k$ Logs (+ Planks $k \ge 3$) | Upgrades compound tools (*Calipers -> Brass Gauges -> Tempered Setworks -> Pressure Valves -> Bimetallic Governors -> Master Chronometer*); multiplies Artisan output by $\times 1.75^k$. |
 
-#### C. Global Logging Camp Upgrades (12 Tracks = 60 Levels)
+#### C. Clearing Plots, Old-Growth Maturity, Synergies & Camp Upgrades (13 Tracks = 65 Levels)
 
 | # | Upgrade ID | Name | Max Lv | Unlock Act | Cost Formula (Level $L \in \{0..4\}$) | Exact Mechanical Effect |
 |---:|---|---|---:|---|---|---|
-| 1 | `log_whetstone_bench` | Grindstone & Whetstone Bench | 5 | Act I | $50 \cdot 2.5^L$ `logs_pine` | $+8\%$ global chop speed per level ($+40\%$ at Lv. 5). |
-| 2 | `log_hickory_hafts` | Seasoned Hickory Hafts | 5 | Act I | $80 \cdot 2.6^L$ `logs_birch` | $+10\%$ critical strike chance per level (critical swings yield $2.0\times$ logs; $50\%$ crit chance at Lv. 5). |
-| 3 | `log_felling_wedges` | Iron Felling Wedges | 5 | Act I | $120 \cdot 2.8^L$ `logs_oak` | Reduces tree fall-and-regrowth transition delay by $-0.15\text{ s}$ per level (from $1.00\text{ s}$ down to $0.25\text{ s}$). |
-| 4 | `log_skid_road` | Greased Corduroy Skid Road | 5 | Act I | $40 \cdot 2.4^L$ `planks_pine` | $+12\%$ log yield for all Act I species (Pine, Birch, Oak) per level ($+60\%$ at Lv. 5). |
-| 5 | `log_oxen_team` | Draft Oxen Hauling Teams | 5 | Act I | $75 \cdot 2.6^L$ `planks_birch` | Every 10th felled tree drops a bonus haul equal to $+1.0 \cdot L$ extra logs ($+5$ bonus logs every 10th tree at Lv. 5). |
-| 6 | `log_cant_hooks` | Steel Peaveys & Cant Hooks | 5 | Act I | $110 \cdot 2.7^L$ `planks_oak` | $+10\%$ global log harvest rate across all species per level ($+50\%$ at Lv. 5). |
-| 7 | `log_silk_cordage` | Braided Rigging Cordage | 5 | Act II | $200 \cdot 2.8^L$ `planks_sakura` | $+15\%$ log yield for all Act II species (Sakura, Maple, Fir) per level ($+75\%$ at Lv. 5). |
-| 8 | `log_sap_lubrication` | Maple Sap Blade Coolant | 5 | Act II | $350 \cdot 2.9^L$ `planks_canadian_maple` | Reduces all Felling Tool (`tool_<species>`) log and plank costs by $-6\%$ per level ($-30\%$ at Lv. 5). |
-| 9 | `log_highland_crampons` | Spiked Climbing Spurs | 5 | Act II | $600 \cdot 3.0^L$ `planks_fir` | Increases the per-threshold worker milestone multiplier from $\times 1.50$ to $\times (1.50 + 0.04 \cdot L)$ ($\times 1.70$ per milestone at Lv. 5). |
-| 10 | `log_block_and_tackle` | Heavy Block-and-Tackle Cranes | 5 | Act III | $1,200 \cdot 3.1^L$ `planks_baobab` | $+20\%$ log yield for all Act III species (Baobab, Dragon Tree, Sequoia) per level ($+100\%$ at Lv. 5). |
-| 11 | `log_crimson_varnish` | Dragon-Resin Temper Coating | 5 | Act III | $2,500 \cdot 3.2^L$ `planks_socotra_dragon_tree` | Increases critical strike log multiplier from $2.0\times$ to $(2.0 + 0.2 \cdot L)\times$ ($3.0\times$ logs per crit at Lv. 5). |
-| 12 | `log_skyline_yarder` | Steam Skyline Cable Yarder | 5 | Act III | $5,000 \cdot 3.4^L$ `planks_giant_sequoia` | $+5\%$ global log output and $+5\%$ Breakthrough Gate progress credit per level ($+25\%$ both at Lv. 5). |
+| 1 | `camp_plot_expansion` | Clearing Plot Survey | 5 | Act I | $60 \cdot 2.8^L$ `logs_pine` | Expands the clearing by $+4$ concurrent Tree Spawn Plots per level (from $12$ plots up to $32$ active plots at Lv. 5). |
+| 2 | `camp_old_growth_stewardship` | Old-Growth Maturity Stewardship | 5 | Act I | $150 \cdot 3.2^L$ `logs_oak` | Unlocks Tree Maturity Ranks $m = 1..4$ and increases high-maturity spawn chance by $+15\%$/Lv (scales Tree HP by $4.0^m$ and Log Yield by $4.2^m$, preventing insta-chopping). |
+| 3 | `camp_synergy_resonator` | Canopy Ecological Harmony | 5 | Act I | $90 \cdot 2.7^L$ `logs_birch` | Increases the trigger chance and buff duration of all 9 Species Synergy Events (including Sakura *Cherry Petal Rain*) by $+20\%$ per level ($+100\%$ at Lv. 5). |
+| 4 | `camp_whetstone_bench` | Grindstone & Whetstone Bench | 5 | Act I | $50 \cdot 2.5^L$ `logs_pine` | $+8\%$ global swing/saw speed for Axemen and Sawyers per level ($+40\%$ at Lv. 5). |
+| 5 | `camp_hickory_hafts` | Seasoned Hickory Hafts | 5 | Act I | $80 \cdot 2.6^L$ `logs_birch` | $+10\%$ critical strike chance per level (critical hits deal $2.0\times$ damage and double chip log drops; $50\%$ crit at Lv. 5). |
+| 6 | `camp_felling_wedges` | Iron Felling Wedges | 5 | Act I | $120 \cdot 2.8^L$ `logs_oak` | Reduces empty plot regrowth delay by $-0.15\text{ s}$/Lv (from $1.00\text{ s}$ to $0.25\text{ s}$) and boosts Timberfall Jackpot burst yield by $+10\%$/Lv. |
+| 7 | `camp_skid_road` | Greased Corduroy Skid Trails | 5 | Act I | $40 \cdot 2.4^L$ `planks_pine` | $+12\%$ movement speed for all 4 worker types in the clearing and $+12\%$ Act I log value per level. |
+| 8 | `camp_kerf_softening` | Sawyer Kerf Wedge Technique | 5 | Act I | $95 \cdot 2.6^L$ `planks_birch` | When a Sawyer is actively sawing a tree, its Bark Hardness is reduced by $-1$ tier and Axemen deal $+12\%$ bonus damage per level to that tree. |
+| 9 | `camp_silk_cordage` | Braided Rigging Cordage | 5 | Act II | $200 \cdot 2.8^L$ `planks_sakura` | $+15\%$ log yield for all Act II species (Sakura, Maple, Fir) and $+15\%$ Hauler bundle pickup radius per level. |
+| 10 | `camp_sap_lubrication` | Maple Sap Blade Coolant | 5 | Act II | $350 \cdot 2.9^L$ `planks_canadian_maple` | Reduces all Worker Equipment (`gear_<type>`) log and plank costs by $-6\%$ per level ($-30\%$ at Lv. 5). |
+| 11 | `camp_highland_crampons` | Spiked Climbing Spurs | 5 | Act II | $600 \cdot 3.0^L$ `planks_fir` | Increases the per-threshold Worker Crew milestone multiplier from $\times 1.50$ to $\times (1.50 + 0.05 \cdot L)$ ($\times 1.75$ per milestone at Lv. 5). |
+| 12 | `camp_crimson_varnish` | Dragon-Resin Temper Coating | 5 | Act III | $2,500 \cdot 3.2^L$ `planks_socotra_dragon_tree` | Increases critical strike damage and log multiplier from $2.0\times$ to $(2.0 + 0.2 \cdot L)\times$ ($3.0\times$ per crit at Lv. 5). |
+| 13 | `camp_skyline_yarder` | Steam Skyline Cable Yarder | 5 | Act III | $5,000 \cdot 3.4^L$ `planks_giant_sequoia` | $+20\%$ Act III log yield and $+5\%$ Breakthrough Gate progress credit per level ($+100\%$ Act III yield / $+25\%$ gate credit at Lv. 5). |
 
 ---
 
@@ -324,18 +328,18 @@ Every upgrade in *Treecremental* is specified below. Nothing is summarized.
 | Ring | # | Upgrade ID | Name | Max Lv | Exact Sap Cost per Level | Exact Permanent Effect |
 |---|---:|---|---|---:|---|---|
 | **Inner Ring** *(Act I Ascension)* | 1 | `sap_heartwood_resonance_1` | Heartwood Resonance I | 3 | `5, 10, 20` Sap *(35 total)* | $+25\%$ Global Chopping Speed per level ($+75\%$ at Lv. 3). |
-| **Inner Ring** | 2 | `sap_pioneer_charter` | Pioneer's Charter | 3 | `4, 8, 16` Sap *(28 total)* | Starts each run with $+1$ extra species pre-unlocked and $+5 \cdot L$ free Pine workers. |
+| **Inner Ring** | 2 | `sap_pioneer_charter` | Pioneer's Charter | 3 | `4, 8, 16` Sap *(28 total)* | Starts each run with $+1 \cdot L$ free starting levels in `prop_birch` and $+3 \cdot L$ starting Axemen. |
 | **Inner Ring** | 3 | `sap_amber_distillation` | Amber Sap Distillation | 3 | `6, 12, 24` Sap *(42 total)* | $+15\%$ Sap earned from all Breakthrough Ascensions per level ($+45\%$ at Lv. 3). |
 | **Inner Ring** | 4 | `sap_seasoned_joinery` | Seasoned Timber Joinery | 3 | `5, 10, 20` Sap *(35 total)* | Retains $1 \cdot L$ starting levels on all `mill_<species>` carriages after Ascension. |
 | **Inner Ring** | 5 | `sap_eternal_embers` | Eternal Kiln Embers | 2 | `8, 18` Sap *(26 total)* | Lv. 1: Starts run with 100 Charcoal & $50\%$ boiler heat; Lv. 2: Boiler heat never falls below $50\%$. |
 | **Inner Ring** | 6 | `sap_canopy_sanctuary_bond` | Sanctuary Homing Bond | 1 | `12` Sap *(12 total)* | Canopy Aviary ranks and Mycelium Root Network levels persist permanently across Ascensions. |
 | **Middle Ring** *(Act II Ascension)* | 7 | `sap_heartwood_resonance_2` | Heartwood Resonance II | 5 | `25, 50, 85, 130, 190` Sap *(480 total)* | $+30\%$ Global Chopping Speed and $+15\%$ Sawmill Speed per level ($+150\%$ / $+75\%$ at Lv. 5). |
-| **Middle Ring** | 8 | `sap_guild_headquarters` | Lumberjack Guild Hall | 3 | `40, 90, 160` Sap *(290 total)* | Raises the per-Act Worker Cap by $+5$ workers per level ($+15$ cap at Lv. 3; unlocks a 4th $\times 1.5$ milestone at 75 workers). |
-| **Middle Ring** | 9 | `sap_bulk_contracting` | Automated Guild Quartermaster | 2 | `35, 75` Sap *(110 total)* | Lv. 1: Unlocks `x10` and `MAX` bulk buy buttons; Lv. 2: Unlocks toggleable auto-buyers for Workers and Sawmills. |
-| **Middle Ring** | 10 | `sap_cambium_overflow` | Cambium Pressure Overflow | 4 | `30, 65, 110, 170` Sap *(375 total)* | Reduces all Tree Species unlock log requirements by $-12\%$ per level ($-48\%$ at Lv. 4). |
+| **Middle Ring** | 8 | `sap_guild_headquarters` | Lumberjack Guild Hall | 3 | `40, 90, 160` Sap *(290 total)* | Raises the per-Act Roster Cap of all 4 Worker Types by $+3$ per level ($+9$ per worker type at Lv. 3). |
+| **Middle Ring** | 9 | `sap_bulk_contracting` | Automated Guild Quartermaster | 2 | `35, 75` Sap *(110 total)* | Lv. 1: Unlocks `x10` and `MAX` bulk buy buttons; Lv. 2: Unlocks toggleable auto-buyers for Propagation, Workers, and Sawmills. |
+| **Middle Ring** | 10 | `sap_cambium_overflow` | Cambium Pressure Overflow | 4 | `30, 65, 110, 170` Sap *(375 total)* | Reduces all Species Propagation (`prop_<species>`) log costs by $-12\%$ per level ($-48\%$ at Lv. 4). |
 | **Middle Ring** | 11 | `sap_mycorrhizal_awakening` | Mycorrhizal Awakening | 3 | `45, 95, 165` Sap *(305 total)* | Increases `birdseed` and `spores` generation rates by $+33.3\%$ per level ($\times 2.00$ at Lv. 3). |
-| **Middle Ring** | 12 | `sap_crucible_steel` | Damascus Crucible Metallurgy | 3 | `50, 110, 190` Sap *(350 total)* | Increases the per-tier Felling Tool multiplier from $\times 2.00$ to $\times (2.00 + 0.15 \cdot L)$ ($\times 2.45^k$ at Lv. 3). |
-| **Outer Ring** *(Act III & 100%)* | 13 | `sap_titan_feller` | Titan-Feller's Creed | 3 | `150, 300, 500` Sap *(950 total)* | Multiplies log yield of Baobab, Socotra Dragon Tree, and Giant Sequoia by $\times 1.50$ per level ($\times 3.375$ at Lv. 3). |
+| **Middle Ring** | 12 | `sap_crucible_steel` | Damascus Crucible Metallurgy | 3 | `50, 110, 190` Sap *(350 total)* | Increases the per-tier Worker Equipment (`gear_<type>`) multiplier by $+0.15\times$ per level. |
+| **Outer Ring** *(Act III & 100%)* | 13 | `sap_titan_feller` | Titan-Feller's Creed | 3 | `150, 300, 500` Sap *(950 total)* | Multiplies log yield and spawn weight of Baobab, Socotra Dragon Tree, and Giant Sequoia by $\times 1.50$ per level ($\times 3.375$ at Lv. 3). |
 | **Outer Ring** | 14 | `sap_golden_bough` | The Golden Bough | 3 | `200, 400, 700` Sap *(1,300 total)* | Increases the exponent of the lifetime Sap formula from $0.50$ to $0.50 + 0.02 \cdot L$ ($0.56$ at Lv. 3). |
 | **Outer Ring** | 15 | `sap_ancient_harmony` | Harmony of the Ancient Grove | 3 | `180, 360, 600` Sap *(1,140 total)* | Each unlocked Achievement grants $+1.0\%$ per level ($+3.0\%$ per achievement at Lv. 3) to global production. |
 | **Outer Ring** | 16 | `sap_world_tree_crown` | Crown of the World Tree | 1 | `1,000` Sap *(1,000 total)* | Doubles all Breakthrough Gate progress and unlocks the completionist Golden Sequoia visual crown. |
@@ -346,35 +350,32 @@ Every upgrade in *Treecremental* is specified below. Nothing is summarized.
 
 | Loop / Upgrade Category | Track Count | Total Purchasable Levels | Primary Currencies Spent | Average Completion Window |
 |---|---:|---:|---|---|
-| **Loop 1A:** Per-Species Worker Hiring | 9 | ~150 *(capped per Act)* | `logs_<species>` | Continuous across Acts I–III |
-| **Loop 1B:** Per-Species Felling Tools | 9 | 54 *(9 × 6 tiers)* | `logs_<species>`, `planks_<species>` | Tiers 1–3 (Act I), 4–5 (Act II), 6 (Act III) |
-| **Loop 1C:** Global Logging Camp Upgrades | 12 | 60 | `logs_<species>`, `planks_<species>` | 4 tracks per Act |
+| **Loop 1A:** Species Propagation (Spawn Chance & Max Qty) | 9 | 90 *(9 × 10 levels)* | `logs_<species>` | Lv. 1–4 (Act I), 5–7 (Act II), 8–10 (Act III) |
+| **Loop 1B:** 4 Worker Types (Hiring + 6 Gear Tiers each) | 8 | 88 *(64 hire + 24 gear)* | `logs_<species>`, `planks_<species>` | Gear Tiers 1–3 (Act I), 4–5 (Act II), 6 (Act III) |
+| **Loop 1C:** Clearing Plots, Maturity & Synergy Upgrades | 13 | 65 *(13 × 5 levels)* | `logs_<species>`, `planks_<species>` | Continuous across Acts I–III |
 | **Loop 2A:** Per-Species Sawmill Carriages | 9 | 90 *(9 × 10 levels)* | `logs_<species>` | Lv. 1–4 (Act I), 5–7 (Act II), 8–10 (Act III) |
 | **Loop 2B:** Global Sawmill Upgrades | 8 | 39 | `planks_<species>`, `charcoal` | 3 in Act I, 3 in Act II, 2 in Act III |
 | **Loop 3:** Charcoal Kilns & Boiler | 8 | 38 | `charcoal`, `planks_<species>` | 3 in Act I, 3 in Act II, 2 in Act III |
 | **Loop 4:** Canopy Aviary (Tertiary A) | 8 | 38 | `birdseed`, `planks_pine` | Active during Climb & Plateau phases |
 | **Loop 5:** Mycelium Network (Tertiary B) | 8 | 38 | `spores`, `ash` | Active during Climb & Plateau phases |
 | **Prestige:** Heartwood Sap Constellation | 16 | 45 | `sap` | Inner (38 Sap), Middle (720 Sap), Outer (Post-Finale) |
-| **TOTAL** | **87 Tracks** | **552 Levels** | **All 7 Currency Families** | **~2.90h Campaign / ~4.00h 100% Run** |
+| **TOTAL** | **87 Tracks** | **531 Levels** | **All 7 Currency Families** | **~2.90h Campaign / ~4.00h 100% Run** |
 
 #### How Upgrade Density Shapes the 3-to-4-Hour Duration
 1. **Act I: The Temperate Woods (0:00 to ~0:40 — ~40 minutes)**:
-   - Player unlocks Pine, Birch, and Oak; purchases ~90 worker levels, 9 tool tiers (Lv. 3 cap), 12 sawmill carriage levels (Lv. 4 cap), and the first 15 levels of Global Logging, Sawmill, Kiln, Aviary, and Mycelium upgrades (~145 total purchases, or ~3.6 purchases/min).
-   - During the **16.7-minute Act I Plateau**, primary worker/tool caps are full; the player focuses on firing the Charcoal Boiler, ranking up the Woodpecker/Waxwing/Chanterelle nodes, and completing the **247,000 Oak Logs** gate.
-   - Ascending to Act II banks **+38 Sap**, sufficient to buy `sap_canopy_sanctuary_bond` (12 Sap) + `sap_heartwood_resonance_1` Lv. 1–2 (15 Sap) + `sap_pioneer_charter` Lv. 1–2 (12 Sap).
+   - Player starts with Pine plots and upgrades `prop_birch` and `prop_oak` to increase their Spawn Probability Weight and Max Concurrent Quantity on the field, while hiring the 4 Worker Types (**Axemen**, **Sawyers** to pierce Oak's harder bark, **Haulers** to collect felled bundles, and **Artisans** for the Sawmill/Kilns).
+   - During the **16.7-minute Act I Plateau**, primary Act I caps are full; the player fires the Charcoal Boiler, ranks up Woodpecker/Waxwing/Chanterelle nodes, and completes the **247,000 Oak Logs** gate to bank **+38 Sap**.
 2. **Act II: Blossom & Boreal (0:40 to ~1:30 — ~50 minutes)**:
-   - Armed with persistent Aviary/Mycelium nodes and a $\times 4.7$ baseline Sap multiplier, the player breezes through Act I trees in <4 minutes and unlocks Sakura, Canadian Maple, and Fir.
-   - ~185 upgrade levels are purchased across Act II (Tools Lv. 4–5 requiring planks, Sawmills Lv. 5–7, Mechanical Stoker, Retort Chamber, Phoenix Roost, Black Truffle Symbiosis).
+   - Player propagates **Sakura** (triggering camp-wide *Cherry Petal Rain* speed/crit buffs), **Canadian Maple**, and **Fir**, expands clearing plots (`camp_plot_expansion`), raises Tree Maturity Ranks (`camp_old_growth_stewardship` so trees scale in HP and Yield together without insta-chopping), and upgrades Worker Gear to Tiers 4–5 using planks.
    - Completing the **7.16M Fir Logs** plateau gate banks **+722 Sap** (~760 total), unlocking the Middle Ring (`sap_bulk_contracting` auto-buyers, `sap_heartwood_resonance_2`, `sap_crucible_steel`).
 3. **Act III: The Ancient Grove (1:30 to ~2:54 — ~84 minutes)**:
-   - Auto-buyers handle early tiers while the player focuses on Baobab, Socotra Dragon Tree, and Giant Sequoia, pushing Tools to Lv. 6, Sawmills to Lv. 10, Binchotan White-Heat Mastering, and Mother-Tree Nexus.
-   - Reaching **46.2M Giant Sequoia Logs** triggers **The Great Felling** (campaign credits at **~2.90 hours**).
+   - Player propagates **Baobab**, **Socotra Dragon Tree**, and **Giant Sequoia**, pushes Worker Gear to Tier 6, Sawmills to Lv. 10, and completes **46.2M Giant Sequoia Logs** for **The Great Felling** (campaign credits at **~2.90 hours**).
 4. **Completionist Post-Game (2:54 to ~4:00 — ~66 minutes)**:
-   - One optional post-campaign Ascension banks **2,500+ Sap** to max out the Outer Ring (`sap_titan_feller`, `sap_golden_bough`, `sap_ancient_harmony`, `sap_world_tree_crown`) and finish all ~80 achievements in a relaxed **~4.0-hour** total window.
+   - One optional post-campaign Ascension banks **2,500+ Sap** to max out the Outer Ring and finish all ~80 achievements in a relaxed **~4.0-hour** total window.
 
 ---
 
-## 5. Repository Navigation & Continuity System
+## 5. Repository Navigation, Continuity & `Autopilot-Godot` Testing Isolation
 
 To ensure that any human developer or AI agent can pick up the project cold at any point without losing context, the workspace at `C:\Users\MrSeb\GodotProjects\treecremental-game` implements the full *Claude-Code-Game-Studios* navigation architecture:
 
@@ -384,6 +385,13 @@ To ensure that any human developer or AI agent can pick up the project cold at a
 | [`docs/NAVIGATION.md`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/docs/NAVIGATION.md) | Step-by-step cold-start onboarding guide, complete directory tree with ownership boundaries, and exact CLI verification commands. |
 | [`production/session-state/active.md`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/production/session-state/active.md) | File-backed session memory (`STATUS` + `<25-line CHECKPOINT` + decision log). Any returning developer or AI reads this first to see the exact state of work. |
 | [`project.yaml`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/project.yaml) & [`production/stage.txt`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/production/stage.txt) | Machine-readable project configuration pinning engine version (`4.7.2`), viewport settings, paths, and the `planning` stage gate. |
-| [`design/registry/entities.yaml`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/design/registry/entities.yaml) | Canonical registry of all 3 Acts, 9 tree species, 7 currency families, 6 loop IDs, and all 87 upgrade IDs. Prevents naming drift across docs and data files. |
+| [`design/registry/entities.yaml`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/design/registry/entities.yaml) | Canonical registry of all 3 Acts, 9 tree species, 4 worker types, 7 currency families, 6 loop IDs, and all 87 upgrade IDs. |
 | [`.claude/rules/`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/.claude/rules) | Path-scoped rule files (`gameplay-code.md`, `ui-code.md`, `data-files.md`, `design-docs.md`) enforcing architectural boundaries automatically. |
 | [`docs/engine-reference/godot/VERSION.md`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/docs/engine-reference/godot/VERSION.md) | Pinned Godot 4.7.2 reference notes covering post-cutoff GDScript behaviors. |
+
+### 5.1 `Autopilot-Godot` Testing Environment & Zero-Trace Git Hygiene Architecture
+When gameplay validation begins using `C:\Users\MrSeb\Downloads\Autopilot-Godot`, its [`addons/autopilot/plugin.gd`](file:///C:/Users/MrSeb/Downloads/Autopilot-Godot/addons/autopilot/plugin.gd) script injects three entries into `project.godot` (`AutopilotPlaytest="*res://addons/autopilot/playtest.gd"`, `autopilot/project_id`, and `editor_plugins/enabled`). To guarantee that AI-assisted testing can be enabled/disabled effortlessly and **never leaks into Git history**:
+1. **Untracked Directory Junction Mounting**: `C:\Users\MrSeb\Downloads\Autopilot-Godot\addons\autopilot` is mounted into `addons/autopilot` via a local NTFS junction only during active test sessions and unmounted prior to commits.
+2. **Strict `.gitignore` Rules**: `.gitignore` permanently excludes `addons/autopilot/`, `.autopilot/`, `tests/autopilot/`, and `override.cfg`.
+3. **`override.cfg` Runtime Injection & `project.godot` Sanitization**: Automated headless/playtest runs load `AutopilotPlaytest` via an untracked `override.cfg` file so `project.godot` is never modified; if enabled inside the Godot Editor, a pre-commit sanitization step strips all `autopilot` keys from `project.godot` before staging.
+4. **Modular Test Separation**: Pure deterministic math/resource smoke tests reside in `tests/smoke/` (tracked), whereas all AI navigation and `Autopilot-Godot` playtest harnesses reside exclusively in `tests/autopilot/` (untracked).
