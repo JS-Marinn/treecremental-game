@@ -19,6 +19,7 @@ func _ready() -> void:
 	_test_softcaps()
 	_test_expression()
 	_test_notation()
+	_test_milestone_2_ui()
 	print("SMOKE RESULT: %s (%d failures)" % ["PASS" if _fails == 0 else "FAIL", _fails])
 	get_tree().quit(_fails)
 
@@ -186,3 +187,79 @@ func _test_notation() -> void:
 	_check("scientific", F.format(2.3456e7, F.Mode.SCIENTIFIC, cfg) == "2.35e7", F.format(2.3456e7, F.Mode.SCIENTIFIC, cfg))
 	_check("engineering", F.format(2.3456e7, F.Mode.ENGINEERING, cfg) == "23.46e6", F.format(2.3456e7, F.Mode.ENGINEERING, cfg))
 	_check("beyond suffixes falls back to sci", F.format(1.0e60, F.Mode.STANDARD, cfg) == "1e60", F.format(1.0e60, F.Mode.STANDARD, cfg))
+
+
+func _test_milestone_2_ui() -> void:
+	LocaleResolver.ensure_loaded()
+	LocaleResolver.apply_locale("en")
+	_check("i18n en KEY_HUD_TAB_TREES == Trees", tr("KEY_HUD_TAB_TREES") == "Trees", tr("KEY_HUD_TAB_TREES"))
+	LocaleResolver.apply_locale("es_419")
+	_check("i18n es_419 KEY_HUD_TAB_TREES == Arboles", tr("KEY_HUD_TAB_TREES") == "Arboles", tr("KEY_HUD_TAB_TREES"))
+	LocaleResolver.apply_locale("en")
+
+	var main_scene: PackedScene = load("res://scenes/ui/main_screen.tscn") as PackedScene
+	var main_screen: MainScreen = main_scene.instantiate() as MainScreen
+	add_child(main_screen)
+
+	var left_col: Control = main_screen.get_node_or_null("%LeftCompoundColumn") as Control
+	var top_bar: Control = main_screen.get_node_or_null("%TopResourceBar") as Control
+	var clearing_vp: Control = main_screen.get_node_or_null("%CompoundViewportContainer") as Control
+	var right_dock: Control = main_screen.get_node_or_null("%RightCommandDock") as Control
+	_check("MainScreen 432+208 Right-Hand Docked split geometry",
+		left_col != null and left_col.custom_minimum_size == Vector2(432, 360)
+		and top_bar != null and top_bar.custom_minimum_size == Vector2(432, 28)
+		and clearing_vp != null and clearing_vp.custom_minimum_size == Vector2(432, 332)
+		and right_dock != null and right_dock.custom_minimum_size == Vector2(208, 360))
+
+	main_screen.select_tab(MainScreen.DockTab.TREES)
+	var trees_count: int = main_screen.get_visible_upgrade_ids().size()
+	main_screen.select_tab(MainScreen.DockTab.CREW)
+	var crew_count: int = main_screen.get_visible_upgrade_ids().size()
+	main_screen.select_tab(MainScreen.DockTab.MILL)
+	var mill_count: int = main_screen.get_visible_upgrade_ids().size()
+	main_screen.select_tab(MainScreen.DockTab.ROOTS)
+	var roots_count: int = main_screen.get_visible_upgrade_ids().size()
+	_check("MainScreen 4 tabs populate 9+21+25+16 = 71 in-run upgrades",
+		trees_count == 9 and crew_count == 21 and mill_count == 25 and roots_count == 16,
+		"%d/%d/%d/%d" % [trees_count, crew_count, mill_count, roots_count])
+
+	main_screen.wallet.add_currency(&"coins", 500.0, &"test")
+	main_screen.select_tab(MainScreen.DockTab.TREES)
+	main_screen._on_upgrade_purchase_requested(&"prop_birch", 1)
+	_check("MainScreen purchasing prop_birch increments level to 1 and deducts 150 coins",
+		main_screen.get_upgrade_level(&"prop_birch") == 1 and is_equal_approx(main_screen.wallet.get_balance(&"coins"), 350.0))
+
+	main_screen.select_tab(MainScreen.DockTab.MILL)
+	main_screen._on_sawmill_assign_delta_requested(&"pine", 1)
+	_check("MainScreen assigns simple_lumberjack to pine Sawmill station",
+		int(main_screen._sawmill_assigned.get(&"pine", 0)) == 1)
+
+	var menu_scene: PackedScene = load("res://scenes/ui/modals/main_menu.tscn") as PackedScene
+	var menu: MainMenuView = menu_scene.instantiate() as MainMenuView
+	add_child(menu)
+	_check("MainMenuView instantiates with %PlayButton", menu.get_node_or_null("%PlayButton") != null)
+	menu.queue_free()
+
+	var prestige_scene: PackedScene = load("res://scenes/ui/modals/modal_prestige.tscn") as PackedScene
+	var prestige: ModalPrestigeView = prestige_scene.instantiate() as ModalPrestigeView
+	add_child(prestige)
+	prestige.bind_wallet(main_screen.wallet)
+	_check("ModalPrestigeView populates 16 Heartwood Sap constellation upgrades across 3 rings",
+		prestige._row_views.size() == 16, str(prestige._row_views.size()))
+	prestige.queue_free()
+
+	var ach_scene: PackedScene = load("res://scenes/ui/modals/modal_achievements.tscn") as PackedScene
+	var ach: ModalAchievementsView = ach_scene.instantiate() as ModalAchievementsView
+	add_child(ach)
+	_check("ModalAchievementsView instantiates with %AchievementGrid", ach.get_node_or_null("%AchievementGrid") != null)
+	ach.queue_free()
+
+	var settings_scene: PackedScene = load("res://scenes/ui/modals/modal_settings.tscn") as PackedScene
+	var settings: ModalSettingsView = settings_scene.instantiate() as ModalSettingsView
+	add_child(settings)
+	_check("ModalSettingsView instantiates with %MasterSlider and %LocaleOption",
+		settings.get_node_or_null("%MasterSlider") != null and settings.get_node_or_null("%LocaleOption") != null)
+	settings.queue_free()
+	main_screen.queue_free()
+	StatAggregator.clear_all()
+

@@ -80,6 +80,20 @@ func get_world_root() -> Node2D:
 	return _world_root
 
 
+func has_valid_layout_containers() -> bool:
+	return (
+		_left_compound_col != null
+		and _top_resource_bar != null
+		and _compound_viewport != null
+		and _right_command_dock != null
+	)
+
+
+func set_synergy_banner_text(text: String) -> void:
+	if _synergy_banner != null:
+		_synergy_banner.text = text
+
+
 func get_upgrade_level(upgrade_id: StringName) -> int:
 	if _upgrade_levels.has(upgrade_id):
 		return int(_upgrade_levels[upgrade_id])

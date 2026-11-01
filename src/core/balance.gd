@@ -19,6 +19,7 @@ var _upgrade_order: Array[StringName] = []
 
 
 func _ready() -> void:
+	LocaleResolver.ensure_loaded()
 	reload()
 
 

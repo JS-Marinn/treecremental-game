@@ -4,8 +4,15 @@ extends RefCounted
 
 enum Mode { STANDARD, SCIENTIFIC, ENGINEERING }
 
+static var active_mode: Mode = Mode.STANDARD
+static var _default_cfg: NotationConfig
 
-static func format(value: float, mode: Mode, cfg: NotationConfig) -> String:
+
+static func format(value: float, mode: Mode = active_mode, cfg: NotationConfig = null) -> String:
+	if cfg == null:
+		if _default_cfg == null:
+			_default_cfg = load("res://data/settings/notation_default.tres") as NotationConfig
+		cfg = _default_cfg
 	if is_nan(value):
 		return "NaN"
 	if is_inf(value):
