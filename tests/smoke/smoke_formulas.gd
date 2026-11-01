@@ -1,5 +1,6 @@
 extends Node
-## Smoke test for the data-driven math layer. Run scene directly (run_project scene=...).
+## Smoke test for Milestone 1: Composable .tres Data Layer, StatAggregator Bus, and WalletModule.
+## Run scene directly (run_project scene="res://tests/smoke/smoke_formulas.tscn").
 ## Prints PASS/FAIL lines; quits with exit code 0 only if everything passes.
 
 var _fails: int = 0
@@ -7,6 +8,10 @@ var _fails: int = 0
 
 func _ready() -> void:
 	_test_registry()
+	_test_workers_v06()
+	_test_species_v06()
+	_test_upgrades_and_stat_aggregator()
+	_test_wallet_module()
 	_test_plateau_structure()
 	_test_exponential()
 	_test_bulk_buy()
@@ -33,13 +38,89 @@ func _test_registry() -> void:
 	_check("loc key", oak.name_key() == "KEY_TREE_OAK_NAME", oak.name_key())
 
 
+func _test_workers_v06() -> void:
+	var w_ids: Array[StringName] = Balance.worker_ids()
+	_check("3 worker archetypes discovered", w_ids.size() == 3, str(w_ids))
+	var simple: WorkerArchetypeData = Balance.worker(&"simple_lumberjack")
+	var heavy: WorkerArchetypeData = Balance.worker(&"heavy_sawyer")
+	var swift: WorkerArchetypeData = Balance.worker(&"swift_cleaver")
+	_check("simple_lumberjack shared between logging_camp and sawmill",
+		simple != null and simple.can_assign_to_loop(&"logging_camp") and simple.can_assign_to_loop(&"sawmill"))
+	_check("heavy_sawyer exclusive to logging_camp",
+		heavy != null and heavy.can_assign_to_loop(&"logging_camp") and not heavy.can_assign_to_loop(&"sawmill"))
+	_check("swift_cleaver exclusive to logging_camp",
+		swift != null and swift.can_assign_to_loop(&"logging_camp") and not swift.can_assign_to_loop(&"sawmill"))
+	_check("heavy_sawyer ignores bark hardness", heavy != null and heavy.ignore_all_bark_hardness)
+	_check("swift_cleaver has 2.0x synergy trigger weight", swift != null and is_equal_approx(swift.synergy_trigger_weight, 2.0))
+
+
+func _test_species_v06() -> void:
+	var pine: SpeciesData = Balance.species(&"pine")
+	var sakura: SpeciesData = Balance.species(&"sakura")
+	var sequoia: SpeciesData = Balance.species(&"giant_sequoia")
+	_check("pine base_hp=20, base_coin_value=1.0, clearance=12",
+		is_equal_approx(pine.base_hp, 20.0) and is_equal_approx(pine.base_coin_value, 1.0) and is_equal_approx(pine.trunk_clearance_radius, 12.0))
+	_check("sakura synergy_id is cherry_petal_rain", sakura.synergy_id == &"cherry_petal_rain", String(sakura.synergy_id))
+	_check("sequoia bark_hardness=6, base_coin_value=900",
+		sequoia.bark_hardness == 6 and is_equal_approx(sequoia.base_coin_value, 900.0))
+	_check("pine spawn weight Lv.1 = 100, Lv.0 = 0",
+		is_equal_approx(pine.evaluate_spawn_weight(1), 100.0) and is_equal_approx(pine.evaluate_spawn_weight(0), 0.0))
+	_check("pine max quantity Lv.2 = 5", pine.evaluate_max_quantity(2) == 5, str(pine.evaluate_max_quantity(2)))
+
+
+func _test_upgrades_and_stat_aggregator() -> void:
+	var upg_ids: Array[StringName] = Balance.upgrade_ids()
+	_check("87 canonical upgrades discovered", upg_ids.size() == 87, str(upg_ids.size()))
+
+	StatAggregator.clear_all()
+	var base_pine_val: float = Balance.species(&"pine").base_coin_value
+	var initial_val: float = StatAggregator.query(&"species_coin_value", &"pine", base_pine_val)
+	_check("StatAggregator base query = 1.0", is_equal_approx(initial_val, 1.0), str(initial_val))
+
+	var mill_pine: UpgradeDefinitionData = Balance.upgrade(&"mill_pine")
+	var myc_phos: UpgradeDefinitionData = Balance.upgrade(&"myc_phosphorus_exchange")
+	StatAggregator.register_upgrade(mill_pine, 4) # +100% MUL_ADD on pine
+	StatAggregator.register_upgrade(myc_phos, 2)  # +20% MUL_ADD on all species
+	var boosted_val: float = StatAggregator.query(&"species_coin_value", &"pine", base_pine_val)
+	# 1.0 * (1.0 + 1.0 + 0.20) = 2.20
+	_check("StatAggregator combined pine + all MUL_ADD = 2.20", is_equal_approx(boosted_val, 2.20), str(boosted_val))
+
+	StatAggregator.reset_for_breakthrough()
+	var post_reset_val: float = StatAggregator.query(&"species_coin_value", &"pine", base_pine_val)
+	# mill_pine resets on breakthrough; myc_phosphorus_exchange persists (+20% -> 1.20)
+	_check("StatAggregator breakthrough reset preserves non-resetting upgrades", is_equal_approx(post_reset_val, 1.20), str(post_reset_val))
+	StatAggregator.clear_all()
+
+
+func _test_wallet_module() -> void:
+	var wallet := WalletModule.new()
+	wallet.add_currency(&"coins", 500.0, &"test")
+	wallet.add_currency(&"processed_logs", 120.0, &"test")
+	wallet.add_currency(&"spores", 45.0, &"test")
+	wallet.add_currency(&"sap", 15.0, &"test")
+	_check("wallet tracks coins and lifetime_sap",
+		is_equal_approx(wallet.get_balance(&"coins"), 500.0) and is_equal_approx(wallet.lifetime_sap, 15.0))
+	var prop_birch: UpgradeDefinitionData = Balance.upgrade(&"prop_birch")
+	var can_buy: bool = wallet.can_afford_upgrade(prop_birch, 0, 1)
+	var spent_ok: bool = wallet.spend_for_upgrade(prop_birch, 0, 1)
+	_check("wallet spends coins for prop_birch Lv.1 (cost 150)",
+		can_buy and spent_ok and is_equal_approx(wallet.get_balance(&"coins"), 350.0), str(wallet.get_balance(&"coins")))
+	wallet.reset_for_breakthrough(250.0)
+	_check("wallet breakthrough resets coins/processed_logs and preserves spores/sap",
+		is_equal_approx(wallet.get_balance(&"coins"), 250.0)
+		and is_equal_approx(wallet.get_balance(&"processed_logs"), 0.0)
+		and is_equal_approx(wallet.get_balance(&"spores"), 45.0)
+		and is_equal_approx(wallet.get_balance(&"sap"), 15.0))
+	wallet.free()
+
+
 func _test_plateau_structure() -> void:
 	var cfg: BalanceConfig = Balance.config
 	_check("trees per act = 3", cfg.trees_per_act == 3, str(cfg.trees_per_act))
-	_check("worker caps [30, 50, 70]", cfg.get_worker_cap(0) == 30 and cfg.get_worker_cap(1) == 50 and cfg.get_worker_cap(2) == 70)
-	_check("tool caps [3, 5, 6]", cfg.get_tool_cap(0) == 3 and cfg.get_tool_cap(1) == 5 and cfg.get_tool_cap(2) == 6)
+	_check("prop caps [4, 7, 10]", cfg.get_prop_cap(0) == 4 and cfg.get_prop_cap(1) == 7 and cfg.get_prop_cap(2) == 10)
+	_check("tool/gear caps [3, 5, 6]", cfg.get_gear_cap(0) == 3 and cfg.get_gear_cap(1) == 5 and cfg.get_gear_cap(2) == 6)
 	_check("sawmill caps [4, 7, 10]", cfg.get_sawmill_cap(0) == 4 and cfg.get_sawmill_cap(1) == 7 and cfg.get_sawmill_cap(2) == 10)
-	_check("breakthrough gate 1 = 247K logs", is_equal_approx(cfg.get_gate_logs(0), 247000.0), str(cfg.get_gate_logs(0)))
+	_check("breakthrough gate 1 = 247K coins", is_equal_approx(cfg.get_gate_coins(0), 247000.0), str(cfg.get_gate_coins(0)))
 	_check("tertiary knobs present", cfg.tertiary_multiplier_cap == 1.0 and cfg.tertiary_half_point_minutes == 90.0)
 
 
@@ -64,10 +145,8 @@ func _test_bulk_buy() -> void:
 func _test_sap() -> void:
 	var cfg: BalanceConfig = Balance.config
 	var gain: float = cfg.sap_gain.evaluate(2.0e7)
-	# 2.0e7 / 2000 = 10000 -> sqrt(10000) = 100
 	_check("sap gain at score 2.0e7 = floor(sqrt(10000)) = 100", gain == 100.0, str(gain))
 	var mult: float = cfg.sap_multiplier.evaluate(100.0)
-	# 1 + 0.6 * sqrt(100) = 1 + 6.0 = 7.0
 	_check("sap multiplier at 100 sap = 1 + 0.6*sqrt(100) = 7.0", is_equal_approx(mult, 7.0), str(mult))
 	_check("milestone mult at 50 workers = 1.5^3", is_equal_approx(cfg.milestone_mult(50), pow(1.5, 3)), str(cfg.milestone_mult(50)))
 
