@@ -75,7 +75,8 @@ func bind_lane(
 	_max_slots = maxi(1, max_slots)
 
 	if _species_icon != null:
-		_species_icon.texture = _make_wood_badge(sp.id)
+		var drop_in_badge: Texture2D = AssetResolver.species_badge(sp.id)
+		_species_icon.texture = drop_in_badge if drop_in_badge != null else _make_wood_badge(sp.id)
 
 	var eff_mult: float = StatAggregator.query(&"species_coin_value", sp.id, 1.0)
 	var sp_name: String = tr(sp.name_key())

@@ -39,6 +39,10 @@ func setup_tree(data: SpeciesData, rank: int = 0) -> void:
 	clearance_radius = data.trunk_clearance_radius + float(maturity_rank) * 1.5
 	kerf_vulnerability_bonus = 0.0
 	is_felled = false
+	if _sprite_slot != null:
+		var drop_in_texture: Texture2D = AssetResolver.tree_sprite(species_id, maturity_rank)
+		if drop_in_texture != null:
+			_sprite_slot.texture = drop_in_texture
 	_update_visuals()
 	queue_redraw()
 

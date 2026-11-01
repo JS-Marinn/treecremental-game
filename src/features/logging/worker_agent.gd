@@ -33,6 +33,10 @@ func setup_worker(data: WorkerArchetypeData, rng_seed: int = 0) -> void:
 		worker_id = data.id
 	if rng_seed != 0:
 		_rng.seed = rng_seed
+	if _sprite_slot != null:
+		var drop_in_texture: Texture2D = AssetResolver.worker_sprite(worker_id)
+		if drop_in_texture != null:
+			_sprite_slot.texture = drop_in_texture
 	queue_redraw()
 
 

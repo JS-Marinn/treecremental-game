@@ -72,3 +72,25 @@ DELIVERABLES (answer in this order)
 
 END PROMPT -----------------------------------------------------------------
 ````
+
+---
+
+## Asset Naming Conventions (Drop-In Pipeline)
+
+All final Aseprite exports and audio files are loaded at runtime by `AssetResolver`
+(`src/core/asset_resolver.gd`) purely by file naming convention. The game never
+generates content procedurally and never requires an asset to be present: when a
+file is missing, the current fallback presentation is used automatically.
+
+| Asset Type | Canonical Path | Notes |
+|---|---|---|
+| Worker sprite | `assets/sprites/workers/worker_<worker_id>.png` | `simple_lumberjack`, `heavy_sawyer`, `swift_cleaver` |
+| Worker gear overlay | `assets/sprites/workers/worker_<worker_id>_gear<k>.png` | `k` in 1..6 per gear tier |
+| Tree sprite | `assets/sprites/trees/tree_<species_id>_r<rank>.png` | `rank` in 0..4 Old-Growth maturity |
+| Species UI badge | `assets/sprites/species/<species_id>.png` | small wood badge for lane headers |
+| Achievement icon | `assets/sprites/achievements/ach_<achievement_id>.png` | 32x32 authored, 64x64 and 256x256 exported |
+| UI chrome | `assets/sprites/ui/<name>.png` | frames, buttons, sliders |
+| Clearing tileset | `assets/tilesets/clearing_tileset.tres` | 16x16 px tiles with `can_spawn_tree` custom data |
+| Sound effect | `assets/audio/sfx/<event_id>.wav` or `.ogg` | `wood_chop`, `timberfall`, `button_click`, `breakthrough_fanfare` |
+| Music track | `assets/audio/music/<track_id>.ogg` | loopable tracks |
+| Post-process shader | `assets/shaders/<name>.gdshader` | colorblind filters and screen effects |

@@ -23,6 +23,7 @@ func _ready() -> void:
 	_test_milestone_3_clearing()
 	_test_milestone_4_sawmill_and_kilns()
 	_test_milestone_5_separated_loops_tertiary_and_prestige()
+	_test_milestone_6_assets_conventions()
 	print("SMOKE RESULT: %s (%d failures)" % ["PASS" if _fails == 0 else "FAIL", _fails])
 	get_tree().quit(_fails)
 
@@ -498,5 +499,31 @@ func _test_milestone_5_separated_loops_tertiary_and_prestige() -> void:
 	mycelium.free()
 	main_screen.queue_free()
 	StatAggregator.clear_all()
+
+
+func _test_milestone_6_assets_conventions() -> void:
+	_check("AssetResolver resolves worker sprite convention",
+		AssetResolver.worker_sprite_path(&"simple_lumberjack", 0) == "res://assets/sprites/workers/worker_simple_lumberjack.png",
+		AssetResolver.worker_sprite_path(&"simple_lumberjack", 0))
+	_check("AssetResolver resolves worker gear overlay convention",
+		AssetResolver.worker_sprite_path(&"heavy_sawyer", 3) == "res://assets/sprites/workers/worker_heavy_sawyer_gear3.png",
+		AssetResolver.worker_sprite_path(&"heavy_sawyer", 3))
+	_check("AssetResolver resolves tree maturity convention",
+		AssetResolver.tree_sprite_path(&"sakura", 4) == "res://assets/sprites/trees/tree_sakura_r4.png",
+		AssetResolver.tree_sprite_path(&"sakura", 4))
+	_check("AssetResolver resolves achievement icon convention",
+		AssetResolver.achievement_icon_path(&"ach_first_chip") == "res://assets/sprites/achievements/ach_first_chip.png",
+		AssetResolver.achievement_icon_path(&"ach_first_chip"))
+	_check("AssetResolver resolves tileset convention",
+		AssetResolver.tileset_path() == "res://assets/tilesets/clearing_tileset.tres",
+		AssetResolver.tileset_path())
+	_check("AssetResolver returns empty path for undelivered sfx assets",
+		AssetResolver.sfx_path(&"wood_chop") == "" and AssetResolver.music_path(&"main_theme") == ""
+		and AssetResolver.shader_path(&"colorblind_deuteranopia") == "")
+	_check("AssetResolver returns null sprites for undelivered assets",
+		AssetResolver.tree_sprite(&"pine", 0) == null
+		and AssetResolver.worker_sprite(&"swift_cleaver") == null
+		and AssetResolver.species_badge(&"oak") == null
+		and AssetResolver.achievement_icon(&"ach_grand_forester") == null)
 
 
