@@ -201,7 +201,15 @@ func _category_color(cat: StringName) -> Color:
 
 func _humanize_id(raw_id: StringName) -> String:
 	var s: String = String(raw_id)
-	for prefix in ["prop_", "hire_", "gear_", "camp_", "mill_", "kiln_", "aviary_bird_", "aviary_", "myc_", "sap_"]:
+	if s.begins_with("prop_"):
+		return "Propagate: " + s.trim_prefix("prop_").replace("_", " ").capitalize()
+	if s.begins_with("hire_"):
+		return "Hire: " + s.trim_prefix("hire_").replace("_", " ").capitalize()
+	if s.begins_with("gear_"):
+		return "Gear: " + s.trim_prefix("gear_").replace("_", " ").capitalize()
+	if s.begins_with("mill_") and upgrade_data != null and upgrade_data.category == &"sawmill_per_species_value_and_slots":
+		return "Mill: " + s.trim_prefix("mill_").replace("_", " ").capitalize()
+	for prefix in ["camp_", "mill_", "kiln_", "aviary_bird_", "aviary_", "myc_", "sap_"]:
 		if s.begins_with(prefix):
 			s = s.trim_prefix(prefix)
 			break

@@ -41,6 +41,7 @@ KEY_SYNERGY_CINNABAR_DRAGONS_BLOOD_NAME,"Cinnabar Dragon's Blood","Sangre de Dra
 KEY_SYNERGY_SEISMIC_TIMBERFALL_NAME,"Seismic Timberfall","Caida Sismica Colosal","Caida Sismica Colosal"
 KEY_RESOURCE_COINS,"Coins","Monedas","Monedas"
 KEY_RESOURCE_PROCESSED_LOGS,"Processed Logs","Troncos Procesados","Troncos Procesados"
+KEY_RESOURCE_LOGS_SHORT,"Logs","Troncos","Troncos"
 KEY_RESOURCE_CHARCOAL,"Charcoal","Carbon vegetal","Carbon vegetal"
 KEY_RESOURCE_ASH,"Ash","Ceniza","Ceniza"
 KEY_RESOURCE_SAP,"Sap","Savia","Savia"

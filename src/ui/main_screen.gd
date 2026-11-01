@@ -173,7 +173,7 @@ func refresh_top_bar() -> void:
 	if _coins_label != null:
 		_coins_label.text = "%s: %s" % [tr("KEY_RESOURCE_COINS"), NumberFormatter.format(wallet.get_balance(&"coins"))]
 	if _processed_logs_label != null:
-		_processed_logs_label.text = "%s: %s" % [tr("KEY_RESOURCE_PROCESSED_LOGS"), NumberFormatter.format(wallet.get_balance(&"processed_logs"))]
+		_processed_logs_label.text = "%s: %s" % [tr("KEY_RESOURCE_LOGS_SHORT"), NumberFormatter.format(wallet.get_balance(&"processed_logs"))]
 	if _charcoal_label != null:
 		_charcoal_label.text = "%s: %s" % [tr("KEY_RESOURCE_CHARCOAL"), NumberFormatter.format(wallet.get_balance(&"charcoal"))]
 	if _sap_label != null:

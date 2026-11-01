@@ -128,5 +128,31 @@ func _load_upgrades(dir_path: String) -> void:
 			continue
 		_upgrades[res.id] = res
 	_upgrade_order.assign(_upgrades.keys())
-	_upgrade_order.sort_custom(func(a: StringName, b: StringName) -> bool:
-		return String(a) < String(b))
+	_upgrade_order.sort_custom(_compare_upgrades)
+
+
+func _compare_upgrades(a: StringName, b: StringName) -> bool:
+	var ua: UpgradeDefinitionData = _upgrades[a]
+	var ub: UpgradeDefinitionData = _upgrades[b]
+	var sa: float = _upgrade_sort_score(ua)
+	var sb: float = _upgrade_sort_score(ub)
+	if not is_equal_approx(sa, sb):
+		return sa < sb
+	return String(a) < String(b)
+
+
+func _upgrade_sort_score(u: UpgradeDefinitionData) -> float:
+	if u == null:
+		return 0.0
+	var id_str: String = String(u.id)
+	# Species-targeted upgrades sort by species tier (0..8)
+	if u.target_entity_id != &"" and _species.has(u.target_entity_id):
+		var sp: SpeciesData = _species[u.target_entity_id]
+		return float(sp.tier)
+	# Worker-targeted upgrades sort Hire (0..2) before Gear (10..12)
+	if u.target_entity_id != &"" and _workers.has(u.target_entity_id):
+		var wk: WorkerArchetypeData = _workers[u.target_entity_id]
+		var group_offset: float = 0.0 if id_str.begins_with("hire_") else 10.0
+		return group_offset + float(wk.tier_index)
+	# All other upgrades sort by initial cost ( Lv.0 evaluation )
+	return 100.0 + (u.cost_curve.evaluate(0.0) if u.cost_curve != null else 0.0)
