@@ -1,11 +1,11 @@
 schema_version: 2
-revised: 2026-10-31
+revised: 2026-11-01
 
 project:
   name: "Treecremental"
   version_spec: "v0.6"
   stage: "production"
-  current_milestone: "M5_tertiary_loops_and_heartwood_ascension"
+  current_milestone: "M6_art_audio_save_steam_i18n"
   repository_url: "https://github.com/JS-Marinn/treecremental-game"
   genre: "2d-pixel-art-incremental"
   session_model: "active-session-only"
