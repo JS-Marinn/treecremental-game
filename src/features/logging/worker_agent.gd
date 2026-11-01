@@ -20,7 +20,6 @@ var facing_dir: float = 1.0
 var _swing_anim_timer: float = 0.0
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
-@onready var _visual_root: Node2D = get_node_or_null("%VisualRoot") as Node2D
 @onready var _sprite_slot: Sprite2D = get_node_or_null("%SpriteSlot") as Sprite2D
 
 

@@ -20,6 +20,7 @@ func _ready() -> void:
 	_test_expression()
 	_test_notation()
 	_test_milestone_2_ui()
+	_test_milestone_3_clearing()
 	print("SMOKE RESULT: %s (%d failures)" % ["PASS" if _fails == 0 else "FAIL", _fails])
 	get_tree().quit(_fails)
 
@@ -262,4 +263,75 @@ func _test_milestone_2_ui() -> void:
 	settings.queue_free()
 	main_screen.queue_free()
 	StatAggregator.clear_all()
+
+
+func _test_milestone_3_clearing() -> void:
+	StatAggregator.clear_all()
+	var prop_pine: UpgradeDefinitionData = Balance.upgrade(&"prop_pine")
+	var hire_simple: UpgradeDefinitionData = Balance.upgrade(&"hire_simple_lumberjack")
+	var hire_heavy: UpgradeDefinitionData = Balance.upgrade(&"hire_heavy_sawyer")
+	var hire_swift: UpgradeDefinitionData = Balance.upgrade(&"hire_swift_cleaver")
+	StatAggregator.register_upgrade(prop_pine, 2)
+	StatAggregator.register_upgrade(hire_simple, 2)
+	StatAggregator.register_upgrade(hire_heavy, 1)
+	StatAggregator.register_upgrade(hire_swift, 1)
+
+	var wallet := WalletModule.new()
+	var clearing_scene: PackedScene = load("res://scenes/world/logging_clearing.tscn") as PackedScene
+	var camp: LoggingCampModule = clearing_scene.instantiate() as LoggingCampModule
+	camp.bind_wallet(wallet)
+	add_child(camp)
+
+	_check("Milestone 3 Clearing spawns initial Pine trees (up to Q_pine=5)",
+		camp.get_living_tree_count(&"pine") == 5, str(camp.get_living_tree_count(&"pine")))
+
+	# Verify Poisson-disc minimum separation between all spawned trees
+	var min_sep_ok: bool = true
+	for i in range(camp._trees.size()):
+		for j in range(i + 1, camp._trees.size()):
+			var ta: TreeEntity = camp._trees[i]
+			var tb: TreeEntity = camp._trees[j]
+			var dist: float = ta.position.distance_to(tb.position)
+			if dist + 0.01 < (ta.clearance_radius + tb.clearance_radius):
+				min_sep_ok = false
+	_check("Poisson-disc random tree positions enforce minimum clearance radius", min_sep_ok)
+
+	_check("Clearing reconciles 2 Simple, 1 Heavy Sawyer, 1 Swift Cleaver",
+		camp.get_active_worker_count(&"simple_lumberjack") == 2
+		and camp.get_active_worker_count(&"heavy_sawyer") == 1
+		and camp.get_active_worker_count(&"swift_cleaver") == 1)
+
+	# Simulate 4 seconds of active chopping and verify coins are earned
+	for _step in range(40):
+		camp.tick(0.1)
+	_check("Autonomous workers chop trees and generate Coins in WalletModule",
+		wallet.get_balance(&"coins") > 0.0, str(wallet.get_balance(&"coins")))
+
+	# Verify Bark Hardness mitigation vs Heavy Sawyer 100% penetration on Giant Sequoia (bark_hardness=6)
+	var sequoia_data: SpeciesData = Balance.species(&"giant_sequoia")
+	var seq_tree := TreeEntity.new()
+	seq_tree.setup_tree(sequoia_data, 0)
+	var res_simple: Dictionary = seq_tree.apply_chop_damage(100.0, 0, false, &"simple_lumberjack", 1.0)
+	var res_heavy: Dictionary = seq_tree.apply_chop_damage(100.0, 999, true, &"heavy_sawyer", 1.0)
+	# simple_lumberjack mitigated by 0.80^6 = 0.262144; heavy_sawyer deals full 100.0
+	_check("Bark Hardness mitigates unpenetrated hits (26.21) while Heavy Sawyer deals 100% (100.0)",
+		absf(float(res_simple["damage_dealt"]) - 26.2144) < 0.01 and is_equal_approx(float(res_heavy["damage_dealt"]), 100.0),
+		"%f vs %f" % [float(res_simple["damage_dealt"]), float(res_heavy["damage_dealt"])])
+	seq_tree.free()
+
+	# Verify Sakura Cherry Petal Rain synergy applies +35% worker_move_speed and expires after duration
+	var sakura_data: SpeciesData = Balance.species(&"sakura")
+	var base_move: float = StatAggregator.query(&"worker_move_speed", &"simple_lumberjack", 1.0)
+	var proc_ok: bool = camp.synergy_controller.try_trigger_on_fell(sakura_data, 1.0, wallet, camp._trees, true)
+	var buffed_move: float = StatAggregator.query(&"worker_move_speed", &"simple_lumberjack", 1.0)
+	camp.synergy_controller.tick_synergies(10.0)
+	var expired_move: float = StatAggregator.query(&"worker_move_speed", &"simple_lumberjack", 1.0)
+	_check("Sakura Cherry Petal Rain buffs worker_move_speed (+35%) and expires cleanly",
+		proc_ok and is_equal_approx(base_move, 1.0) and is_equal_approx(buffed_move, 1.35) and is_equal_approx(expired_move, 1.0),
+		"%f -> %f -> %f" % [base_move, buffed_move, expired_move])
+
+	camp.queue_free()
+	wallet.free()
+	StatAggregator.clear_all()
+
 

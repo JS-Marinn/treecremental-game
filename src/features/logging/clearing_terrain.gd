@@ -90,6 +90,7 @@ func _build_runtime_tileset() -> void:
 	var atlas := TileSetAtlasSource.new()
 	atlas.texture = tex
 	atlas.texture_region_size = Vector2i(TILE_SIZE_PX, TILE_SIZE_PX)
+	_tileset.add_source(atlas, 0)
 
 	for tx in range(4):
 		var coords := Vector2i(tx, 0)
@@ -97,8 +98,6 @@ func _build_runtime_tileset() -> void:
 		var td: TileData = atlas.get_tile_data(coords, 0)
 		if td != null:
 			td.set_custom_data(CUSTOM_DATA_CAN_SPAWN, tx == 0 or tx == 1)
-
-	_tileset.add_source(atlas, 0)
 
 	if ground_base_layer != null:
 		ground_base_layer.tile_set = _tileset
