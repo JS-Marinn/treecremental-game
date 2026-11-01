@@ -32,7 +32,7 @@ PARAMS = dict(
     milestone_counts=[10, 25, 50],
     milestone_mult=1.5,
     gate_logs=[247000.0, 7160000.0, 46200000.0],
-    eco_per_tree=0.06,
+    eco_per_tree=0.05,
     tertiary_cap=1.0,
     tertiary_half_min=90.0,
     value_growth=1.9,
@@ -40,6 +40,7 @@ PARAMS = dict(
     sap_exponent=0.5,
     sap_mult_scale=0.6,
     sap_mult_exponent=0.5,
+    worker_attack_scale=0.8,
     bot_efficiency=1.0,
     post_game_min=0,
     max_hours=8,
@@ -100,6 +101,7 @@ def simulate(P):
             * eco
             * msap
             * tert()
+            * P["worker_attack_scale"]
             * P["bot_efficiency"]
         )
 

@@ -7,7 +7,7 @@
 script = ExtResource("2")
 kind = 1
 base = 1.0
-scale = 0.06
+scale = 0.05
 
 [sub_resource type="Resource" id="sap_gain"]
 script = ExtResource("2")

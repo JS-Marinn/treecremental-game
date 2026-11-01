@@ -74,9 +74,9 @@ All **3 worker types can chop all 9 tree species** in the main clearing, but eac
 
 | # | Worker ID | Display Name | Sprite & Silhouette | Loop Placement Rule (`allowed_loop_ids`) | Unique Chopping Stats & Behavioral Role |
 |---:|---|---|---|---|---|
-| **1** | `simple_lumberjack` | **Simple Lumberjack** (`[Lb]`) | `16x16 px` — Red flannel cap, standard felling axe. | **Shared (`logging_camp`, `sawmill`)**: The **ONLY** worker type that can be sent to the Sawmill or kept chopping in the Main Clearing. | **Balanced Versatile Chopper & Miller:** `1.0x` move speed, `1.0 hits/s`, `1.0x` base damage. Can be dynamically assigned via `+` / `-` controls between the Main Clearing and per-species Sawmill stations. |
-| **2** | `heavy_sawyer` | **Heavy Sawyer** (`[Sw]`) | `20x16 px` — Leather apron, wide-brim hat, two-man / steam bucking saw. | **Main Loop Exclusive (`logging_camp` only)**: Cannot be assigned to the Sawmill. | **Armor-Piercing Durability Shredder:** `0.75x` move speed, continuous multi-tick sawing (`2.5x` sustained DPS), **100% Bark Hardness penetration**, and shreds target tree resistance so nearby workers deal bonus damage. |
-| **3** | `swift_cleaver` | **Swift Cleaver** (`[Cl]`) | `16x16 px` — Green bandana, dual light hatchets, agile stance. | **Main Loop Exclusive (`logging_camp` only)**: Cannot be assigned to the Sawmill. | **High-Tempo Crit & Synergy Specialist:** `1.40x` move speed, rapid flurry swings (`1.8 hits/s`), **+20% Base Critical Strike Chance**, and **2.0x Synergy Trigger Weight** (accelerates on-hit chip payouts and on-fell events like Sakura *Cherry Petal Rain*). |
+| **1** | `simple_lumberjack` | **Simple Lumberjack** (`[Lb]`) | `16x16 px` — Red flannel cap, standard felling axe. | **Shared (`logging_camp`, `sawmill`)**: The **ONLY** worker type that can be sent to the Sawmill or kept chopping in the Main Clearing. | **Balanced Versatile Chopper & Miller:** `1.0x` move speed, `0.8 hits/s`, `1.0x` base damage. Can be dynamically assigned via `+` / `-` controls between the Main Clearing and per-species Sawmill stations. |
+| **2** | `heavy_sawyer` | **Heavy Sawyer** (`[Sw]`) | `20x16 px` — Leather apron, wide-brim hat, two-man / steam bucking saw. | **Main Loop Exclusive (`logging_camp` only)**: Cannot be assigned to the Sawmill. | **Armor-Piercing Durability Shredder:** `0.75x` move speed, continuous multi-tick sawing (`2.0x` sustained DPS), **100% Bark Hardness penetration**, and shreds target tree resistance so nearby workers deal bonus damage. |
+| **3** | `swift_cleaver` | **Swift Cleaver** (`[Cl]`) | `16x16 px` — Green bandana, dual light hatchets, agile stance. | **Main Loop Exclusive (`logging_camp` only)**: Cannot be assigned to the Sawmill. | **High-Tempo Crit & Synergy Specialist:** `1.40x` move speed, rapid flurry swings (`1.44 hits/s`), **+20% Base Critical Strike Chance**, and **2.0x Synergy Trigger Weight** (accelerates on-hit chip payouts and on-fell events like Sakura *Cherry Petal Rain*). |
 
 ---
 
@@ -226,9 +226,9 @@ Every upgrade in *Treecremental* is itemized below with its canonical ID, max le
 
 | Upgrade ID | Name | Worker Type | Max Lv (Act I / II / III) | Cost Formula (Paid in `coins`) | Exact Mechanical Effect |
 |---|---|---|---|---|---|
-| `hire_simple_lumberjack` | Hire Simple Lumberjack | 1. Simple Lumberjack (`[Lb]`) | 14 / 24 / 34 | $\$10 \cdot 1.15^n$ `coins` | $+1$ Simple Lumberjack (`1.0x` move/swing; can chop any tree OR be sent to the Sawmill). |
-| `hire_heavy_sawyer` | Hire Heavy Sawyer | 2. Heavy Sawyer (`[Sw]`) | 6 / 12 / 18 | $\$45 \cdot 1.18^n$ `coins` | $+1$ Heavy Sawyer (`0.75x` move, `2.5 DPS` sawing, ignores Bark Hardness; Main Loop only). |
-| `hire_swift_cleaver` | Hire Swift Cleaver | 3. Swift Cleaver (`[Cl]`) | 5 / 10 / 15 | $\$75 \cdot 1.20^n$ `coins` | $+1$ Swift Cleaver (`1.40x` move, `1.8 hits/s`, $+20\%$ base crit, $2.0\times$ synergy proc rate; Main Loop only). |
+| `hire_simple_lumberjack` | Hire Simple Lumberjack | 1. Simple Lumberjack (`[Lb]`) | 14 / 24 / 34 | $\$10 \cdot 1.15^n$ `coins` | $+1$ Simple Lumberjack (`1.0x` move, `0.8 hits/s`; can chop any tree OR be sent to the Sawmill). |
+| `hire_heavy_sawyer` | Hire Heavy Sawyer | 2. Heavy Sawyer (`[Sw]`) | 6 / 12 / 18 | $\$45 \cdot 1.18^n$ `coins` | $+1$ Heavy Sawyer (`0.75x` move, `2.0 DPS` sawing, ignores Bark Hardness; Main Loop only). |
+| `hire_swift_cleaver` | Hire Swift Cleaver | 3. Swift Cleaver (`[Cl]`) | 5 / 10 / 15 | $\$75 \cdot 1.20^n$ `coins` | $+1$ Swift Cleaver (`1.40x` move, `1.44 hits/s`, $+20\%$ base crit, $2.0\times$ synergy proc rate; Main Loop only). |
 | `gear_simple_lumberjack` | Lumberjack Felling Axes | 1. Simple Lumberjack (`[Lb]`) | 3 / 5 / 6 | $\$120 \cdot 9^k$ `coins` | Upgrades axes (*Flint -> Iron -> Steel -> Broadaxe -> Steam-Axe -> Heartwood*); multiplies Simple Lumberjack chop power by $\times 2.0^k$ ($\times 64$ at Lv. 6). |
 | `gear_heavy_sawyer` | Sawyer Bucking Blades | 2. Heavy Sawyer (`[Sw]`) | 3 / 5 / 6 | $\$260 \cdot 9^k$ `coins` | Upgrades saws (*Rip-Saw -> Crosscut -> Raker-Tooth -> Carbide -> Steam-Piston -> Resonance Blade*); multiplies Sawyer DPS by $\times 2.0^k$ and raises Armor Shred tier to $k+1$. |
 | `gear_swift_cleaver` | Cleaver Twin Hatchets | 3. Swift Cleaver (`[Cl]`) | 3 / 5 / 6 | $\$380 \cdot 9^k$ `coins` | Upgrades twin hatchets (*Bronze -> Tempered -> Damascus -> Featherweight -> Wind-Steel -> Amber-Edge*); multiplies Cleaver damage by $\times 2.0^k$ and adds $+5\%$ crit damage/Lv. |
@@ -465,7 +465,7 @@ flowchart LR
 - **Step 3.2 — Tree Durability (HP), Bark Hardness & Old-Growth Maturity Ranks**:
   - Implement tree instances with overhead world-space HP bars, Old-Growth Maturity Ranks ($m \in \{0..4\}$, scaling HP by $4.0^m$ and Coin Yield by $4.2^m$ to clamp fell time to $2.5\text{ s}$–$8.0\text{ s}$), Chip Yield ($30\%$) with floating `+$COINS` popups, and Timberfall Jackpot ($70\%$).
 - **Step 3.3 — The 3 Worker Archetype Agents**:
-  - Implement autonomous movement and chopping for `simple_lumberjack` (`1.0x` balanced), `heavy_sawyer` (`0.75x` move, continuous sawing, 100% Bark Hardness penetration & armor shred), and `swift_cleaver` (`1.40x` move, `1.8 hits/s` flurry, $+20\%$ crit, $2.0\times$ synergy proc rate).
+   - Implement autonomous movement and chopping for `simple_lumberjack` (`1.0x` balanced), `heavy_sawyer` (`0.75x` move, continuous sawing, 100% Bark Hardness penetration & armor shred), and `swift_cleaver` (`1.40x` move, `1.44 hits/s` flurry, $+20\%$ crit, $2.0\times$ synergy proc rate).
 - **Step 3.4 — The 9 Tree Species Ecological Synergies**:
   - Register modular synergy listeners on `EventBus` for all 9 species (including Sakura's *Cherry Petal Rain* camp-wide buff and Fir's *Boreal Frost Shatter* splash damage).
 - **Step 3.5 — Verification Gate**:
