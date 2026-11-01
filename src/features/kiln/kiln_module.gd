@@ -89,8 +89,8 @@ func _complete_carbonization_cycle() -> void:
 	var ash_amount: float = (0.25 + ash_flat) * ash_purity
 
 	if wallet != null:
-		wallet.add_resource(&"charcoal", charcoal_amount)
-		wallet.add_resource(&"ash", ash_amount)
+		wallet.add_currency(&"charcoal", charcoal_amount, &"charcoal_kilns")
+		wallet.add_currency(&"ash", ash_amount, &"charcoal_kilns")
 
 	# Auto-stoke pulse on each cycle completion (amplified by kiln_auto_stoker / retention)
 	var retention: float = maxf(0.0, StatAggregator.query(&"kiln_boiler_retention", &"all", 0.0))
@@ -112,6 +112,5 @@ func _update_overclock_modifier() -> void:
 	mod.operation = StatModifierData.Operation.MUL_ADD
 	mod.curve = curve
 
-	var mods: Array[StatModifierData] = [mod]
-	StatAggregator.register_modifiers(&"kiln_boiler_overclock", mods, 1, true)
+	StatAggregator.register_modifier(&"kiln_boiler_overclock", mod, 1, false, true)
 	thermal_pressure_changed.emit(thermal_pressure, bonus)

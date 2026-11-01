@@ -62,7 +62,7 @@ func tick(delta: float) -> void:
 		total_logs_generated += cycle_advance * logs_yield_mult
 
 	if total_logs_generated > 0.0 and wallet != null:
-		wallet.add_resource(&"processed_logs", total_logs_generated)
+		wallet.add_currency(&"processed_logs", total_logs_generated, &"sawmill")
 
 
 func get_effective_work_speed() -> float:
@@ -81,7 +81,7 @@ func get_species_processing_bonus(species_id: StringName) -> float:
 
 func reset_for_breakthrough() -> void:
 	for sid in _species_cycles.keys():
-		StatAggregator.unregister_source(StringName("sawmill_process:%s" % String(sid)))
+		StatAggregator.remove_modifier(StringName("sawmill_process:%s" % String(sid)))
 	_species_cycles.clear()
 	_species_process_bonus.clear()
 	if roster_dispatcher != null:
@@ -101,10 +101,10 @@ func _register_species_value_modifier(species_id: StringName, bonus_value: float
 	mod.operation = StatModifierData.Operation.MUL_ADD
 	mod.curve = curve
 
-	var mods: Array[StatModifierData] = [mod]
-	StatAggregator.register_modifiers(
+	StatAggregator.register_modifier(
 		StringName("sawmill_process:%s" % String(species_id)),
-		mods,
+		mod,
 		1,
+		false,
 		true
 	)

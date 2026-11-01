@@ -21,6 +21,7 @@ func _ready() -> void:
 	_test_notation()
 	_test_milestone_2_ui()
 	_test_milestone_3_clearing()
+	_test_milestone_4_sawmill_and_kilns()
 	print("SMOKE RESULT: %s (%d failures)" % ["PASS" if _fails == 0 else "FAIL", _fails])
 	get_tree().quit(_fails)
 
@@ -237,7 +238,7 @@ func _test_milestone_2_ui() -> void:
 	main_screen.select_tab(MainScreen.DockTab.MILL)
 	main_screen._on_sawmill_assign_delta_requested(&"pine", 1)
 	_check("MainScreen assigns simple_lumberjack to pine Sawmill station",
-		int(main_screen._sawmill_assigned.get(&"pine", 0)) == 1)
+		main_screen.roster_dispatcher.get_station_assigned(&"pine") == 1)
 
 	var menu_scene: PackedScene = load("res://scenes/ui/modals/main_menu.tscn") as PackedScene
 	var menu: MainMenuView = menu_scene.instantiate() as MainMenuView
@@ -335,6 +336,79 @@ func _test_milestone_3_clearing() -> void:
 		"%f -> %f -> %f" % [base_move, buffed_move, expired_move])
 
 	camp.queue_free()
+	wallet.free()
+	StatAggregator.clear_all()
+
+
+func _test_milestone_4_sawmill_and_kilns() -> void:
+	StatAggregator.clear_all()
+	var hire_simple: UpgradeDefinitionData = Balance.upgrade(&"hire_simple_lumberjack")
+	var hire_heavy: UpgradeDefinitionData = Balance.upgrade(&"hire_heavy_sawyer")
+	var hire_swift: UpgradeDefinitionData = Balance.upgrade(&"hire_swift_cleaver")
+	StatAggregator.register_upgrade(hire_simple, 2)
+	StatAggregator.register_upgrade(hire_heavy, 1)
+	StatAggregator.register_upgrade(hire_swift, 1)
+
+	var dispatcher := RosterDispatcher.new()
+	_check("RosterDispatcher rejects Heavy Sawyer and Swift Cleaver from Sawmill",
+		not dispatcher.can_worker_enter_loop(&"heavy_sawyer", &"sawmill")
+		and not dispatcher.can_worker_enter_loop(&"swift_cleaver", &"sawmill")
+		and not dispatcher.try_adjust_station_assignment(&"pine", 1, &"heavy_sawyer")
+		and not dispatcher.try_adjust_station_assignment(&"pine", 1, &"swift_cleaver"))
+
+	var assign_ok: bool = dispatcher.try_adjust_station_assignment(&"pine", 1, &"simple_lumberjack")
+	_check("RosterDispatcher assigns Simple Lumberjack to Pine station and deducts from clearing count (2 -> 1)",
+		assign_ok and dispatcher.get_station_assigned(&"pine") == 1 and dispatcher.get_clearing_worker_count(&"simple_lumberjack") == 1)
+
+	# Self-contained SawmillModule: zero input materials required
+	var wallet := WalletModule.new()
+	var sawmill := SawmillModule.new()
+	sawmill.bind_dependencies(wallet, dispatcher)
+	var base_pine_mult: float = StatAggregator.query(&"species_coin_value", &"pine", 1.0)
+	sawmill.tick(5.0)
+	var processed_pine_mult: float = StatAggregator.query(&"species_coin_value", &"pine", 1.0)
+	var logs_earned: float = wallet.get_balance(&"processed_logs")
+	_check("Self-contained Sawmill raises Pine coin value multiplier and generates Processed Logs with zero input materials",
+		processed_pine_mult > base_pine_mult and logs_earned > 0.0,
+		"mult: %f -> %f, logs: %f" % [base_pine_mult, processed_pine_mult, logs_earned])
+
+	# Spend Processed Logs inside Sawmill on mill_pine, mill_crew_quarters, and mill_undershot_wheel
+	wallet.add_currency(&"processed_logs", 500.0, &"test")
+	var mill_pine: UpgradeDefinitionData = Balance.upgrade(&"mill_pine")
+	var mill_quarters: UpgradeDefinitionData = Balance.upgrade(&"mill_crew_quarters")
+	var mill_wheel: UpgradeDefinitionData = Balance.upgrade(&"mill_undershot_wheel")
+	var speed_before: float = sawmill.get_effective_work_speed()
+	var cap_before: int = dispatcher.get_sawmill_max_capacity()
+	var bought_pine: bool = wallet.spend_for_upgrade(mill_pine, 0, 3)
+	if bought_pine:
+		StatAggregator.register_upgrade(mill_pine, 3)
+	var bought_quarters: bool = wallet.spend_for_upgrade(mill_quarters, 0, 2)
+	if bought_quarters:
+		StatAggregator.register_upgrade(mill_quarters, 2)
+	var bought_wheel: bool = wallet.spend_for_upgrade(mill_wheel, 0, 2)
+	if bought_wheel:
+		StatAggregator.register_upgrade(mill_wheel, 2)
+	_check("Spending Processed Logs upgrades species value & slots (1->2), Sawmill worker capacity (2->4), and Sawmill working speed (1.0->1.4)",
+		bought_pine and bought_quarters and bought_wheel
+		and dispatcher.get_station_max_slots(&"pine") == 2
+		and dispatcher.get_sawmill_max_capacity() == cap_before + 2
+		and sawmill.get_effective_work_speed() > speed_before)
+
+	# KilnModule carbonization cycles & Steam Boiler Thermal Overclock
+	var kiln := KilnModule.new()
+	kiln.bind_wallet(wallet)
+	kiln.stoke_boiler(0.60)
+	var global_speed_overclocked: float = StatAggregator.query(&"global_work_speed", &"all", 1.0)
+	kiln.tick(6.0)
+	_check("KilnModule completes carbonization cycles (generating Charcoal & Ash) and Steam Boiler overclock boosts global_work_speed",
+		kiln.total_cycles_completed >= 1
+		and wallet.get_balance(&"charcoal") > 0.0
+		and wallet.get_balance(&"ash") > 0.0
+		and global_speed_overclocked > 1.0,
+		"charcoal=%f, ash=%f, global_speed=%f" % [wallet.get_balance(&"charcoal"), wallet.get_balance(&"ash"), global_speed_overclocked])
+
+	sawmill.free()
+	kiln.free()
 	wallet.free()
 	StatAggregator.clear_all()
 
