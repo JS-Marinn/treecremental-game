@@ -5,7 +5,7 @@ project:
   name: "Treecremental"
   version_spec: "v0.6"
   stage: "production"
-  current_milestone: "M1_composable_data_and_stat_aggregator"
+  current_milestone: "M2_editable_right_docked_tscn_ui_groundwork"
   repository_url: "https://github.com/JS-Marinn/treecremental-game"
   genre: "2d-pixel-art-incremental"
   session_model: "active-session-only"

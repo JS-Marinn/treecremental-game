@@ -1,0 +1,107 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://assets/ui/default_theme.tres" id="1"]
+[ext_resource type="Script" path="res://src/ui/components/upgrade_row_view.gd" id="2"]
+
+[node name="UpgradeRowTemplate" type="PanelContainer"]
+custom_minimum_size = Vector2(190, 44)
+theme = ExtResource("1")
+script = ExtResource("2")
+
+[node name="RowVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="TopRow" type="HBoxContainer" parent="RowVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="IconRect" type="ColorRect" parent="RowVBox/TopRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+color = Color(0.28, 0.58, 0.3, 1)
+
+[node name="TitleLabel" type="Label" parent="RowVBox/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Pine Propagation"
+clip_text = true
+
+[node name="LevelLabel" type="Label" parent="RowVBox/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Lv.1/4"
+
+[node name="BottomRow" type="HBoxContainer" parent="RowVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="MetaVBox" type="VBoxContainer" parent="RowVBox/BottomRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 1
+
+[node name="LevelPips" type="ProgressBar" parent="RowVBox/BottomRow/MetaVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+max_value = 4.0
+step = 1.0
+value = 1.0
+show_percentage = false
+
+[node name="EffectLabel" type="Label" parent="RowVBox/BottomRow/MetaVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.85, 0.68, 1)
+theme_override_font_sizes/font_size = 8
+text = "+100 spawn weight"
+clip_text = true
+
+[node name="CostLabel" type="Label" parent="RowVBox/BottomRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.38, 1)
+theme_override_font_sizes/font_size = 8
+text = "15 Coins"
+
+[node name="BuyButton" type="Button" parent="RowVBox/BottomRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 18)
+layout_mode = 2
+text = "+1"
+
+[node name="WorkerAssignRow" type="HBoxContainer" parent="RowVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="AssignCaption" type="Label" parent="RowVBox/WorkerAssignRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.78, 0.84, 0.92, 1)
+theme_override_font_sizes/font_size = 8
+text = "Lumberjacks:"
+
+[node name="AssignMinusButton" type="Button" parent="RowVBox/WorkerAssignRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(18, 14)
+layout_mode = 2
+text = "-"
+
+[node name="AssignedWorkersLabel" type="Label" parent="RowVBox/WorkerAssignRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(26, 0)
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 8
+text = "0/1"
+
+[node name="AssignPlusButton" type="Button" parent="RowVBox/WorkerAssignRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(18, 14)
+layout_mode = 2
+text = "+"
