@@ -1,0 +1,174 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Theme" path="res://assets/ui/default_theme.tres" id="1"]
+[ext_resource type="Script" path="res://src/ui/components/sawmill_lane_view.gd" id="2"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_track"]
+bg_color = Color(0.11, 0.12, 0.16, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.24, 0.18, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="SawmillLaneRow" type="PanelContainer"]
+custom_minimum_size = Vector2(540, 56)
+theme = ExtResource("1")
+script = ExtResource("2")
+
+[node name="RowHBox" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LaneTrackPanel" type="Panel" parent="RowHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(380, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_track")
+
+[node name="LanternGlow1" type="ColorRect" parent="RowHBox/LaneTrackPanel"]
+layout_mode = 0
+offset_left = 78.0
+offset_top = 4.0
+offset_right = 94.0
+offset_bottom = 20.0
+color = Color(0.85, 0.72, 0.28, 0.22)
+
+[node name="LanternGlow2" type="ColorRect" parent="RowHBox/LaneTrackPanel"]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 4.0
+offset_right = 196.0
+offset_bottom = 20.0
+color = Color(0.85, 0.72, 0.28, 0.22)
+
+[node name="LanternGlow3" type="ColorRect" parent="RowHBox/LaneTrackPanel"]
+layout_mode = 0
+offset_left = 282.0
+offset_top = 4.0
+offset_right = 298.0
+offset_bottom = 20.0
+color = Color(0.85, 0.72, 0.28, 0.22)
+
+[node name="LumberChestVisual" type="ColorRect" parent="RowHBox/LaneTrackPanel"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 22.0
+offset_right = 26.0
+offset_bottom = 42.0
+color = Color(0.56, 0.32, 0.16, 1)
+
+[node name="RawTimberStackVisual" type="ColorRect" parent="RowHBox/LaneTrackPanel"]
+layout_mode = 0
+offset_left = 348.0
+offset_top = 18.0
+offset_right = 372.0
+offset_bottom = 44.0
+color = Color(0.38, 0.25, 0.14, 1)
+
+[node name="LaneHeaderHBox" type="HBoxContainer" parent="RowHBox/LaneTrackPanel"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 3.0
+offset_right = 340.0
+offset_bottom = 19.0
+theme_override_constants/separation = 6
+
+[node name="SpeciesIcon" type="TextureRect" parent="RowHBox/LaneTrackPanel/LaneHeaderHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+stretch_mode = 3
+
+[node name="LaneTitleLabel" type="Label" parent="RowHBox/LaneTrackPanel/LaneHeaderHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.96, 0.88, 1)
+text = "Pine   x1.00 Coins"
+
+[node name="LaneWorkersLayer" type="Control" parent="RowHBox/LaneTrackPanel"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="RightControlsVBox" type="VBoxContainer" parent="RowHBox"]
+custom_minimum_size = Vector2(148, 48)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="WorkerAssignHBox" type="HBoxContainer" parent="RowHBox/RightControlsVBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 4
+
+[node name="WorkerBadge" type="ColorRect" parent="RowHBox/RightControlsVBox/WorkerAssignHBox"]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+color = Color(0.92, 0.92, 0.96, 1)
+
+[node name="AssignedCountLabel" type="Label" parent="RowHBox/RightControlsVBox/WorkerAssignHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 0)
+layout_mode = 2
+text = "0 / 1"
+horizontal_alignment = 1
+
+[node name="PlusWorkerButton" type="Button" parent="RowHBox/RightControlsVBox/WorkerAssignHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(22, 16)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.96, 0.42, 1)
+text = "+"
+
+[node name="MinusWorkerButton" type="Button" parent="RowHBox/RightControlsVBox/WorkerAssignHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(22, 16)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.38, 0.38, 1)
+text = "-"
+
+[node name="UpgradeTilesHBox" type="HBoxContainer" parent="RowHBox/RightControlsVBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="StationTileVBox" type="VBoxContainer" parent="RowHBox/RightControlsVBox/UpgradeTilesHBox"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="StationUpgradeButton" type="Button" parent="RowHBox/RightControlsVBox/UpgradeTilesHBox/StationTileVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 22)
+layout_mode = 2
+text = "Slot"
+
+[node name="StationLevelLabel" type="Label" parent="RowHBox/RightControlsVBox/UpgradeTilesHBox/StationTileVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0/4"
+horizontal_alignment = 1
+
+[node name="SpeedTileVBox" type="VBoxContainer" parent="RowHBox/RightControlsVBox/UpgradeTilesHBox"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="SpeedUpgradeButton" type="Button" parent="RowHBox/RightControlsVBox/UpgradeTilesHBox/SpeedTileVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 22)
+layout_mode = 2
+text = "Gear"
+
+[node name="SpeedLevelLabel" type="Label" parent="RowHBox/RightControlsVBox/UpgradeTilesHBox/SpeedTileVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0/2"
+horizontal_alignment = 1

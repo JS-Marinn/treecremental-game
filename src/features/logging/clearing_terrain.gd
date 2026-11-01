@@ -31,8 +31,8 @@ func _ready() -> void:
 func is_position_spawnable(local_pos: Vector2) -> bool:
 	if ground_base_layer == null or ground_base_layer.tile_set == null:
 		return false
-	# Keep a clean margin inside the 432x332 viewport so canopies and HP bars stay visible
-	if local_pos.x < 28.0 or local_pos.x > 404.0 or local_pos.y < 42.0 or local_pos.y > 308.0:
+	# Keep a clean margin inside the 432x304 viewport so canopies and HP bars stay visible
+	if local_pos.x < 28.0 or local_pos.x > 404.0 or local_pos.y < 42.0 or local_pos.y > 282.0:
 		return false
 	var cell: Vector2i = ground_base_layer.local_to_map(local_pos)
 	var tile_data: TileData = ground_base_layer.get_cell_tile_data(cell)
@@ -50,7 +50,7 @@ func sample_poisson_tree_position(
 ) -> Vector2:
 	for _i in range(k_attempts):
 		var px: float = roundf(_rng.randf_range(32.0, 400.0))
-		var py: float = roundf(_rng.randf_range(46.0, 304.0))
+		var py: float = roundf(_rng.randf_range(46.0, 278.0))
 		var candidate := Vector2(px, py)
 		if not is_position_spawnable(candidate):
 			continue

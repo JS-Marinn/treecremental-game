@@ -87,7 +87,7 @@ text = "Ascend"
 [node name="CompoundViewportContainer" type="PanelContainer" parent="MainSplit/LeftCompoundColumn"]
 unique_name_in_owner = true
 clip_contents = true
-custom_minimum_size = Vector2(432, 332)
+custom_minimum_size = Vector2(432, 304)
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -131,6 +131,63 @@ size_flags_vertical = 4
 max_value = 100.0
 show_percentage = false
 
+[node name="BottomLoopAccessBar" type="PanelContainer" parent="MainSplit/LeftCompoundColumn"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(432, 28)
+layout_mode = 2
+
+[node name="AccessBarHBox" type="HBoxContainer" parent="MainSplit/LeftCompoundColumn/BottomLoopAccessBar"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="SettingsModalButton" type="Button" parent="MainSplit/LeftCompoundColumn/BottomLoopAccessBar/AccessBarHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(52, 20)
+layout_mode = 2
+text = "Settings"
+
+[node name="AchievementsModalButton" type="Button" parent="MainSplit/LeftCompoundColumn/BottomLoopAccessBar/AccessBarHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 20)
+layout_mode = 2
+text = "Feats"
+
+[node name="LeftSpacer" type="Control" parent="MainSplit/LeftCompoundColumn/BottomLoopAccessBar/AccessBarHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PrestigeModalButton" type="Button" parent="MainSplit/LeftCompoundColumn/BottomLoopAccessBar/AccessBarHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 20)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.42, 1)
+text = "Heartwood"
+
+[node name="RightSpacer" type="Control" parent="MainSplit/LeftCompoundColumn/BottomLoopAccessBar/AccessBarHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SawmillLoopButton" type="Button" parent="MainSplit/LeftCompoundColumn/BottomLoopAccessBar/AccessBarHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 20)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.92, 0.98, 1)
+text = "Sawmill"
+
+[node name="KilnsLoopButton" type="Button" parent="MainSplit/LeftCompoundColumn/BottomLoopAccessBar/AccessBarHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 20)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.68, 0.46, 1)
+text = "Kilns"
+
+[node name="EcologyLoopButton" type="Button" parent="MainSplit/LeftCompoundColumn/BottomLoopAccessBar/AccessBarHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 20)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.94, 0.72, 1)
+text = "Roots"
+
 [node name="RightCommandDock" type="PanelContainer" parent="MainSplit"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(208, 360)
@@ -162,6 +219,7 @@ text = "Crew"
 
 [node name="TabMillButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/LoopTabBar"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -169,6 +227,7 @@ text = "Mill"
 
 [node name="TabRootsButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/LoopTabBar"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -222,29 +281,6 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 3
-
-[node name="DockFooter" type="HBoxContainer" parent="MainSplit/RightCommandDock/DockVBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 3
-
-[node name="PrestigeModalButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/DockFooter"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Heartwood"
-
-[node name="AchievementsModalButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/DockFooter"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Feats"
-
-[node name="SettingsModalButton" type="Button" parent="MainSplit/RightCommandDock/DockVBox/DockFooter"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Settings"
 
 [node name="ModalLayer" type="CanvasLayer" parent="."]
 unique_name_in_owner = true

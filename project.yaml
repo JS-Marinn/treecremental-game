@@ -5,7 +5,7 @@ project:
   name: "Treecremental"
   version_spec: "v0.6"
   stage: "production"
-  current_milestone: "M4_secondary_loops_sawmill_and_kilns"
+  current_milestone: "M5_tertiary_loops_and_heartwood_ascension"
   repository_url: "https://github.com/JS-Marinn/treecremental-game"
   genre: "2d-pixel-art-incremental"
   session_model: "active-session-only"

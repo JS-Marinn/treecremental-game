@@ -50,9 +50,13 @@ var _row_views: Dictionary = {}        # StringName -> UpgradeRowView
 @onready var _lumberjack_pool_label: Label = get_node_or_null("%SimpleLumberjackPoolLabel") as Label
 
 @onready var _upgrade_list: VBoxContainer = get_node_or_null("%UpgradeList") as VBoxContainer
+@onready var _bottom_access_bar: Control = get_node_or_null("%BottomLoopAccessBar") as Control
 @onready var _prestige_modal_btn: Button = get_node_or_null("%PrestigeModalButton") as Button
 @onready var _achievements_modal_btn: Button = get_node_or_null("%AchievementsModalButton") as Button
 @onready var _settings_modal_btn: Button = get_node_or_null("%SettingsModalButton") as Button
+@onready var _sawmill_loop_btn: Button = get_node_or_null("%SawmillLoopButton") as Button
+@onready var _kilns_loop_btn: Button = get_node_or_null("%KilnsLoopButton") as Button
+@onready var _ecology_loop_btn: Button = get_node_or_null("%EcologyLoopButton") as Button
 @onready var _modal_host: Control = get_node_or_null("%ModalHost") as Control
 
 
@@ -197,6 +201,8 @@ func refresh_upgrade_rows() -> void:
 	if _lumberjack_pool_label != null:
 		_lumberjack_pool_label.visible = (current_tab == DockTab.MILL)
 		_lumberjack_pool_label.text = "%d/%d" % [used_in_mill, mini(total_simple, max_mill_cap)]
+	if _sawmill_loop_btn != null:
+		_sawmill_loop_btn.text = "Sawmill (%d)" % used_in_mill if used_in_mill > 0 else "Sawmill"
 
 	for uid in _row_views.keys():
 		var row: UpgradeRowView = _row_views[uid]
@@ -312,6 +318,12 @@ func _connect_ui_signals() -> void:
 		_achievements_modal_btn.pressed.connect(func() -> void: modal_requested.emit(&"achievements"))
 	if _settings_modal_btn != null:
 		_settings_modal_btn.pressed.connect(func() -> void: modal_requested.emit(&"settings"))
+	if _sawmill_loop_btn != null:
+		_sawmill_loop_btn.pressed.connect(func() -> void: modal_requested.emit(&"sawmill"))
+	if _kilns_loop_btn != null:
+		_kilns_loop_btn.pressed.connect(func() -> void: modal_requested.emit(&"kilns"))
+	if _ecology_loop_btn != null:
+		_ecology_loop_btn.pressed.connect(func() -> void: modal_requested.emit(&"ecology"))
 	if _ascend_button != null:
 		_ascend_button.pressed.connect(func() -> void: modal_requested.emit(&"prestige"))
 

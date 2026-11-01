@@ -13,7 +13,7 @@ unique_name_in_owner = true
 
 [node name="CompoundLandmark" type="Node2D" parent="."]
 unique_name_in_owner = true
-position = Vector2(8, 250)
+position = Vector2(8, 224)
 z_index = 2
 script = ExtResource("4")
 
