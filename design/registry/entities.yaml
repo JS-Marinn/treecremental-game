@@ -1,7 +1,7 @@
-# Treecremental -- Game World & Systems Entity Registry (v0.5)
+# Treecremental -- Game World & Systems Entity Registry (v0.6)
 # Single source of truth for all named identifiers across design docs, data files, and code.
 
-schema_version: 2
+schema_version: 3
 revised: 2026-10-31
 
 acts:
@@ -12,8 +12,7 @@ acts:
     prop_cap: 4
     gear_cap: 3
     sawmill_cap: 4
-    breakthrough_gate_species: oak
-    breakthrough_gate_logs: 247000
+    breakthrough_gate_coins: 247000
   - id: act_2
     name_key: KEY_ACT_2_NAME
     biome: blossom_boreal
@@ -21,8 +20,7 @@ acts:
     prop_cap: 7
     gear_cap: 5
     sawmill_cap: 7
-    breakthrough_gate_species: fir
-    breakthrough_gate_logs: 7160000
+    breakthrough_gate_coins: 7160000
   - id: act_3
     name_key: KEY_ACT_3_NAME
     biome: ancient_grove
@@ -30,42 +28,55 @@ acts:
     prop_cap: 10
     gear_cap: 6
     sawmill_cap: 10
-    breakthrough_gate_species: giant_sequoia
-    breakthrough_gate_logs: 46200000
+    breakthrough_gate_coins: 46200000
 
 worker_types:
-  - { id: axemen, role: front_line_chopper, footprint_px: "16x16", act_caps: [12, 20, 28] }
-  - { id: sawyers, role: heavy_armor_piercer, footprint_px: "20x16", act_caps: [6, 12, 18] }
-  - { id: haulers, role: skid_team_logistics, footprint_px: "24x16", act_caps: [4, 8, 12] }
-  - { id: artisans, role: mill_and_kiln_operator, footprint_px: "16x16", act_caps: [4, 8, 12] }
+  - id: simple_lumberjack
+    role: versatile_chopper_and_shared_miller
+    footprint_px: "16x16"
+    can_chop_all_trees: true
+    allowed_loop_ids: [logging_camp, sawmill]
+    act_caps: [14, 24, 34]
+  - id: heavy_sawyer
+    role: armor_piercing_durability_shredder
+    footprint_px: "20x16"
+    can_chop_all_trees: true
+    allowed_loop_ids: [logging_camp]
+    act_caps: [6, 12, 18]
+  - id: swift_cleaver
+    role: high_tempo_crit_and_synergy_specialist
+    footprint_px: "16x16"
+    can_chop_all_trees: true
+    allowed_loop_ids: [logging_camp]
+    act_caps: [5, 10, 15]
 
 species:
-  - { id: pine, tier: 0, act: 1, base_hp: 20, bark_hardness: 0, score_weight: 1.00, synergy_id: pitch_sap_splatter }
-  - { id: birch, tier: 1, act: 1, base_hp: 35, bark_hardness: 1, score_weight: 1.90, synergy_id: silver_bark_kindling }
-  - { id: oak, tier: 2, act: 1, base_hp: 65, bark_hardness: 2, score_weight: 3.61, synergy_id: acorn_mast_shower }
-  - { id: sakura, tier: 3, act: 2, base_hp: 120, bark_hardness: 2, score_weight: 6.86, synergy_id: cherry_petal_rain }
-  - { id: canadian_maple, tier: 4, act: 2, base_hp: 220, bark_hardness: 3, score_weight: 13.03, synergy_id: sugarbush_sap_flow }
-  - { id: fir, tier: 5, act: 2, base_hp: 400, bark_hardness: 4, score_weight: 24.76, synergy_id: boreal_frost_shatter }
-  - { id: baobab, tier: 6, act: 3, base_hp: 750, bark_hardness: 4, score_weight: 47.05, synergy_id: monsoon_reservoir_surge }
-  - { id: socotra_dragon_tree, tier: 7, act: 3, base_hp: 1400, bark_hardness: 5, score_weight: 89.39, synergy_id: cinnabar_dragons_blood }
-  - { id: giant_sequoia, tier: 8, act: 3, base_hp: 2800, bark_hardness: 6, score_weight: 169.84, synergy_id: seismic_timberfall }
+  - { id: pine, tier: 0, act: 1, base_hp: 20, bark_hardness: 0, base_coin_value: 1.00, synergy_id: pitch_sap_splatter }
+  - { id: birch, tier: 1, act: 1, base_hp: 35, bark_hardness: 1, base_coin_value: 2.20, synergy_id: silver_bark_kindling }
+  - { id: oak, tier: 2, act: 1, base_hp: 65, bark_hardness: 2, base_coin_value: 5.00, synergy_id: acorn_mast_shower }
+  - { id: sakura, tier: 3, act: 2, base_hp: 120, bark_hardness: 2, base_coin_value: 12.00, synergy_id: cherry_petal_rain }
+  - { id: canadian_maple, tier: 4, act: 2, base_hp: 220, bark_hardness: 3, base_coin_value: 28.00, synergy_id: sugarbush_sap_flow }
+  - { id: fir, tier: 5, act: 2, base_hp: 400, bark_hardness: 4, base_coin_value: 65.00, synergy_id: boreal_frost_shatter }
+  - { id: baobab, tier: 6, act: 3, base_hp: 750, bark_hardness: 4, base_coin_value: 155.00, synergy_id: monsoon_reservoir_surge }
+  - { id: socotra_dragon_tree, tier: 7, act: 3, base_hp: 1400, bark_hardness: 5, base_coin_value: 370.00, synergy_id: cinnabar_dragons_blood }
+  - { id: giant_sequoia, tier: 8, act: 3, base_hp: 2800, bark_hardness: 6, base_coin_value: 900.00, synergy_id: seismic_timberfall }
 
 currencies:
-  - { id: logs_<species>, scope: per_species, resets_on_breakthrough: true, source: logging_camp }
-  - { id: planks_<species>, scope: per_species, resets_on_breakthrough: true, source: sawmill }
-  - { id: charcoal, scope: global, resets_on_breakthrough: true, source: charcoal_kilns }
-  - { id: ash, scope: global, resets_on_breakthrough: true, source: charcoal_kilns }
-  - { id: birdseed, scope: global, resets_on_breakthrough: false, source: canopy_aviary }
-  - { id: spores, scope: global, resets_on_breakthrough: false, source: mycelium_network }
-  - { id: sap, scope: global, resets_on_breakthrough: false, source: heartwood_ascension }
+  - { id: coins, scope: global_main_loop, resets_on_breakthrough: true, source: logging_camp }
+  - { id: processed_logs, scope: global_sawmill, resets_on_breakthrough: true, source: sawmill }
+  - { id: charcoal, scope: global_kiln, resets_on_breakthrough: true, source: charcoal_kilns }
+  - { id: ash, scope: global_kiln, resets_on_breakthrough: true, source: charcoal_kilns }
+  - { id: birdseed, scope: global_tertiary_a, resets_on_breakthrough: false, source: canopy_aviary }
+  - { id: spores, scope: global_tertiary_b, resets_on_breakthrough: false, source: mycelium_network }
+  - { id: sap, scope: global_prestige, resets_on_breakthrough: false, source: heartwood_ascension }
 
 gameplay_loops:
-  - { id: logging_camp, role: primary, resets_on_breakthrough: true }
-  - { id: sawmill, role: secondary_a, resets_on_breakthrough: true }
-  - { id: charcoal_kilns, role: secondary_b, resets_on_breakthrough: true }
-  - { id: canopy_aviary, role: tertiary_isolated_a, resets_on_breakthrough: false }
-  - { id: mycelium_network, role: tertiary_isolated_b, resets_on_breakthrough: false }
-  - { id: heartwood_ascension, role: prestige_layer, resets_on_breakthrough: false }
+  - { id: logging_camp, role: primary, requires_input_material: false, resets_on_breakthrough: true }
+  - { id: sawmill, role: secondary_value_amplifier, requires_input_material: false, resets_on_breakthrough: true }
+  - { id: charcoal_kilns, role: secondary_thermal_overclock, requires_input_material: false, resets_on_breakthrough: true }
+  - { id: canopy_aviary, role: tertiary_isolated_a, requires_input_material: false, resets_on_breakthrough: false }
+  - { id: mycelium_network, role: tertiary_isolated_b, requires_input_material: false, resets_on_breakthrough: false }
+  - { id: heartwood_ascension, role: prestige_layer, requires_input_material: false, resets_on_breakthrough: false }
 
 upgrades:
   species_propagation:
@@ -79,14 +90,12 @@ upgrades:
     - prop_socotra_dragon_tree
     - prop_giant_sequoia
   worker_roster_and_gear:
-    - hire_axemen
-    - hire_sawyers
-    - hire_haulers
-    - hire_artisans
-    - gear_axemen
-    - gear_sawyers
-    - gear_haulers
-    - gear_artisans
+    - hire_simple_lumberjack
+    - hire_heavy_sawyer
+    - hire_swift_cleaver
+    - gear_simple_lumberjack
+    - gear_heavy_sawyer
+    - gear_swift_cleaver
   compound_and_synergy:
     - camp_plot_expansion
     - camp_old_growth_stewardship
@@ -96,12 +105,14 @@ upgrades:
     - camp_felling_wedges
     - camp_skid_road
     - camp_kerf_softening
+    - camp_cleaver_flurry
     - camp_silk_cordage
     - camp_sap_lubrication
     - camp_highland_crampons
+    - camp_block_and_tackle
     - camp_crimson_varnish
     - camp_skyline_yarder
-  sawmill_per_species:
+  sawmill_per_species_value_and_slots:
     - mill_pine
     - mill_birch
     - mill_oak
@@ -111,12 +122,12 @@ upgrades:
     - mill_baobab
     - mill_socotra_dragon_tree
     - mill_giant_sequoia
-  sawmill_global:
+  sawmill_capacity_and_speed:
+    - mill_crew_quarters
     - mill_undershot_wheel
     - mill_kerf_thinning
     - mill_roller_conveyor
     - mill_gang_saw
-    - mill_kiln_drying_rack
     - mill_flywheel_governor
     - mill_hydraulic_carriage
     - mill_sawdust_briquetter
