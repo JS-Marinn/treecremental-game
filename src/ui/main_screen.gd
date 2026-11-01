@@ -16,13 +16,13 @@ enum DockTab {
 const UPGRADE_ROW_SCENE: PackedScene = preload("res://scenes/ui/components/upgrade_row_template.tscn")
 
 var wallet: WalletModule
+var roster_dispatcher: RosterDispatcher = RosterDispatcher.new()
 var current_tab: DockTab = DockTab.TREES
 var current_act_index: int = 0
 var bulk_buy_mode: int = 1 # 1, 10, or -1 (MAX)
 
 var _upgrade_levels: Dictionary = {}   # StringName -> int
 var _row_views: Dictionary = {}        # StringName -> UpgradeRowView
-var _sawmill_assigned: Dictionary = {} # StringName (species_id) -> int
 
 @onready var _left_compound_col: Control = get_node_or_null("%LeftCompoundColumn") as Control
 @onready var _top_resource_bar: Control = get_node_or_null("%TopResourceBar") as Control
@@ -189,10 +189,10 @@ func refresh_top_bar() -> void:
 
 
 func refresh_upgrade_rows() -> void:
-	var total_simple: int = get_upgrade_level(&"hire_simple_lumberjack")
-	var used_in_mill: int = _get_total_sawmill_assigned()
-	var max_mill_cap: int = (Balance.config.sawmill_initial_worker_slots if Balance.config != null else 2) + int(StatAggregator.query(&"sawmill_max_workers", &"all", 0.0))
-	var can_assign_more: bool = (used_in_mill < max_mill_cap) and (used_in_mill < total_simple)
+	var total_simple: int = maxi(get_upgrade_level(&"hire_simple_lumberjack"), roster_dispatcher.get_total_hired(&"simple_lumberjack"))
+	var used_in_mill: int = roster_dispatcher.get_total_sawmill_assigned()
+	var max_mill_cap: int = roster_dispatcher.get_sawmill_max_capacity()
+	var can_assign_more_global: bool = (used_in_mill < max_mill_cap) and (used_in_mill < total_simple)
 
 	if _lumberjack_pool_label != null:
 		_lumberjack_pool_label.visible = (current_tab == DockTab.MILL)
@@ -207,9 +207,9 @@ func refresh_upgrade_rows() -> void:
 		row.bind_upgrade(upg, lv, current_act_index, bulk_buy_mode, wallet)
 		if upg.category == &"sawmill_per_species_value_and_slots":
 			var sid: StringName = upg.target_entity_id
-			var assigned: int = int(_sawmill_assigned.get(sid, 0))
-			var slots: int = 1 + int(StatAggregator.query(&"sawmill_station_slots", sid, 0.0))
-			row.set_sawmill_worker_assignment(assigned, slots, can_assign_more)
+			var assigned: int = roster_dispatcher.get_station_assigned(sid)
+			var slots: int = roster_dispatcher.get_station_max_slots(sid)
+			row.set_sawmill_worker_assignment(assigned, slots, can_assign_more_global)
 
 
 func show_modal(modal_control: Control) -> void:
@@ -263,10 +263,7 @@ func _categories_for_tab(tab: DockTab) -> Array[StringName]:
 
 
 func _get_total_sawmill_assigned() -> int:
-	var sum: int = 0
-	for k in _sawmill_assigned.keys():
-		sum += int(_sawmill_assigned[k])
-	return sum
+	return roster_dispatcher.get_total_sawmill_assigned()
 
 
 func _on_upgrade_purchase_requested(upgrade_id: StringName, count: int) -> void:
@@ -288,24 +285,8 @@ func _on_upgrade_purchase_requested(upgrade_id: StringName, count: int) -> void:
 
 
 func _on_sawmill_assign_delta_requested(species_id: StringName, delta: int) -> void:
-	var simple_archetype: WorkerArchetypeData = Balance.worker(&"simple_lumberjack")
-	if simple_archetype == null or not simple_archetype.can_assign_to_loop(&"sawmill"):
-		return
-	var current_assigned: int = int(_sawmill_assigned.get(species_id, 0))
-	var total_simple: int = get_upgrade_level(&"hire_simple_lumberjack")
-	var used_total: int = _get_total_sawmill_assigned()
-	var max_mill_cap: int = (Balance.config.sawmill_initial_worker_slots if Balance.config != null else 2) + int(StatAggregator.query(&"sawmill_max_workers", &"all", 0.0))
-	var station_slots: int = 1 + int(StatAggregator.query(&"sawmill_station_slots", species_id, 0.0))
-
-	if delta > 0:
-		if used_total < total_simple and used_total < max_mill_cap and current_assigned < station_slots:
-			_sawmill_assigned[species_id] = current_assigned + 1
-			EventBus.worker_assigned.emit(&"simple_lumberjack", &"sawmill", species_id, _sawmill_assigned[species_id])
-	elif delta < 0:
-		if current_assigned > 0:
-			_sawmill_assigned[species_id] = current_assigned - 1
-			EventBus.worker_assigned.emit(&"simple_lumberjack", &"sawmill", species_id, _sawmill_assigned[species_id])
-	refresh_upgrade_rows()
+	if roster_dispatcher.try_adjust_station_assignment(species_id, delta, &"simple_lumberjack"):
+		refresh_upgrade_rows()
 
 
 func _connect_ui_signals() -> void:
