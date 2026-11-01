@@ -388,7 +388,8 @@ Every upgrade in *Treecremental* is itemized below with its canonical ID, max le
 | [`docs/NAVIGATION.md`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/docs/NAVIGATION.md) | Step-by-step cold-start onboarding guide, complete directory tree with ownership boundaries, and exact CLI verification commands. |
 | [`production/session-state/active.md`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/production/session-state/active.md) | File-backed session memory (`STATUS` + `<25-line CHECKPOINT` + decision log). Any returning developer or AI reads this first to see the exact state of work. |
 | [`project.yaml`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/project.yaml) & [`production/stage.txt`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/production/stage.txt) | Machine-readable project configuration pinning engine version (`4.7.2`), viewport settings, paths, and the `planning` stage gate. |
-| [`design/registry/entities.yaml`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/design/registry/entities.yaml) | Canonical registry of all 3 Acts, 9 tree species, 3 worker types, 6 currencies, 6 loop IDs, and all 87 upgrade IDs. |
+| [`design/registry/entities.yaml`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/design/registry/entities.yaml) | Canonical registry of all 3 Acts, 9 tree species, 3 worker types, 7 currencies, 6 loop IDs, and all 87 upgrade IDs. |
+| [`docs/architecture/implementation_roadmap.md`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/docs/architecture/implementation_roadmap.md) | Chronological 7-milestone step-by-step development, asset integration, and isolated testing roadmap. |
 | [`.claude/rules/`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/.claude/rules) | Path-scoped rule files (`gameplay-code.md`, `ui-code.md`, `data-files.md`, `design-docs.md`) enforcing architectural boundaries automatically. |
 | [`docs/engine-reference/godot/VERSION.md`](file:///C:/Users/MrSeb/GodotProjects/treecremental-game/docs/engine-reference/godot/VERSION.md) | Pinned Godot 4.7.2 reference notes covering post-cutoff GDScript behaviors. |
 
@@ -398,3 +399,100 @@ When gameplay validation begins using `C:\Users\MrSeb\Downloads\Autopilot-Godot`
 2. **Strict `.gitignore` Rules**: `.gitignore` permanently excludes `addons/autopilot/`, `.autopilot/`, `tests/autopilot/`, and `override.cfg`.
 3. **`override.cfg` Runtime Injection & `project.godot` Sanitization**: Automated headless/playtest runs load `AutopilotPlaytest` via an untracked `override.cfg` file so `project.godot` is never modified; if enabled inside the Godot Editor, a pre-commit sanitization step strips all `autopilot` keys from `project.godot` before staging.
 4. **Modular Test Separation**: Pure deterministic math/resource smoke tests reside in `tests/smoke/` (tracked), whereas all AI navigation and `Autopilot-Godot` playtest harnesses reside exclusively in `tests/autopilot/` (untracked).
+
+---
+
+## 6. Chronological Step-by-Step Implementation & Development Roadmap
+
+When the project transitions from `planning` to `production`, development will proceed strictly across the **7 sequential milestones** below. Every milestone is designed so its components can be verified in isolation without coupling or breaking prior stages.
+
+```mermaid
+flowchart LR
+  M1["Milestone 1: Composable .tres Schemas & StatAggregator Bus"] --> M2["Milestone 2: Editable Right-Docked Godot .tscn UI Groundwork"]
+  M2 --> M3["Milestone 3: Loop 1 Clearing, Spawn Ecology & 3 Worker Types"]
+  M3 --> M4["Milestone 4: Loop 2 Self-Contained Sawmill & Loop 3 Kilns"]
+  M4 --> M5["Milestone 5: Loops 4-5 Aviary/Mycelium & Heartwood Prestige"]
+  M5 --> M6["Milestone 6: Aseprite Art Sprints, Audio, Save & Steam i18n"]
+  M6 --> M7["Milestone 7: Isolated Autopilot-Godot QA & Balance Polish"]
+```
+
+### Milestone 1: Composable Data Layer & `StatAggregator` Bus (Foundation)
+- **Objective**: Build the 100% data-driven backbone before creating any gameplay scene or UI node.
+- **Step 1.1 — Composable Resource Schemas (`src/core/data/`)**:
+  - Define `WorkerArchetypeData` (`id`, `move_speed`, `attack_rate`, `base_damage`, `crit_chance`, `armor_penetration`, `synergy_weight`, `allowed_loop_ids: PackedStringArray`), `UpgradeDefinitionData`, and `StatModifierData` (`target_domain`, `stat_key`, `operation: ADD | MUL`, `curve: FormulaCurve`), and extend `SpeciesData` with `base_hp`, `bark_hardness`, `base_coin_value`, `spawn_weight_curve`, `max_quantity_curve`, and `synergy_id`.
+- **Step 1.2 — Central `StatAggregator` & Currency `WalletModule` (`src/core/`)**:
+  - Implement `StatAggregator` (`register_modifier`, `remove_modifier`, `query(domain, stat_key)`) and the decoupled `WalletModule` managing the 7 canonical currencies (`coins`, `processed_logs`, `charcoal`, `ash`, `birdseed`, `spores`, `sap`) via `EventBus`.
+- **Step 1.3 — Full `.tres` Data Generation (`data/`)**:
+  - Author all `.tres` resources for the 3 worker types (`data/workers/`), 9 tree species (`data/species/`), and 87 upgrade tracks (`data/upgrades/`), cross-checked against `design/registry/entities.yaml`.
+- **Step 1.4 — Verification Gate**:
+  - Headless Godot test (`tests/smoke/smoke_stat_aggregator.tscn`) verifying that purchasing/removing any `.tres` upgrade or editing `allowed_loop_ids` dynamically updates `StatAggregator.query()` with zero code coupling.
+
+### Milestone 2: Editable Right-Hand Docked Godot `.tscn` UI Groundwork
+- **Objective**: Lay down clean, human-editable Godot `.tscn` Control-node wireframes so you can freely adjust, rearrange, and skin the UI inside the Godot 2D Editor while scripts bind solely via `%UniqueNodeNames`.
+- **Step 2.1 — Shared Theme & Reusable Upgrade Row Prefab**:
+  - Author `assets/ui/default_theme.tres` and `scenes/ui/components/upgrade_row_template.tscn` (`%Icon`, `%TitleLabel`, `%LevelPips`, `%EffectLabel`, `%BuyButton`).
+- **Step 2.2 — Right-Hand Docked Main Screen (`scenes/ui/main_screen.tscn`)**:
+  - Construct the `640x360` `HBoxContainer` split:
+    - **Left/Center Column (`432x360 px`)**: `TopResourceBar` (`432x28 px`) + `CompoundViewportContainer` (`432x332 px`).
+    - **Right-Hand Docked HUD (`208x360 px`)**: `%LoopTabBar` (`Trees`, `Crew`, `Mill`, `Roots`), `%BulkBuyBar` (`x1`, `x10`, `MAX`), `%UpgradeScroll`, and `%DockFooter`.
+- **Step 2.3 — Modal & Menu Wireframes (`scenes/ui/modals/`)**:
+  - Create editable `.tscn` wireframes for `main_menu.tscn`, `modal_prestige.tscn`, `modal_achievements.tscn`, and `modal_settings.tscn` (Display, 4-channel `AudioServer` sliders, Accessibility toggles, Notation, and Locale selector).
+- **Step 2.4 — Verification Gate**:
+  - Open every `.tscn` in the Godot Editor to verify clean container hierarchy, `%UniqueNodeNames` bindings, keyboard/gamepad focus neighbors, and `KEY_...` string resolution from `i18n/game_text.csv`.
+
+### Milestone 3: Loop 1 — 3/4 Logging Clearing, Dynamic Tree Propagation & 3 Worker Types
+- **Objective**: Implement the primary 3/4 top-down clearing (`432x332 px`, `y_sort_enabled = true`), weighted plot spawning, tree durability scaling, and the 3 autonomous worker types.
+- **Step 3.1 — Plot Manager & Weighted Spawn Ecology (`LoggingCampModule`)**:
+  - Implement active clearing plots ($12 \rightarrow 32$ via `camp_plot_expansion`) and the weighted plot spawn roll driven by `prop_<species>` Spawn Probability Weight ($W_i$) and Max Concurrent Quantity Cap ($Q_i$).
+- **Step 3.2 — Tree Durability (HP), Bark Hardness & Old-Growth Maturity Ranks**:
+  - Implement tree instances with overhead world-space HP bars, Old-Growth Maturity Ranks ($m \in \{0..4\}$, scaling HP by $4.0^m$ and Coin Yield by $4.2^m$ to clamp fell time to $2.5\text{ s}$–$8.0\text{ s}$), Chip Yield ($30\%$) with floating `+$COINS` popups, and Timberfall Jackpot ($70\%$).
+- **Step 3.3 — The 3 Worker Archetype Agents**:
+  - Implement autonomous movement and chopping for `simple_lumberjack` (`1.0x` balanced), `heavy_sawyer` (`0.75x` move, continuous sawing, 100% Bark Hardness penetration & armor shred), and `swift_cleaver` (`1.40x` move, `1.8 hits/s` flurry, $+20\%$ crit, $2.0\times$ synergy proc rate).
+- **Step 3.4 — The 9 Tree Species Ecological Synergies**:
+  - Register modular synergy listeners on `EventBus` for all 9 species (including Sakura's *Cherry Petal Rain* camp-wide buff and Fir's *Boreal Frost Shatter* splash damage).
+- **Step 3.5 — Verification Gate**:
+  - Verify in headless simulation and live clearing playtest that tree spawn frequencies match $P(\text{spawn } i)$, high-maturity trees never get 1-frame insta-chopped, and all 30 Loop 1 upgrades apply via `StatAggregator`.
+
+### Milestone 4: Secondary Loops — Self-Contained Sawmill (Loop 2) & Charcoal Kilns (Loop 3)
+- **Objective**: Integrate the Sawmill value-amplification loop and the Charcoal Kiln thermal overclock loop.
+- **Step 4.1 — Shared `Simple Lumberjack` Roster Dispatcher**:
+  - Implement the worker allocation controller reading `allowed_loop_ids` from `WorkerArchetypeData`, allowing **only `simple_lumberjack`** units to be split between the Main Clearing and Sawmill stations (`+` / `-` buttons), while `heavy_sawyer` and `swift_cleaver` remain Main Loop exclusive.
+- **Step 4.2 — Self-Contained Sawmill Value-Amplification (`SawmillModule`)**:
+  - Implement per-species Sawmill stations (`mill_pine` through `mill_giant_sequoia`) operating with **zero input materials**: assigned Simple Lumberjacks process that species' wood to permanently raise its individual base coin value multiplier ($M_{\text{mill}, i}$) on `StatAggregator` and generate `processed_logs`.
+  - Wire all 17 Sawmill upgrades (paid exclusively in `processed_logs`) that scale tree coin value, the quantity of Simple Lumberjacks sent to work (`mill_crew_quarters` + station slots), and their working speed (`mill_undershot_wheel`, etc.).
+- **Step 4.3 — Brick Charcoal Kilns & Boiler Overclock (`KilnModule`)**:
+  - Implement kiln carbonization cycles producing `charcoal` and `ash`, the Steam Boiler **Thermal Overclock Gauge** ($\times 1.50$ to $\times 2.00$ global working speed on `StatAggregator`), and the 8 Kiln upgrades.
+- **Step 4.4 — Verification Gate**:
+  - Verify that assigning Simple Lumberjacks to a Sawmill station immediately increases that tree species' `coins` payout in the clearing without consuming raw materials.
+
+### Milestone 5: Tertiary Isolated Loops (Loops 4 & 5) & Heartwood Ascension Prestige
+- **Objective**: Complete the 5-loop ecosystem and the 3-Act Plateau-Curve Breakthrough/Ascension progression.
+- **Step 5.1 — Loop 4: Canopy Aviary (`AviaryModule`)**:
+  - Implement active-session `birdseed` generation, the 5 bird roosts, and the 3 sanctuary upgrades (`aviary_seed_hopper`, `aviary_suet_cakes`, `aviary_gilded_weathervane`).
+- **Step 5.2 — Loop 5: Mycelium Root Network (`MyceliumModule`)**:
+  - Implement subterranean `spores` generation, `ash` composting, and the 8 symbiotic fungal upgrades (`myc_phosphorus_exchange` through `myc_mother_tree_nexus`).
+- **Step 5.3 — 3-Act Breakthrough Gates & Heartwood Sap Constellation (`PrestigeModule`)**:
+  - Implement the Act I (`$247K`), Act II (`$7.16M`), and Act III (`$46.2M`) Breakthrough Gates, the Lifetime Sap multiplier ($M_{\text{sap}} = 1 + 0.60 \cdot \text{LifetimeSap}^{0.5}$), and the 16 Constellation nodes across the Inner, Middle, and Outer rings.
+- **Step 5.4 — Verification Gate**:
+  - Run a full 3-Act automated progression test verifying Act cap stabilization (Plateau phase), Breakthrough Ascension reset rules, and `sap_canopy_sanctuary_bond` persistence.
+
+### Milestone 6: Aseprite Art Sprints, Audio, Save System, Achievements & Steam i18n
+- **Objective**: Replace wireframe placeholders with final Aseprite pixel art and complete all production systems.
+- **Step 6.1 — 4-Sprint Aseprite Asset Integration (`assets/sprites/`)**:
+  - **Sprint 1**: Clearing tileset, Act I trees (Pine, Birch, Oak across maturity ranks), the 3 Worker Types + 6 gear tier overlays, and Right-Hand Docked 9-slice UI skin.
+  - **Sprint 2**: Lower-left Sawmill waterwheel & Brick Charcoal Kiln animations, Aviary birds, and Mycelium root nodes.
+  - **Sprint 3**: Act II & III trees (Sakura to Giant Sequoia), species synergy VFX (*Cherry Petal Rain*, *Frost Shatter*, *Seismic Timberfall*), and Heartwood Constellation rings.
+  - **Sprint 4**: ~80 pixel-art Achievement icons (`32x32` authored, `64x64` & `256x256` exported) and high-res hand-drawn Steam store capsules.
+- **Step 6.2 — Save/Load Serialization & Achievement Tracker**:
+  - Implement versioned save files (`user://save_slot_1.json`, strictly zero offline catchup) and the ~80 achievement unlock conditions feeding into `sap_ancient_harmony`.
+- **Step 6.3 — Audio Buses, Accessibility & Steamworks Localization**:
+  - Hook up `Master`, `Music`, `SFX`, and `UI` audio buses, pre-exported colorblind atlas swaps, screen-shake/motion reduction toggles, and `LocaleResolver` (`en`, `es_419`, `es_ES`).
+
+### Milestone 7: Isolated `Autopilot-Godot` QA, Balance Tuning & Release Packaging
+- **Objective**: Validate gameplay end-to-end with zero repository pollution and lock final 3-to-4-hour pacing.
+- **Step 7.1 — Zero-Trace `Autopilot-Godot` Playtest Suite (`tests/autopilot/`)**:
+  - Mount `C:\Users\MrSeb\Downloads\Autopilot-Godot\addons\autopilot` via local NTFS junction and `override.cfg` (git-ignored) to stress-test UI navigation, bulk buying, worker Sawmill assignment, and multi-Act ascensions.
+- **Step 7.2 — Human-Centric Balance Tuning Pass (`data/`)**:
+  - Tune `.tres` curves in `data/` so Act I completes in ~40m, Act II in ~50m, Act III in ~84m (~2.90h main campaign), and 100% completion in ~4.0h.
+- **Step 7.3 — Pre-Commit Sanitization & Release Build**:
+  - Unmount `addons/autopilot`, run `project.godot` sanitization check, confirm `git status` is 100% clean of AI testing artifacts, run headless smoke tests, and package release builds.
