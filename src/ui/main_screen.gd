@@ -106,6 +106,30 @@ func get_upgrade_level(upgrade_id: StringName) -> int:
 	return upg.initial_level if upg != null else 0
 
 
+func serialize_state() -> Dictionary:
+	var levels: Dictionary = {}
+	for uid in _upgrade_levels.keys():
+		levels[String(uid)] = int(_upgrade_levels[uid])
+	return {
+		"upgrade_levels": levels,
+		"current_act_index": current_act_index,
+		"bulk_buy_mode": bulk_buy_mode,
+	}
+
+
+func restore_state(data: Dictionary) -> void:
+	if data.is_empty():
+		return
+	current_act_index = clampi(int(data.get("current_act_index", 0)), 0, 2)
+	set_bulk_buy_mode(int(data.get("bulk_buy_mode", 1)))
+	var levels: Dictionary = data.get("upgrade_levels", {})
+	for key in levels.keys():
+		var uid := StringName(String(key))
+		if Balance.upgrade(uid) != null:
+			set_upgrade_level(uid, maxi(0, int(float(levels[key]))))
+	refresh_top_bar()
+
+
 func set_upgrade_level(upgrade_id: StringName, level: int) -> void:
 	_upgrade_levels[upgrade_id] = level
 	var upg: UpgradeDefinitionData = Balance.upgrade(upgrade_id)

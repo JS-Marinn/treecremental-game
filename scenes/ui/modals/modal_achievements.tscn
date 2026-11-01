@@ -38,7 +38,6 @@ text = "Achievements"
 unique_name_in_owner = true
 layout_mode = 2
 text = "0 / 80"
-
 [node name="HarmonyBonusLabel" type="Label" parent="AchVBox/HeaderRow"]
 unique_name_in_owner = true
 layout_mode = 2

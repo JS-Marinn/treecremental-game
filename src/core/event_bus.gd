@@ -14,6 +14,7 @@ signal worker_assigned(worker_id: StringName, loop_id: StringName, target_id: St
 signal upgrade_purchased(upgrade_id: StringName, new_level: int)
 signal stat_invalidated(domain: StringName, stat_key: StringName)
 signal synergy_triggered(species_id: StringName, synergy_id: StringName, duration_s: float)
+signal tree_felled(species_id: StringName, maturity_rank: int, jackpot_coins: float)
 signal breakthrough_reached(act_index: int)
 signal prestige_performed(sap_gained: float, sap_total: float)
 

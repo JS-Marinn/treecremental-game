@@ -244,6 +244,9 @@ func _on_tree_felled(tree: TreeEntity, jackpot_coins: float, _attacker_id: Strin
 		wallet.add_currency(&"coins", jackpot_coins, tree.species_id)
 	_spawn_floating_coin_text(tree.position + Vector2(0.0, -32.0), jackpot_coins, true)
 
+	if is_instance_valid(EventBus):
+		EventBus.tree_felled.emit(tree.species_id, tree.maturity_rank, jackpot_coins)
+
 	_trees.erase(tree)
 	if synergy_controller != null and tree.species_data != null:
 		synergy_controller.try_trigger_on_fell(tree.species_data, synergy_weight, wallet, _trees)

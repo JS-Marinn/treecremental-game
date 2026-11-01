@@ -1,0 +1,46 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://assets/ui/default_theme.tres" id="1"]
+[ext_resource type="Script" path="res://src/ui/components/achievement_card_view.gd" id="2"]
+
+[node name="AchievementCard" type="PanelContainer"]
+custom_minimum_size = Vector2(170, 62)
+theme = ExtResource("1")
+script = ExtResource("2")
+
+[node name="CardVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="HeaderHBox" type="HBoxContainer" parent="CardVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AchIconRect" type="TextureRect" parent="CardVBox/HeaderHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="AchTitleLabel" type="Label" parent="CardVBox/HeaderHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 9
+text = "Achievement"
+clip_text = true
+
+[node name="AchStatusLabel" type="Label" parent="CardVBox/HeaderHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 7
+text = "Locked"
+
+[node name="AchDescLabel" type="Label" parent="CardVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.76, 0.76, 0.7, 1)
+theme_override_font_sizes/font_size = 7
+text = "Description"
+autowrap_mode = 2

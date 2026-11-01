@@ -91,5 +91,16 @@ func get_all_station_assignments() -> Dictionary:
 	return _sawmill_by_species.duplicate()
 
 
+## Restores per-species Sawmill station assignments from a save file, clamping each
+## entry to the current station slot caps without re-emitting assignment events.
+func restore_station_assignments(data: Dictionary) -> void:
+	_sawmill_by_species.clear()
+	for key in data.keys():
+		var sid := StringName(String(key))
+		if Balance.species(sid) == null:
+			continue
+		_sawmill_by_species[sid] = clampi(int(float(data[key])), 0, get_station_max_slots(sid))
+
+
 func reset_for_breakthrough() -> void:
 	_sawmill_by_species.clear()

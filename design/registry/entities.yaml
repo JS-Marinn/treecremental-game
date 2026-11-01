@@ -175,3 +175,85 @@ upgrades:
     - sap_golden_bough
     - sap_ancient_harmony
     - sap_world_tree_crown
+
+achievements:
+  - { id: ach_first_chip, trigger: lifetime_currency, currency: coins, threshold: 1 }
+  - { id: ach_coins_1k, trigger: lifetime_currency, currency: coins, threshold: 1000 }
+  - { id: ach_coins_100k, trigger: lifetime_currency, currency: coins, threshold: 100000 }
+  - { id: ach_coins_1m, trigger: lifetime_currency, currency: coins, threshold: 1000000 }
+  - { id: ach_coins_10m, trigger: lifetime_currency, currency: coins, threshold: 10000000 }
+  - { id: ach_coins_100m, trigger: lifetime_currency, currency: coins, threshold: 100000000 }
+  - { id: ach_first_timber, trigger: trees_felled_total, threshold: 1 }
+  - { id: ach_trees_50, trigger: trees_felled_total, threshold: 50 }
+  - { id: ach_trees_250, trigger: trees_felled_total, threshold: 250 }
+  - { id: ach_trees_1000, trigger: trees_felled_total, threshold: 1000 }
+  - { id: ach_trees_2500, trigger: trees_felled_total, threshold: 2500 }
+  - { id: ach_old_growth, trigger: old_growth_felled, threshold: 1 }
+  - { id: ach_fell_pine_100, trigger: trees_felled_species, species: pine, threshold: 100 }
+  - { id: ach_fell_birch_100, trigger: trees_felled_species, species: birch, threshold: 100 }
+  - { id: ach_fell_oak_100, trigger: trees_felled_species, species: oak, threshold: 100 }
+  - { id: ach_fell_sakura_100, trigger: trees_felled_species, species: sakura, threshold: 100 }
+  - { id: ach_fell_maple_100, trigger: trees_felled_species, species: canadian_maple, threshold: 100 }
+  - { id: ach_fell_fir_100, trigger: trees_felled_species, species: fir, threshold: 100 }
+  - { id: ach_fell_baobab_75, trigger: trees_felled_species, species: baobab, threshold: 75 }
+  - { id: ach_fell_dragon_75, trigger: trees_felled_species, species: socotra_dragon_tree, threshold: 75 }
+  - { id: ach_fell_sequoia_25, trigger: trees_felled_species, species: giant_sequoia, threshold: 25 }
+  - { id: ach_great_felling, trigger: trees_felled_species, species: giant_sequoia, threshold: 1 }
+  - { id: ach_hire_5, trigger: worker_roster_level, worker: simple_lumberjack, threshold: 5 }
+  - { id: ach_hire_15, trigger: worker_roster_level, worker: simple_lumberjack, threshold: 15 }
+  - { id: ach_hire_25, trigger: worker_roster_level, worker: simple_lumberjack, threshold: 25 }
+  - { id: ach_heavy_6, trigger: worker_roster_level, worker: heavy_sawyer, threshold: 6 }
+  - { id: ach_heavy_12, trigger: worker_roster_level, worker: heavy_sawyer, threshold: 12 }
+  - { id: ach_swift_5, trigger: worker_roster_level, worker: swift_cleaver, threshold: 5 }
+  - { id: ach_swift_10, trigger: worker_roster_level, worker: swift_cleaver, threshold: 10 }
+  - { id: ach_all_archetypes, trigger: all_worker_types, threshold: 1 }
+  - { id: ach_gear_3, trigger: upgrade_level, upgrade: gear_simple_lumberjack, threshold: 3 }
+  - { id: ach_gear_6, trigger: upgrade_level, upgrade: gear_simple_lumberjack, threshold: 6 }
+  - { id: ach_second_species, trigger: species_unlocked, threshold: 2 }
+  - { id: ach_act1_species, trigger: species_unlocked, threshold: 3 }
+  - { id: ach_act2_species, trigger: species_unlocked, threshold: 6 }
+  - { id: ach_all_nine_species, trigger: species_unlocked, threshold: 9 }
+  - { id: ach_prop_five, trigger: upgrade_level, upgrade: prop_pine, threshold: 5 }
+  - { id: ach_prop_max, trigger: upgrade_level, upgrade: prop_pine, threshold: 10 }
+  - { id: ach_synergy_1, trigger: synergies_triggered, threshold: 1 }
+  - { id: ach_synergy_25, trigger: synergies_triggered, threshold: 25 }
+  - { id: ach_synergy_100, trigger: synergies_triggered, threshold: 100 }
+  - { id: ach_synergy_250, trigger: synergies_triggered, threshold: 250 }
+  - { id: ach_upgrades_10, trigger: upgrades_purchased_total, threshold: 10 }
+  - { id: ach_upgrades_50, trigger: upgrades_purchased_total, threshold: 50 }
+  - { id: ach_upgrades_100, trigger: upgrades_purchased_total, threshold: 100 }
+  - { id: ach_upgrades_250, trigger: upgrades_purchased_total, threshold: 250 }
+  - { id: ach_first_assign, trigger: sawmill_assigned, threshold: 1 }
+  - { id: ach_assign_10, trigger: sawmill_assigned, threshold: 10 }
+  - { id: ach_logs_100, trigger: lifetime_currency, currency: processed_logs, threshold: 100 }
+  - { id: ach_logs_5k, trigger: lifetime_currency, currency: processed_logs, threshold: 5000 }
+  - { id: ach_logs_50k, trigger: lifetime_currency, currency: processed_logs, threshold: 50000 }
+  - { id: ach_logs_250k, trigger: lifetime_currency, currency: processed_logs, threshold: 250000 }
+  - { id: ach_mill_station_10, trigger: upgrade_level, upgrade: mill_pine, threshold: 10 }
+  - { id: ach_charcoal_first, trigger: lifetime_currency, currency: charcoal, threshold: 1 }
+  - { id: ach_charcoal_500, trigger: lifetime_currency, currency: charcoal, threshold: 500 }
+  - { id: ach_charcoal_2k, trigger: lifetime_currency, currency: charcoal, threshold: 2000 }
+  - { id: ach_ash_250, trigger: lifetime_currency, currency: ash, threshold: 250 }
+  - { id: ach_kiln_cycles_10, trigger: kiln_cycles, threshold: 10 }
+  - { id: ach_kiln_cycles_100, trigger: kiln_cycles, threshold: 100 }
+  - { id: ach_boiler_full, trigger: boiler_pressure, threshold: 0.99 }
+  - { id: ach_birdseed_100, trigger: lifetime_currency, currency: birdseed, threshold: 100 }
+  - { id: ach_birdseed_1k, trigger: lifetime_currency, currency: birdseed, threshold: 1000 }
+  - { id: ach_birdseed_5k, trigger: lifetime_currency, currency: birdseed, threshold: 5000 }
+  - { id: ach_first_roost, trigger: upgrade_level, upgrade: aviary_bird_woodpecker, threshold: 1 }
+  - { id: ach_roosts_25, trigger: category_upgrades, category: canopy_aviary, threshold: 25 }
+  - { id: ach_spores_100, trigger: lifetime_currency, currency: spores, threshold: 100 }
+  - { id: ach_spores_1k, trigger: lifetime_currency, currency: spores, threshold: 1000 }
+  - { id: ach_spores_5k, trigger: lifetime_currency, currency: spores, threshold: 5000 }
+  - { id: ach_first_fungus, trigger: upgrade_level, upgrade: myc_phosphorus_exchange, threshold: 1 }
+  - { id: ach_mycelium_25, trigger: category_upgrades, category: mycelium_network, threshold: 25 }
+  - { id: ach_camp_25, trigger: category_upgrades, category: compound_and_synergy, threshold: 25 }
+  - { id: ach_camp_60, trigger: category_upgrades, category: compound_and_synergy, threshold: 60 }
+  - { id: ach_breakthrough_1, trigger: breakthrough_index, threshold: 1 }
+  - { id: ach_breakthrough_2, trigger: breakthrough_index, threshold: 2 }
+  - { id: ach_sap_25, trigger: sap_banked, threshold: 25 }
+  - { id: ach_sap_500, trigger: sap_banked, threshold: 500 }
+  - { id: ach_sap_1000, trigger: sap_banked, threshold: 1000 }
+  - { id: ach_sap_2500, trigger: sap_banked, threshold: 2500 }
+  - { id: ach_first_prestige_node, trigger: category_upgrades, category: heartwood_prestige, threshold: 1 }
+  - { id: ach_grand_forester, trigger: all_achievements, threshold: 0 }

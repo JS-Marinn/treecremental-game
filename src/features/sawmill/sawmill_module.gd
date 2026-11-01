@@ -39,7 +39,6 @@ func tick(delta: float) -> void:
 		return
 
 	var work_speed: float = get_effective_work_speed()
-	var value_rate: float = StatAggregator.query(&"sawmill_value_rate", &"all", 1.0)
 	var logs_yield_mult: float = StatAggregator.query(&"sawmill_logs_yield", &"all", 1.0)
 	var idle_baseline: float = StatAggregator.query(&"sawmill_idle_baseline", &"all", 0.0)
 
@@ -55,9 +54,7 @@ func tick(delta: float) -> void:
 		var new_cycles: float = float(_species_cycles.get(sid, 0.0)) + cycle_advance
 		_species_cycles[sid] = new_cycles
 
-		var bonus: float = 0.20 * log(1.0 + new_cycles) * value_rate
-		_species_process_bonus[sid] = bonus
-		_register_species_value_modifier(sid, bonus)
+		_update_species_bonus(sid)
 
 		total_logs_generated += cycle_advance * logs_yield_mult
 
@@ -86,6 +83,34 @@ func reset_for_breakthrough() -> void:
 	_species_process_bonus.clear()
 	if roster_dispatcher != null:
 		roster_dispatcher.reset_for_breakthrough()
+
+
+func serialize() -> Dictionary:
+	var cycles: Dictionary = {}
+	for sid in _species_cycles.keys():
+		cycles[String(sid)] = float(_species_cycles[sid])
+	return {"species_cycles": cycles}
+
+
+func deserialize(data: Dictionary) -> void:
+	_species_cycles.clear()
+	_species_process_bonus.clear()
+	var cycles: Dictionary = data.get("species_cycles", {})
+	for key in cycles.keys():
+		var sid := StringName(String(key))
+		if Balance.species(sid) == null:
+			continue
+		_species_cycles[sid] = maxf(0.0, float(cycles[key]))
+	for sid in _species_cycles.keys():
+		_update_species_bonus(sid)
+
+
+func _update_species_bonus(species_id: StringName) -> void:
+	var new_cycles: float = float(_species_cycles.get(species_id, 0.0))
+	var value_rate: float = StatAggregator.query(&"sawmill_value_rate", &"all", 1.0)
+	var bonus: float = 0.20 * log(1.0 + new_cycles) * value_rate
+	_species_process_bonus[species_id] = bonus
+	_register_species_value_modifier(species_id, bonus)
 
 
 func _register_species_value_modifier(species_id: StringName, bonus_value: float) -> void:

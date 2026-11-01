@@ -1,16 +1,14 @@
 class_name ModalAchievementsView
 extends PanelContainer
-## Editable Achievements gallery modal bound via %UniqueNodeNames.
+## Achievements gallery modal displaying all ~80 canonical achievements with live
+## locked/unlocked state driven by AchievementModule. Cards are instantiated from
+## scenes/ui/components/achievement_card_template.tscn and never built in code.
 
 signal closed()
 
-const PREVIEW_ACHIEVEMENTS: Array[Dictionary] = [
-	{"id": &"first_timber", "name_key": "KEY_ACH_FIRST_TIMBER_NAME", "desc_key": "KEY_ACH_FIRST_TIMBER_DESC"},
-	{"id": &"breakthrough_1", "name_key": "KEY_ACH_BREAKTHROUGH_1_NAME", "desc_key": "KEY_ACH_BREAKTHROUGH_1_DESC"},
-	{"id": &"great_felling", "name_key": "KEY_ACH_GREAT_FELLING_NAME", "desc_key": "KEY_ACH_GREAT_FELLING_DESC"},
-]
+const ACHIEVEMENT_CARD_SCENE: PackedScene = preload("res://scenes/ui/components/achievement_card_template.tscn")
 
-var unlocked_ids: Array[StringName] = []
+var achievement_module: AchievementModule
 
 @onready var _title_label: Label = get_node_or_null("%ModalTitleLabel") as Label
 @onready var _unlocked_count_label: Label = get_node_or_null("%UnlockedCountLabel") as Label
@@ -22,17 +20,27 @@ var unlocked_ids: Array[StringName] = []
 func _ready() -> void:
 	if _close_btn != null:
 		_close_btn.pressed.connect(_on_close_pressed)
+	if is_instance_valid(EventBus) and not EventBus.achievement_unlocked.is_connected(_on_achievement_unlocked):
+		EventBus.achievement_unlocked.connect(_on_achievement_unlocked)
+	refresh_view()
+
+
+func bind_achievements(module: AchievementModule) -> void:
+	achievement_module = module
 	refresh_view()
 
 
 func refresh_view() -> void:
+	var unlocked_count: int = achievement_module.get_unlocked_count() if achievement_module != null else 0
+	var total: int = Balance.achievement_ids().size()
+
 	if _title_label != null:
 		_title_label.text = tr("KEY_UI_BTN_ACHIEVEMENTS")
 	if _unlocked_count_label != null:
-		_unlocked_count_label.text = "%d / 80" % unlocked_ids.size()
-	var bonus_per_ach: float = StatAggregator.query(&"achievement_coin_bonus", &"all", 0.0)
+		_unlocked_count_label.text = "%d / %d" % [unlocked_count, total]
+	var bonus_per_ach: float = StatAggregator.query(&"achievement_coin_bonus", &"all", 1.0) - 1.0
 	if _harmony_bonus_label != null:
-		_harmony_bonus_label.text = "+%d%%" % int(round(float(unlocked_ids.size()) * bonus_per_ach * 100.0))
+		_harmony_bonus_label.text = "+%d%%" % int(round(float(unlocked_count) * bonus_per_ach * 100.0))
 
 	if _achievement_grid == null:
 		return
@@ -40,19 +48,18 @@ func refresh_view() -> void:
 		_achievement_grid.remove_child(child)
 		child.queue_free()
 
-	for ach in PREVIEW_ACHIEVEMENTS:
-		var card := PanelContainer.new()
-		card.custom_minimum_size = Vector2(165, 42)
-		var vbox := VBoxContainer.new()
-		var name_lbl := Label.new()
-		name_lbl.text = tr(String(ach["name_key"]))
-		var desc_lbl := Label.new()
-		desc_lbl.text = tr(String(ach["desc_key"]))
-		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		vbox.add_child(name_lbl)
-		vbox.add_child(desc_lbl)
-		card.add_child(vbox)
+	for ach_id in Balance.achievement_ids():
+		var def: AchievementDefinitionData = Balance.achievement(ach_id)
+		if def == null:
+			continue
+		var card: AchievementCardView = ACHIEVEMENT_CARD_SCENE.instantiate() as AchievementCardView
 		_achievement_grid.add_child(card)
+		var is_unlocked: bool = achievement_module != null and achievement_module.is_unlocked(ach_id)
+		card.bind_achievement(def, is_unlocked, AssetResolver.achievement_icon(ach_id))
+
+
+func _on_achievement_unlocked(_achievement_id: StringName) -> void:
+	refresh_view()
 
 
 func _on_close_pressed() -> void:

@@ -30,6 +30,11 @@ func bind_dependencies(
 	_sync_lifetime_sap_modifier()
 
 
+## Re-registers the lifetime Sap resonance modifier. Called after loading a save.
+func sync_sap_resonance() -> void:
+	_sync_lifetime_sap_modifier()
+
+
 func compute_pending_sap(run_coins: float = -1.0) -> float:
 	if Balance.config == null or Balance.config.sap_gain == null:
 		return 0.0

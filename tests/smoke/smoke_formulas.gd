@@ -24,6 +24,7 @@ func _ready() -> void:
 	_test_milestone_4_sawmill_and_kilns()
 	_test_milestone_5_separated_loops_tertiary_and_prestige()
 	_test_milestone_6_assets_conventions()
+	_test_milestone_6_save_and_achievements()
 	print("SMOKE RESULT: %s (%d failures)" % ["PASS" if _fails == 0 else "FAIL", _fails])
 	get_tree().quit(_fails)
 
@@ -525,5 +526,143 @@ func _test_milestone_6_assets_conventions() -> void:
 		and AssetResolver.worker_sprite(&"swift_cleaver") == null
 		and AssetResolver.species_badge(&"oak") == null
 		and AssetResolver.achievement_icon(&"ach_grand_forester") == null)
+
+
+func _test_milestone_6_save_and_achievements() -> void:
+	StatAggregator.clear_all()
+
+	var ach_ids: Array[StringName] = Balance.achievement_ids()
+	_check("80 canonical achievements discovered", ach_ids.size() == 80, str(ach_ids.size()))
+	_check("achievement discovery sorted: first ach_act1_species, last ach_upgrades_50",
+		ach_ids[0] == &"ach_act1_species" and ach_ids[79] == &"ach_upgrades_50",
+		"%s .. %s" % [str(ach_ids[0]), str(ach_ids[79])])
+
+	var main_scene: PackedScene = load("res://scenes/ui/main_screen.tscn") as PackedScene
+	var main_screen: MainScreen = main_scene.instantiate() as MainScreen
+	add_child(main_screen)
+
+	var ach := AchievementModule.new()
+	ach.name = "TestAchievementModule"
+	add_child(ach)
+
+	main_screen.set_upgrade_level(&"prop_birch", 1)
+	ach.sync_upgrade_levels_from_screen(main_screen)
+	_check("AchievementModule unlocks second species achievement from propagation levels",
+		ach.is_unlocked(&"ach_second_species"), str(ach.get_unlocked_count()))
+
+	main_screen.wallet.add_currency(&"coins", 5000.0, &"test")
+	_check("AchievementModule unlocks coin achievements from resource signals",
+		ach.is_unlocked(&"ach_first_chip") and ach.is_unlocked(&"ach_coins_1k"))
+
+	EventBus.tree_felled.emit(&"pine", 0, 3.0)
+	EventBus.tree_felled.emit(&"giant_sequoia", 4, 900.0)
+	_check("AchievementModule unlocks timber, great felling, and old growth achievements from tree felled events",
+		ach.is_unlocked(&"ach_first_timber") and ach.is_unlocked(&"ach_great_felling") and ach.is_unlocked(&"ach_old_growth"))
+
+	main_screen._on_upgrade_purchase_requested(&"hire_simple_lumberjack", 4)
+	_check("AchievementModule unlocks hire achievement from upgrade purchase signals",
+		ach.is_unlocked(&"ach_hire_5"), str(main_screen.get_upgrade_level(&"hire_simple_lumberjack")))
+
+	main_screen.set_upgrade_level(&"sap_ancient_harmony", 1)
+	EventBus.upgrade_purchased.emit(&"sap_ancient_harmony", 1)
+	var unlocked_n: int = ach.get_unlocked_count()
+	var expected_mul: float = 1.0 + 0.02 * float(unlocked_n)
+	var actual_mul: float = StatAggregator.query(&"global_coin_multiplier", &"all", 1.0)
+	_check("AchievementModule mastery grants +2% global coins per achievement at sap_ancient_harmony Lv.1",
+		absf(actual_mul - expected_mul) < 0.001,
+		"expected %f got %f (%d unlocked)" % [expected_mul, actual_mul, unlocked_n])
+
+	StatAggregator.reset_for_breakthrough()
+	_check("AchievementModule mastery modifier persists across Breakthrough resets",
+		absf(StatAggregator.query(&"global_coin_multiplier", &"all", 1.0) - expected_mul) < 0.001,
+		str(StatAggregator.query(&"global_coin_multiplier", &"all", 1.0)))
+
+	for ach_id in ach_ids:
+		if ach_id != &"ach_grand_forester":
+			ach.unlock_achievement(ach_id)
+	_check("AchievementModule unlocks ach_grand_forester when every other achievement is unlocked",
+		ach.is_unlocked(&"ach_grand_forester") and ach.get_unlocked_count() == 80,
+		str(ach.get_unlocked_count()))
+
+	# --- Save roundtrip ---
+	var sawmill := SawmillModule.new()
+	sawmill.bind_dependencies(main_screen.wallet, main_screen.roster_dispatcher)
+	var kiln := KilnModule.new()
+	kiln.bind_wallet(main_screen.wallet)
+	main_screen._on_sawmill_assign_delta_requested(&"pine", 1)
+	sawmill.tick(5.0)
+	kiln.stoke_boiler(0.60)
+	kiln.tick(6.0)
+
+	var save_mod := SaveModule.new()
+	save_mod.name = "TestSaveModule"
+	save_mod.save_file_path = "user://smoke_slot_test.json"
+	save_mod.bind_dependencies(main_screen, sawmill, kiln, ach)
+	add_child(save_mod)
+	EventBus.setting_changed.emit(&"audio", &"master", 0.25)
+	EventBus.setting_changed.emit(&"gameplay", &"notation", 1)
+
+	var coins_before: float = main_screen.wallet.get_balance(&"coins")
+	var sap_before: float = main_screen.wallet.get_balance(&"sap")
+	var sawmill_cycles_before: float = sawmill.get_species_cycles(&"pine")
+	var kiln_progress_before: float = kiln.cycle_progress
+	var kiln_pressure_before: float = kiln.thermal_pressure
+	var kiln_cycles_before: int = kiln.total_cycles_completed
+	var saved_ok: bool = save_mod.save_now()
+	_check("SaveModule writes an atomic JSON save file",
+		saved_ok and FileAccess.file_exists("user://smoke_slot_test.json"),
+		str(FileAccess.file_exists("user://smoke_slot_test.json")))
+
+	main_screen.wallet.spend_currency(&"coins", minf(coins_before, 100.0), &"test")
+	main_screen.wallet.add_currency(&"sap", 42.0, &"test")
+	main_screen.current_act_index = 2
+	main_screen.set_upgrade_level(&"prop_birch", 0)
+	main_screen.roster_dispatcher.reset_for_breakthrough()
+	sawmill._species_cycles.clear()
+	StatAggregator.remove_modifier(&"sawmill_process:pine")
+	kiln.cycle_progress = 0.0
+	kiln.thermal_pressure = 0.0
+
+	var loaded_ok: bool = save_mod.load_and_apply()
+	_check("SaveModule restores wallet, act index, upgrade levels, roster, sawmill cycles, and kiln state after load",
+		loaded_ok
+		and absf(main_screen.wallet.get_balance(&"coins") - coins_before) < 0.001
+		and absf(main_screen.wallet.get_balance(&"sap") - sap_before) < 0.001
+		and main_screen.current_act_index == 0
+		and main_screen.get_upgrade_level(&"prop_birch") == 1
+		and main_screen.roster_dispatcher.get_station_assigned(&"pine") == 1
+		and absf(sawmill.get_species_cycles(&"pine") - sawmill_cycles_before) < 0.001
+		and StatAggregator.has_source(&"sawmill_process:pine")
+		and absf(kiln.cycle_progress - kiln_progress_before) < 0.001
+		and absf(kiln.thermal_pressure - kiln_pressure_before) < 0.001
+		and kiln.total_cycles_completed == kiln_cycles_before,
+		"coins %f -> %f" % [coins_before, main_screen.wallet.get_balance(&"coins")])
+
+	_check("SaveModule grants zero offline progression on load",
+		absf(main_screen.wallet.get_balance(&"coins") - coins_before) < 0.001,
+		str(main_screen.wallet.get_balance(&"coins")))
+
+	# Rotate the good save into the .bak, then corrupt the main file to verify recovery.
+	save_mod.save_now()
+	var corrupt_file := FileAccess.open("user://smoke_slot_test.json", FileAccess.WRITE)
+	corrupt_file.store_string("{ this is not valid json")
+	corrupt_file.close()
+	var recovered_ok: bool = save_mod.load_and_apply()
+	_check("SaveModule recovers from the .bak backup when the main save is corrupted",
+		recovered_ok and absf(main_screen.wallet.get_balance(&"coins") - coins_before) < 0.001,
+		str(main_screen.wallet.get_balance(&"coins")))
+
+	save_mod.queue_free()
+	ach.queue_free()
+	sawmill.free()
+	kiln.free()
+	main_screen.queue_free()
+	StatAggregator.clear_all()
+	var user_dir := DirAccess.open("user://")
+	if user_dir != null:
+		if user_dir.file_exists("smoke_slot_test.json"):
+			user_dir.remove("smoke_slot_test.json")
+		if user_dir.file_exists("smoke_slot_test.json.bak"):
+			user_dir.remove("smoke_slot_test.json.bak")
 
 

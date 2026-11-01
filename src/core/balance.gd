@@ -8,6 +8,7 @@ const SETTING_PROFILE: String = "treecremental/balance/profile"
 const SETTING_SPECIES_DIR: String = "treecremental/balance/species_dir"
 const SETTING_WORKERS_DIR: String = "treecremental/balance/workers_dir"
 const SETTING_UPGRADES_DIR: String = "treecremental/balance/upgrades_dir"
+const SETTING_ACHIEVEMENTS_DIR: String = "treecremental/balance/achievements_dir"
 
 var config: BalanceConfig
 var _species: Dictionary = {}          # StringName -> SpeciesData
@@ -16,6 +17,8 @@ var _workers: Dictionary = {}          # StringName -> WorkerArchetypeData
 var _worker_order: Array[StringName] = []
 var _upgrades: Dictionary = {}         # StringName -> UpgradeDefinitionData
 var _upgrade_order: Array[StringName] = []
+var _achievements: Dictionary = {}     # StringName -> AchievementDefinitionData
+var _achievement_order: Array[StringName] = []
 
 
 func _ready() -> void:
@@ -31,6 +34,7 @@ func reload() -> void:
 	_load_species(ProjectSettings.get_setting(SETTING_SPECIES_DIR, "res://data/species"))
 	_load_workers(ProjectSettings.get_setting(SETTING_WORKERS_DIR, "res://data/workers"))
 	_load_upgrades(ProjectSettings.get_setting(SETTING_UPGRADES_DIR, "res://data/upgrades"))
+	_load_achievements(ProjectSettings.get_setting(SETTING_ACHIEVEMENTS_DIR, "res://data/achievements"))
 
 
 func species(id: StringName) -> SpeciesData:
@@ -55,6 +59,14 @@ func upgrade(id: StringName) -> UpgradeDefinitionData:
 
 func upgrade_ids() -> Array[StringName]:
 	return _upgrade_order
+
+
+func achievement(id: StringName) -> AchievementDefinitionData:
+	return _achievements.get(id)
+
+
+func achievement_ids() -> Array[StringName]:
+	return _achievement_order
 
 
 func upgrades_for_loop(loop_id: StringName) -> Array[UpgradeDefinitionData]:
@@ -129,6 +141,25 @@ func _load_upgrades(dir_path: String) -> void:
 		_upgrades[res.id] = res
 	_upgrade_order.assign(_upgrades.keys())
 	_upgrade_order.sort_custom(_compare_upgrades)
+
+
+func _load_achievements(dir_path: String) -> void:
+	_achievements.clear()
+	_achievement_order.clear()
+	var dir: DirAccess = DirAccess.open(dir_path)
+	assert(dir != null, "Balance: achievements dir missing: %s" % dir_path)
+	for file_name in dir.get_files():
+		var clean: String = file_name.trim_suffix(".remap")
+		if not clean.ends_with(".tres"):
+			continue
+		var res: AchievementDefinitionData = load(dir_path.path_join(clean)) as AchievementDefinitionData
+		if res == null or res.id == &"":
+			push_warning("Balance: skipped invalid achievement file %s" % clean)
+			continue
+		_achievements[res.id] = res
+	_achievement_order.assign(_achievements.keys())
+	_achievement_order.sort_custom(func(a: StringName, b: StringName) -> bool:
+		return String(a) < String(b))
 
 
 func _compare_upgrades(a: StringName, b: StringName) -> bool:

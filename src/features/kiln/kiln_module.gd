@@ -79,6 +79,21 @@ func reset_for_breakthrough() -> void:
 	_update_overclock_modifier()
 
 
+func serialize() -> Dictionary:
+	return {
+		"cycle_progress": cycle_progress,
+		"thermal_pressure": thermal_pressure,
+		"total_cycles_completed": total_cycles_completed,
+	}
+
+
+func deserialize(data: Dictionary) -> void:
+	cycle_progress = clampf(float(data.get("cycle_progress", 0.0)), 0.0, 1.0)
+	thermal_pressure = clampf(float(data.get("thermal_pressure", 0.0)), 0.0, 1.0)
+	total_cycles_completed = maxi(0, int(data.get("total_cycles_completed", 0)))
+	_update_overclock_modifier()
+
+
 func _complete_carbonization_cycle() -> void:
 	total_cycles_completed += 1
 	var charcoal_mult: float = StatAggregator.query(&"kiln_charcoal_yield", &"all", 1.0)
