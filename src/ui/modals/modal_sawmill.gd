@@ -74,8 +74,11 @@ func refresh_view() -> void:
 		var q_lv: int = main_screen.get_upgrade_level(&"mill_crew_quarters")
 		var q_cap: int = q_upg.get_act_cap(act_idx)
 		var q_cost: float = q_upg.evaluate_cost(q_lv, 1)
+		var q_name: String = tr(q_upg.name_key())
+		if q_name == q_upg.name_key():
+			q_name = "Crew Quarters"
 		_quarters_upg_btn.text = "%s Lv.%d/%d (%s)" % [
-			tr("KEY_UPG_MILL_CREW_QUARTERS_NAME"),
+			q_name,
 			q_lv,
 			q_cap,
 			"MAX" if q_lv >= q_cap else NumberFormatter.format(q_cost)
