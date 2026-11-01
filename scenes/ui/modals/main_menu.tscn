@@ -1,0 +1,84 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://assets/ui/default_theme.tres" id="1"]
+[ext_resource type="Script" path="res://src/ui/modals/main_menu.gd" id="2"]
+
+[node name="MainMenu" type="Control"]
+custom_minimum_size = Vector2(640, 360)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1")
+script = ExtResource("2")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.117647, 0.168627, 0.105882, 1)
+
+[node name="CenterCard" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(280, 190)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = -95.0
+offset_right = 140.0
+offset_bottom = 95.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MenuVBox" type="VBoxContainer" parent="CenterCard"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="CenterCard/MenuVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+text = "Treecremental"
+
+[node name="SubtitleLabel" type="Label" parent="CenterCard/MenuVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.86, 0.72, 1)
+horizontal_alignment = 1
+autowrap_mode = 2
+text = "Propagate your first groves and deploy your logging crews."
+
+[node name="ButtonVBox" type="VBoxContainer" parent="CenterCard/MenuVBox"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 5
+
+[node name="PlayButton" type="Button" parent="CenterCard/MenuVBox/ButtonVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+text = "Play"
+
+[node name="SettingsButton" type="Button" parent="CenterCard/MenuVBox/ButtonVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+text = "Settings"
+
+[node name="QuitButton" type="Button" parent="CenterCard/MenuVBox/ButtonVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+text = "Quit"

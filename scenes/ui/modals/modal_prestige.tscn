@@ -1,0 +1,102 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://assets/ui/default_theme.tres" id="1"]
+[ext_resource type="Script" path="res://src/ui/modals/modal_prestige.gd" id="2"]
+
+[node name="ModalPrestige" type="PanelContainer"]
+custom_minimum_size = Vector2(600, 330)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -165.0
+offset_right = 300.0
+offset_bottom = 165.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1")
+script = ExtResource("2")
+
+[node name="PrestigeVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HeaderRow" type="HBoxContainer" parent="PrestigeVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ModalTitleLabel" type="Label" parent="PrestigeVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.8, 0.3, 1)
+text = "Heartwood Ascension"
+
+[node name="SapBalanceLabel" type="Label" parent="PrestigeVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Sap: 0"
+
+[node name="LifetimeSapLabel" type="Label" parent="PrestigeVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Lifetime: 0"
+
+[node name="SapMultiplierLabel" type="Label" parent="PrestigeVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.92, 0.65, 1)
+text = "x1.00"
+
+[node name="CloseButton" type="Button" parent="PrestigeVBox/HeaderRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 20)
+layout_mode = 2
+text = "X"
+
+[node name="AscendBanner" type="HBoxContainer" parent="PrestigeVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PendingSapLabel" type="Label" parent="PrestigeVBox/AscendBanner"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.85, 0.42, 1)
+text = "+0 Sap"
+
+[node name="AscendConfirmButton" type="Button" parent="PrestigeVBox/AscendBanner"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 20)
+layout_mode = 2
+text = "Ascend Now"
+
+[node name="RingsScroll" type="ScrollContainer" parent="PrestigeVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RingsColumns" type="HBoxContainer" parent="PrestigeVBox/RingsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="InnerRingContainer" type="VBoxContainer" parent="PrestigeVBox/RingsScroll/RingsColumns"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="MiddleRingContainer" type="VBoxContainer" parent="PrestigeVBox/RingsScroll/RingsColumns"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="OuterRingContainer" type="VBoxContainer" parent="PrestigeVBox/RingsScroll/RingsColumns"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3

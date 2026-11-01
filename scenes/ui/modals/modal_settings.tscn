@@ -1,0 +1,136 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://assets/ui/default_theme.tres" id="1"]
+[ext_resource type="Script" path="res://src/ui/modals/modal_settings.gd" id="2"]
+
+[node name="ModalSettings" type="PanelContainer"]
+custom_minimum_size = Vector2(460, 290)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -145.0
+offset_right = 230.0
+offset_bottom = 145.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1")
+script = ExtResource("2")
+
+[node name="SettingsVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HeaderRow" type="HBoxContainer" parent="SettingsVBox"]
+layout_mode = 2
+
+[node name="ModalTitleLabel" type="Label" parent="SettingsVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.82, 0.35, 1)
+text = "Settings"
+
+[node name="CloseButton" type="Button" parent="SettingsVBox/HeaderRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 20)
+layout_mode = 2
+text = "X"
+
+[node name="ColumnsHBox" type="HBoxContainer" parent="SettingsVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="LeftColumn" type="VBoxContainer" parent="SettingsVBox/ColumnsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="AudioHeader" type="Label" parent="SettingsVBox/ColumnsHBox/LeftColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.88, 0.68, 1)
+text = "Audio (Master / Music / SFX / UI)"
+
+[node name="MasterSlider" type="HSlider" parent="SettingsVBox/ColumnsHBox/LeftColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.8
+
+[node name="MusicSlider" type="HSlider" parent="SettingsVBox/ColumnsHBox/LeftColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.7
+
+[node name="SfxSlider" type="HSlider" parent="SettingsVBox/ColumnsHBox/LeftColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.85
+
+[node name="UiSlider" type="HSlider" parent="SettingsVBox/ColumnsHBox/LeftColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.9
+
+[node name="DisplayHeader" type="Label" parent="SettingsVBox/ColumnsHBox/LeftColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.88, 0.68, 1)
+text = "Display"
+
+[node name="DisplayModeOption" type="OptionButton" parent="SettingsVBox/ColumnsHBox/LeftColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="VsyncCheck" type="CheckBox" parent="SettingsVBox/ColumnsHBox/LeftColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "VSync"
+
+[node name="RightColumn" type="VBoxContainer" parent="SettingsVBox/ColumnsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="AccessibilityHeader" type="Label" parent="SettingsVBox/ColumnsHBox/RightColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.88, 0.68, 1)
+text = "Accessibility"
+
+[node name="ColorblindOption" type="OptionButton" parent="SettingsVBox/ColumnsHBox/RightColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ReduceMotionCheck" type="CheckBox" parent="SettingsVBox/ColumnsHBox/RightColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reduce Motion"
+
+[node name="ScreenShakeCheck" type="CheckBox" parent="SettingsVBox/ColumnsHBox/RightColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Screen Shake"
+
+[node name="LocaleHeader" type="Label" parent="SettingsVBox/ColumnsHBox/RightColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.88, 0.68, 1)
+text = "Notation & Language"
+
+[node name="NotationOption" type="OptionButton" parent="SettingsVBox/ColumnsHBox/RightColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LocaleOption" type="OptionButton" parent="SettingsVBox/ColumnsHBox/RightColumn"]
+unique_name_in_owner = true
+layout_mode = 2

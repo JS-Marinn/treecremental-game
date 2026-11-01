@@ -1,0 +1,66 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://assets/ui/default_theme.tres" id="1"]
+[ext_resource type="Script" path="res://src/ui/modals/modal_achievements.gd" id="2"]
+
+[node name="ModalAchievements" type="PanelContainer"]
+custom_minimum_size = Vector2(540, 300)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -270.0
+offset_top = -150.0
+offset_right = 270.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1")
+script = ExtResource("2")
+
+[node name="AchVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HeaderRow" type="HBoxContainer" parent="AchVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ModalTitleLabel" type="Label" parent="AchVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.82, 0.35, 1)
+text = "Achievements"
+
+[node name="UnlockedCountLabel" type="Label" parent="AchVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 / 80"
+
+[node name="HarmonyBonusLabel" type="Label" parent="AchVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.92, 0.65, 1)
+text = "+0%"
+
+[node name="CloseButton" type="Button" parent="AchVBox/HeaderRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 20)
+layout_mode = 2
+text = "X"
+
+[node name="AchievementScroll" type="ScrollContainer" parent="AchVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="AchievementGrid" type="GridContainer" parent="AchVBox/AchievementScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 3
