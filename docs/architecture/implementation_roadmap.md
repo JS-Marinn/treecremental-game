@@ -1,6 +1,6 @@
 # Treecremental -- Step-by-Step Implementation & Development Roadmap (v0.6)
 
-> **Project Status**: `planning` (Development paused until formal sign-off).
+> **Project Status**: `production` (Milestone 1 active).
 > **Purpose**: Chronological, milestone-gated rollout plan ensuring every system is built, integrated, and tested in strict accordance with our hyper-modular `StatAggregator` architecture, Right-Hand Docked `.tscn` UI groundwork, 3-worker-type rules, and zero-trace `Autopilot-Godot` Git hygiene.
 
 ---

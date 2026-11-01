@@ -4,7 +4,9 @@ revised: 2026-10-31
 project:
   name: "Treecremental"
   version_spec: "v0.6"
-  stage: "planning"
+  stage: "production"
+  current_milestone: "M1_composable_data_and_stat_aggregator"
+  repository_url: "https://github.com/JS-Marinn/treecremental-game"
   genre: "2d-pixel-art-incremental"
   session_model: "active-session-only"
   offline_progression: false
