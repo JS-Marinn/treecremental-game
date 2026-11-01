@@ -4,6 +4,9 @@
 export.cfg
 export_credentials.cfg
 *.translation
+*.uid
+design/mockups/*.import
+i18n/*.import
 /android/
 
 # Python tooling
