@@ -22,6 +22,7 @@ func _ready() -> void:
 	_test_milestone_2_ui()
 	_test_milestone_3_clearing()
 	_test_milestone_4_sawmill_and_kilns()
+	_test_milestone_5_separated_loops_tertiary_and_prestige()
 	print("SMOKE RESULT: %s (%d failures)" % ["PASS" if _fails == 0 else "FAIL", _fails])
 	get_tree().quit(_fails)
 
@@ -206,11 +207,13 @@ func _test_milestone_2_ui() -> void:
 	var left_col: Control = main_screen.get_node_or_null("%LeftCompoundColumn") as Control
 	var top_bar: Control = main_screen.get_node_or_null("%TopResourceBar") as Control
 	var clearing_vp: Control = main_screen.get_node_or_null("%CompoundViewportContainer") as Control
+	var bottom_bar: Control = main_screen.get_node_or_null("%BottomLoopAccessBar") as Control
 	var right_dock: Control = main_screen.get_node_or_null("%RightCommandDock") as Control
-	_check("MainScreen 432+208 Right-Hand Docked split geometry",
+	_check("MainScreen 432+208 Right-Hand Docked split geometry with BottomLoopAccessBar",
 		left_col != null and left_col.custom_minimum_size == Vector2(432, 360)
 		and top_bar != null and top_bar.custom_minimum_size == Vector2(432, 28)
-		and clearing_vp != null and clearing_vp.custom_minimum_size == Vector2(432, 332)
+		and clearing_vp != null and clearing_vp.custom_minimum_size == Vector2(432, 304)
+		and bottom_bar != null and bottom_bar.custom_minimum_size == Vector2(432, 28)
 		and right_dock != null and right_dock.custom_minimum_size == Vector2(208, 360))
 	var main_split: Control = main_screen.get_node_or_null("MainSplit") as Control
 	var split_min: Vector2 = main_split.get_combined_minimum_size() if main_split != null else Vector2.ZERO
@@ -410,6 +413,90 @@ func _test_milestone_4_sawmill_and_kilns() -> void:
 	sawmill.free()
 	kiln.free()
 	wallet.free()
+	StatAggregator.clear_all()
+
+
+func _test_milestone_5_separated_loops_tertiary_and_prestige() -> void:
+	StatAggregator.clear_all()
+	var main_scene: PackedScene = load("res://scenes/ui/main_screen.tscn") as PackedScene
+	var main_screen: MainScreen = main_scene.instantiate() as MainScreen
+	add_child(main_screen)
+
+	# 1. Verify separated BottomLoopAccessBar buttons (Image 1 layout)
+	_check("BottomLoopAccessBar exposes Sawmill, Kilns, Ecology, Prestige, Feats, and Settings buttons",
+		main_screen.get_node_or_null("%SawmillLoopButton") != null
+		and main_screen.get_node_or_null("%KilnsLoopButton") != null
+		and main_screen.get_node_or_null("%EcologyLoopButton") != null
+		and main_screen.get_node_or_null("%PrestigeModalButton") != null
+		and main_screen.get_node_or_null("%AchievementsModalButton") != null
+		and main_screen.get_node_or_null("%SettingsModalButton") != null)
+
+	# 2. Verify ModalSawmillView (Image 2 horizontal species lanes)
+	var mill_modal_scene: PackedScene = load("res://scenes/ui/modals/modal_sawmill.tscn") as PackedScene
+	var mill_modal: ModalSawmillView = mill_modal_scene.instantiate() as ModalSawmillView
+	add_child(mill_modal)
+	mill_modal.bind_main_screen(main_screen)
+	_check("ModalSawmillView populates 9 horizontal SawmillLaneView rows and Back button",
+		mill_modal._lane_views.size() == 9 and mill_modal.get_node_or_null("%BackButton") != null,
+		str(mill_modal._lane_views.size()))
+	mill_modal._on_lane_worker_delta(&"pine", 1)
+	_check("ModalSawmillView + button assigns Simple Lumberjack to Pine lane",
+		main_screen.roster_dispatcher.get_station_assigned(&"pine") == 1)
+	mill_modal.queue_free()
+
+	# 3. Verify ModalKilnsView and ModalEcologyView
+	var kilns_scene: PackedScene = load("res://scenes/ui/modals/modal_kilns.tscn") as PackedScene
+	var kilns_modal: ModalKilnsView = kilns_scene.instantiate() as ModalKilnsView
+	add_child(kilns_modal)
+	_check("ModalKilnsView populates 8 kiln_* upgrades and Back button",
+		kilns_modal._row_views.size() == 8 and kilns_modal.get_node_or_null("%BackButton") != null)
+	kilns_modal.queue_free()
+
+	var eco_scene: PackedScene = load("res://scenes/ui/modals/modal_ecology.tscn") as PackedScene
+	var eco_modal: ModalEcologyView = eco_scene.instantiate() as ModalEcologyView
+	add_child(eco_modal)
+	_check("ModalEcologyView populates 16 aviary_* and myc_* upgrades and Back button",
+		eco_modal._row_views.size() == 16 and eco_modal.get_node_or_null("%BackButton") != null)
+	eco_modal.queue_free()
+
+	# 4. Verify AviaryModule & MyceliumModule generate Birdseed and Spores
+	var aviary := AviaryModule.new()
+	aviary.bind_wallet(main_screen.wallet)
+	aviary.tick(2.5)
+	aviary.on_tree_felled()
+	var mycelium := MyceliumModule.new()
+	mycelium.bind_dependencies(main_screen.wallet)
+	mycelium.tick(2.5)
+	_check("AviaryModule generates Birdseed and MyceliumModule generates Spores",
+		main_screen.wallet.get_balance(&"birdseed") > 0.0 and main_screen.wallet.get_balance(&"spores") > 0.0,
+		"birdseed=%f, spores=%f" % [main_screen.wallet.get_balance(&"birdseed"), main_screen.wallet.get_balance(&"spores")])
+
+	# 5. Verify PrestigeModule Breakthrough reset & persistence
+	main_screen.set_upgrade_level(&"prop_birch", 2)
+	main_screen.set_upgrade_level(&"myc_phosphorus_exchange", 2)
+	main_screen.set_upgrade_level(&"sap_pioneer_charter", 1)
+	main_screen.wallet.add_currency(&"coins", 250000.0, &"test_gate_1")
+	main_screen.wallet.add_currency(&"processed_logs", 120.0, &"test")
+
+	var prestige_mod := PrestigeModule.new()
+	prestige_mod.bind_dependencies(main_screen)
+	var can_ascend: bool = prestige_mod.can_breakthrough()
+	var sap_earned: float = prestige_mod.execute_breakthrough()
+	_check("PrestigeModule Breakthrough awards Sap, advances Act I -> Act II, resets prop_birch, preserves myc_phosphorus_exchange, and grants starting_coins from sap_pioneer_charter",
+		can_ascend
+		and sap_earned >= 11.0
+		and main_screen.current_act_index == 1
+		and main_screen.get_upgrade_level(&"prop_birch") == 0
+		and main_screen.get_upgrade_level(&"myc_phosphorus_exchange") == 2
+		and is_equal_approx(main_screen.wallet.get_balance(&"processed_logs"), 0.0)
+		and main_screen.wallet.get_balance(&"coins") > 0.0
+		and main_screen.wallet.get_balance(&"spores") > 0.0,
+		"sap=%f, act=%d, coins=%f" % [sap_earned, main_screen.current_act_index, main_screen.wallet.get_balance(&"coins")])
+
+	prestige_mod.free()
+	aviary.free()
+	mycelium.free()
+	main_screen.queue_free()
 	StatAggregator.clear_all()
 
 

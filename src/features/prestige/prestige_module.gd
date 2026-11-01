@@ -81,7 +81,7 @@ func execute_breakthrough() -> float:
 
 	if is_instance_valid(EventBus):
 		EventBus.prestige_performed.emit(pending, wallet.get_balance(&"sap"))
-		EventBus.act_breakthrough_unlocked.emit(main_screen.current_act_index + 1)
+		EventBus.breakthrough_reached.emit(main_screen.current_act_index)
 	return pending
 
 

@@ -46,6 +46,8 @@ func refresh_view() -> void:
 	var disp: RosterDispatcher = main_screen.roster_dispatcher
 	var act_idx: int = main_screen.current_act_index
 
+	if _title_label != null:
+		_title_label.text = tr("KEY_MODULE_SAWMILL")
 	if _logs_balance_label != null:
 		_logs_balance_label.text = "%s: %s" % [
 			tr("KEY_RESOURCE_PROCESSED_LOGS"),

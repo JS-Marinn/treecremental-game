@@ -89,6 +89,7 @@ func has_valid_layout_containers() -> bool:
 		_left_compound_col != null
 		and _top_resource_bar != null
 		and _compound_viewport != null
+		and _bottom_access_bar != null
 		and _right_command_dock != null
 	)
 

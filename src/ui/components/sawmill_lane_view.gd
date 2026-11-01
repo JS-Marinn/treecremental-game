@@ -17,7 +17,6 @@ var _worker_sprites: Array[ColorRect] = []
 
 @onready var _species_icon: TextureRect = get_node_or_null("%SpeciesIcon") as TextureRect
 @onready var _lane_title_label: Label = get_node_or_null("%LaneTitleLabel") as Label
-@onready var _lane_track: Control = get_node_or_null("%LaneTrackCanvas") as Control
 @onready var _workers_layer: Control = get_node_or_null("%LaneWorkersLayer") as Control
 @onready var _assigned_label: Label = get_node_or_null("%AssignedCountLabel") as Label
 @onready var _plus_btn: Button = get_node_or_null("%PlusWorkerButton") as Button
@@ -136,8 +135,8 @@ func _make_wood_badge(sid: StringName) -> ImageTexture:
 	var h: int = abs(sid.hash())
 	var col := Color(
 		0.45 + float(h % 40) / 100.0,
-		0.32 + float((h / 7) % 45) / 100.0,
-		0.18 + float((h / 31) % 35) / 100.0,
+		0.32 + float((h >> 3) % 45) / 100.0,
+		0.18 + float((h >> 5) % 35) / 100.0,
 		1.0
 	)
 	var img := Image.create(14, 14, false, Image.FORMAT_RGBA8)
