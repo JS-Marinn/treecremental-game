@@ -28,7 +28,6 @@ var _floating_popups: Array[Dictionary] = []
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 @onready var terrain: ClearingTerrain = get_node_or_null("%ClearingTerrain") as ClearingTerrain
-@onready var compound_landmark: CompoundLandmark = get_node_or_null("%CompoundLandmark") as CompoundLandmark
 @onready var entities_root: Node2D = get_node_or_null("%EntitiesRoot") as Node2D
 @onready var floating_text_root: Node2D = get_node_or_null("%FloatingTextRoot") as Node2D
 @onready var synergy_controller: SynergyController = get_node_or_null("%SynergyController") as SynergyController

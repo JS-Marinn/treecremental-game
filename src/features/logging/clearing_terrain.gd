@@ -125,14 +125,8 @@ func _populate_default_clearing_map() -> void:
 		for x in range(GRID_COLS):
 			var cell := Vector2i(x, y)
 			var is_border: bool = (x == 0 or x == GRID_COLS - 1 or y <= 1 or y >= GRID_ROWS - 1)
-			# Reserve lower-left corner for Sawmill & Charcoal Kiln compound landmark
-			var is_compound_corner: bool = (x <= 5 and y >= 15)
-			# Subtle horizontal dirt skid path leading from the lower-left compound
-			var is_skid_path: bool = (y == 17 and x >= 5 and x <= 10)
-			if is_border or is_compound_corner:
+			if is_border:
 				ground_base_layer.set_cell(cell, 0, ATLAS_PERIMETER)
-			elif is_skid_path:
-				ground_base_layer.set_cell(cell, 0, ATLAS_DIRT_PATH)
 			elif ((x * 7 + y * 13) % 5) == 0:
 				ground_base_layer.set_cell(cell, 0, ATLAS_CLOVER)
 			else:

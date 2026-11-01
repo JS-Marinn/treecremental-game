@@ -38,7 +38,6 @@ func _ready() -> void:
 	kiln_module.name = "KilnModule"
 	kiln_module.bind_wallet(main_screen.wallet)
 	add_child(kiln_module)
-	kiln_module.thermal_pressure_changed.connect(_on_thermal_pressure_changed)
 
 	aviary_module = AviaryModule.new()
 	aviary_module.name = "AviaryModule"
@@ -50,9 +49,6 @@ func _ready() -> void:
 		logging_camp = LOGGING_CLEARING_SCENE.instantiate() as LoggingCampModule
 		logging_camp.bind_wallet(main_screen.wallet)
 		world_root.add_child(logging_camp)
-		if logging_camp.compound_landmark != null:
-			logging_camp.compound_landmark.stoke_requested.connect(func() -> void: kiln_module.stoke_boiler())
-			_sync_compound_landmark()
 
 	mycelium_module = MyceliumModule.new()
 	mycelium_module.name = "MyceliumModule"
@@ -74,25 +70,11 @@ func _on_upgrade_purchased(_upgrade_id: StringName, _new_level: int) -> void:
 	if logging_camp != null and main_screen != null:
 		logging_camp.sync_workers_from_stat_aggregator(main_screen._get_total_sawmill_assigned())
 		logging_camp.fill_clearing_to_capacity()
-		_sync_compound_landmark()
 
 
 func _on_worker_assigned(_worker_id: StringName, _loop_id: StringName, _target_id: StringName, _assigned_count: int) -> void:
 	if logging_camp != null and main_screen != null:
 		logging_camp.sync_workers_from_stat_aggregator(main_screen._get_total_sawmill_assigned())
-		_sync_compound_landmark()
-
-
-func _on_thermal_pressure_changed(_new_pressure: float, _speed_bonus: float) -> void:
-	_sync_compound_landmark()
-
-
-func _sync_compound_landmark() -> void:
-	if logging_camp != null and logging_camp.compound_landmark != null and main_screen != null and kiln_module != null:
-		logging_camp.compound_landmark.set_visual_state(
-			main_screen._get_total_sawmill_assigned(),
-			kiln_module.thermal_pressure
-		)
 
 
 func _on_synergy_triggered(_species_id: StringName, synergy_id: StringName, _duration_s: float) -> void:
