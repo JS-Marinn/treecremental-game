@@ -35,6 +35,8 @@ const OUTER_RING_IDS: Array[StringName] = [
 ]
 
 var wallet: WalletModule
+var main_screen: MainScreen
+var prestige_module: PrestigeModule
 var _sap_levels: Dictionary = {} # StringName -> int
 var _row_views: Dictionary = {}  # StringName -> UpgradeRowView
 
@@ -61,6 +63,16 @@ func _ready() -> void:
 
 func bind_wallet(external_wallet: WalletModule) -> void:
 	wallet = external_wallet
+	refresh_view()
+
+
+func bind_dependencies(screen: MainScreen, prestige: PrestigeModule = null) -> void:
+	main_screen = screen
+	prestige_module = prestige
+	if screen != null:
+		wallet = screen.wallet
+		for uid in INNER_RING_IDS + MIDDLE_RING_IDS + OUTER_RING_IDS:
+			_sap_levels[uid] = screen.get_upgrade_level(uid)
 	refresh_view()
 
 
@@ -131,19 +143,25 @@ func _on_sap_upgrade_purchased(upgrade_id: StringName, count: int) -> void:
 	if wallet.spend_for_upgrade(upg, cur_lv, count):
 		var new_lv: int = mini(upg.max_level, cur_lv + count)
 		_sap_levels[upgrade_id] = new_lv
-		StatAggregator.register_upgrade(upg, new_lv)
+		if main_screen != null:
+			main_screen.set_upgrade_level(upgrade_id, new_lv)
+		else:
+			StatAggregator.register_upgrade(upg, new_lv)
 		EventBus.upgrade_purchased.emit(upgrade_id, new_lv)
 		refresh_view()
 
 
 func _on_ascend_pressed() -> void:
-	var pending: float = compute_pending_sap()
-	if wallet != null and pending > 0.0:
-		wallet.add_currency(&"sap", pending, &"heartwood_ascension")
-		var start_coins: float = StatAggregator.query(&"starting_coins", &"all", 0.0)
-		wallet.reset_for_breakthrough(start_coins)
-		StatAggregator.reset_for_breakthrough()
-		EventBus.prestige_performed.emit(pending, wallet.get_balance(&"sap"))
+	if prestige_module != null:
+		prestige_module.execute_breakthrough()
+	else:
+		var pending: float = compute_pending_sap()
+		if wallet != null and pending > 0.0:
+			wallet.add_currency(&"sap", pending, &"heartwood_ascension")
+			var start_coins: float = StatAggregator.query(&"starting_coins", &"all", 0.0)
+			wallet.reset_for_breakthrough(start_coins)
+			StatAggregator.reset_for_breakthrough()
+			EventBus.prestige_performed.emit(pending, wallet.get_balance(&"sap"))
 	ascend_confirmed.emit()
 	refresh_view()
 

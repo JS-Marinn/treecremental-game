@@ -234,6 +234,25 @@ func _init_default_upgrade_levels() -> void:
 			StatAggregator.register_upgrade(upg, upg.initial_level)
 
 
+func reset_in_run_upgrades_for_breakthrough() -> void:
+	var preserved: Dictionary = {}
+	for uid in _upgrade_levels.keys():
+		var upg: UpgradeDefinitionData = Balance.upgrade(uid)
+		if upg != null and not upg.resets_on_breakthrough:
+			preserved[uid] = int(_upgrade_levels[uid])
+	_upgrade_levels = preserved
+	_init_default_upgrade_levels()
+	var bonus_simple: int = int(StatAggregator.query(&"starting_simple_lumberjacks", &"simple_lumberjack", 0.0))
+	if bonus_simple > 0:
+		var hire_simple: UpgradeDefinitionData = Balance.upgrade(&"hire_simple_lumberjack")
+		if hire_simple != null:
+			var start_lv: int = 1 + bonus_simple
+			_upgrade_levels[&"hire_simple_lumberjack"] = start_lv
+			StatAggregator.register_upgrade(hire_simple, start_lv)
+	refresh_top_bar()
+	refresh_upgrade_rows()
+
+
 func _rebuild_upgrade_list_for_tab(tab: DockTab) -> void:
 	_row_views.clear()
 	if _upgrade_list == null:
