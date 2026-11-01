@@ -281,11 +281,11 @@ Every upgrade in *Treecremental* is itemized below with its canonical ID, max le
 |---:|---|---|---:|---|---|---|
 | 1 | `kiln_clay_lining` | Firebrick & Clay Sealant | 5 | Act I | $\$200 \cdot 2.3^L$ `coins` | $+15\%$ `charcoal` output per kiln batch per level ($+75\%$ at Lv. 5). |
 | 2 | `kiln_draft_vents` | Adjustable Basal Draft Vents | 5 | Act I | $40 \cdot 2.5^L$ `charcoal` | Reduces kiln carbonization cycle time by $-8\%$ per level (from $5.0\text{ s}$ down to $3.0\text{ s}$ at Lv. 5). |
-| 3 | `kiln_boiler_manifold` | Copper Steam-Boiler Manifold | 5 | Act I | $75 \cdot 2.6^L$ `charcoal` + $50 \cdot 2.4^L$ `processed_logs` | Increases the active Thermal Overclock working speed multiplier by $+0.10\times$ per level (from $\times 1.50$ up to $\times 2.00$ at Lv. 5). |
-| 4 | `kiln_hardwood_retort` | Sealed Iron Retort Chamber | 5 | Act II | $200 \cdot 2.7^L$ `charcoal` + $150 \cdot 2.5^L$ `processed_logs` | Increases `charcoal` and `ash` batch yields by $+25\%$ per level when Act II or Act III trees are unlocked. |
+| 3 | `kiln_boiler_manifold` | Copper Steam-Boiler Manifold | 5 | Act I | $75 \cdot 2.6^L$ `charcoal` + $\$400 \cdot 2.4^L$ `coins` | Increases the active Thermal Overclock working speed multiplier by $+0.10\times$ per level (from $\times 1.50$ up to $\times 2.00$ at Lv. 5). |
+| 4 | `kiln_hardwood_retort` | Sealed Iron Retort Chamber | 5 | Act II | $200 \cdot 2.7^L$ `charcoal` + $\$2,500 \cdot 2.5^L$ `coins` | Increases `charcoal` and `ash` batch yields by $+25\%$ per level when Act II or Act III trees are unlocked. |
 | 5 | `kiln_auto_stoker` | Chain-Grate Mechanical Stoker | 3 | Act II | $350 \cdot 3.5^L$ `charcoal` | Lv. 1: Auto-feeds charcoal into the boiler when heat drops below $90\%$; Lv. 2: $-15\%$ fuel burn rate; Lv. 3: $-30\%$ fuel burn rate. |
 | 6 | `kiln_ash_sifter` | Rotary Potash Sifter | 5 | Act II | $500 \cdot 2.8^L$ `charcoal` | $+20\%$ `ash` byproduct extraction per kiln batch per level ($+100\%$ at Lv. 5). |
-| 7 | `kiln_bellows_turbine` | Flue-Gas Recovery Turbine | 5 | Act III | $1,200 \cdot 3.0^L$ `charcoal` + $800 \cdot 2.8^L$ `processed_logs` | While boiler heat is above $80\%$, all 3 worker types in the main clearing and Sawmill gain $+8\%$ working speed per level ($+40\%$ at Lv. 5). |
+| 7 | `kiln_bellows_turbine` | Flue-Gas Recovery Turbine | 5 | Act III | $1,200 \cdot 3.0^L$ `charcoal` + $\$45,000 \cdot 2.8^L$ `coins` | While boiler heat is above $80\%$, all 3 worker types in the main clearing and Sawmill gain $+8\%$ working speed per level ($+40\%$ at Lv. 5). |
 | 8 | `kiln_white_charcoal` | Binchotan White-Heat Mastering | 5 | Act III | $3,000 \cdot 3.2^L$ `charcoal` | While the boiler is lit, increases the individual coin value ($V_i$) of all 9 tree species by $+8\%$ per level ($+40\%$ at Lv. 5). |
 
 ---
@@ -301,7 +301,7 @@ Every upgrade in *Treecremental* is itemized below with its canonical ID, max le
 | 3 | `aviary_bird_falcon` | Peregrine Falcon Eyrie | 5 | Act I | $60 \cdot 2.4^R$ `birdseed` | $+12\%$ Sawmill Working Speed for assigned Simple Lumberjacks per rank ($+60\%$ at Rank 5). |
 | 4 | `aviary_bird_songbird` | Bluebird & Thrush Choir | 5 | Act I | $110 \cdot 2.5^R$ `birdseed` | $+8\%$ Worker Attack Tempo and $+5\%$ Critical Strike Chance per rank ($+40\%$ tempo / $+25\%$ crit at Rank 5). |
 | 5 | `aviary_bird_phoenix` | Grove Phoenix Crest | 5 | Act II | $220 \cdot 2.6^R$ `birdseed` | $+15\%$ Kiln Thermal Output and $+10\%$ Breakthrough Gate fill rate per rank ($+75\%$ heat / $+50\%$ gate credit at Rank 5). |
-| 6 | `aviary_seed_hopper` | Cedar Seed-Hopper Feeders | 5 | Act I | $20 \cdot 2.4^L$ `birdseed` + $25 \cdot 2.4^L$ `processed_logs` | Increases passive `birdseed` generation by $+0.15\text{/s}$ per level (from $0.25\text{/s}$ to $1.00\text{/s}$ at Lv. 5). |
+| 6 | `aviary_seed_hopper` | Cedar Seed-Hopper Feeders | 5 | Act I | $25 \cdot 2.4^L$ `birdseed` | Increases passive `birdseed` generation by $+0.15\text{/s}$ per level (from $0.25\text{/s}$ to $1.00\text{/s}$ at Lv. 5). |
 | 7 | `aviary_suet_cakes` | Rendered Berry & Suet Cakes | 5 | Act I | $80 \cdot 2.5^L$ `birdseed` | Every $60\text{ s}$ of active play, triggers a **Canopy Chorus** for $10 + 2 \cdot L$ seconds that multiplies all active bird bonuses by $\times 1.50$. |
 | 8 | `aviary_gilded_weathervane` | Brass Canopy Weathervane | 3 | Act II | $250 \cdot 3.0^L$ `birdseed` | Each bird species that has reached Rank 5 grants an independent $\times (1.00 + 0.05 \cdot L)$ multiplier to total `coins` and `processed_logs` output. |
 
@@ -359,11 +359,24 @@ Every upgrade in *Treecremental* is itemized below with its canonical ID, max le
 | **Loop 1C:** Clearing Plots, Maturity & Synergy Upgrades | 15 | 75 *(15 × 5 levels)* | `coins` | Continuous across Acts I–III |
 | **Loop 2A:** Per-Species Sawmill Value & Slot Stations | 9 | 90 *(9 × 10 levels)* | `processed_logs` | Lv. 1–4 (Act I), 5–7 (Act II), 8–10 (Act III) |
 | **Loop 2B:** Sawmill Workforce Capacity & Working Speed | 8 | 39 | `processed_logs` | Continuous across Acts I–III |
-| **Loop 3:** Charcoal Kilns & Boiler | 8 | 38 | `charcoal`, `processed_logs` | 3 in Act I, 3 in Act II, 2 in Act III |
-| **Loop 4:** Canopy Aviary (Tertiary A) | 8 | 38 | `birdseed`, `processed_logs` | Active during Climb & Plateau phases |
+| **Loop 3:** Charcoal Kilns & Boiler | 8 | 38 | `charcoal`, `coins` | 3 in Act I, 3 in Act II, 2 in Act III |
+| **Loop 4:** Canopy Aviary (Tertiary A) | 8 | 38 | `birdseed` | Active during Climb & Plateau phases |
 | **Loop 5:** Mycelium Network (Tertiary B) | 8 | 38 | `spores`, `ash` | Active during Climb & Plateau phases |
 | **Prestige:** Heartwood Sap Constellation | 16 | 45 | `sap` | Inner (38 Sap), Middle (720 Sap), Outer (Post-Finale) |
-| **TOTAL** | **87 Tracks** | **538 Levels** | **6 Currencies (1 Main Loop)** | **~2.90h Campaign / ~4.00h 100% Run** |
+| **TOTAL** | **87 Tracks** | **538 Levels** | **7 Currencies (1 Main Loop: `coins`)** | **~2.90h Campaign / ~4.00h 100% Run** |
+
+#### How Upgrade Density Shapes the 3-to-4-Hour Duration
+1. **Act I: The Temperate Woods (0:00 to ~0:40 — ~40 minutes)**:
+   - Player starts with Pine plots and spends `coins` on `prop_birch` and `prop_oak` to increase their Spawn Probability Weight and Max Concurrent Quantity on the field, while hiring the 3 Worker Types (**Simple Lumberjacks**, **Heavy Sawyers** to pierce Oak's harder bark, and **Swift Cleavers** for rapid crits and synergy procs).
+   - A subset of **Simple Lumberjacks** is assigned to the **Sawmill**, processing Pine, Birch, and Oak without consuming input materials to raise their base `coins` value and generate `processed_logs` (spent on `mill_crew_quarters` and `mill_undershot_wheel` to send more Simple Lumberjacks to work and boost their working speed).
+   - Completing the **$\$247,000$ `coins`** Act I Breakthrough Gate after the ~16.7-minute plateau banks **+38 Sap**.
+2. **Act II: Blossom & Boreal (0:40 to ~1:30 — ~50 minutes)**:
+   - Player propagates **Sakura** (triggering camp-wide *Cherry Petal Rain*), **Canadian Maple**, and **Fir**, expands clearing plots (`camp_plot_expansion`), raises Tree Maturity Ranks (`camp_old_growth_stewardship` so trees scale in HP and Coin Value together without insta-chopping), and upgrades Worker Gear to Tiers 4–5.
+   - Completing the **$\$7.16\text{M}$ `coins`** Act II Breakthrough Gate banks **+722 Sap** (~760 total), unlocking the Middle Ring (`sap_bulk_contracting` auto-buyers, `sap_heartwood_resonance_2`, `sap_crucible_steel`).
+3. **Act III: The Ancient Grove (1:30 to ~2:54 — ~84 minutes)**:
+   - Player propagates **Baobab**, **Socotra Dragon Tree**, and **Giant Sequoia**, pushes Worker Gear to Tier 6, Sawmill value stations to Lv. 10, and completes **$\$46.2\text{M}$ `coins`** for **The Great Felling** (campaign credits at **~2.90 hours**).
+4. **Completionist Post-Game (2:54 to ~4:00 — ~66 minutes)**:
+   - One optional post-campaign Ascension banks **2,500+ Sap** to max out the Outer Ring and finish all ~80 achievements in a relaxed **~4.0-hour** total window.
 
 ---
 
