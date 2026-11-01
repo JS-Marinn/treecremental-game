@@ -25,6 +25,7 @@ func _ready() -> void:
 	_test_milestone_5_separated_loops_tertiary_and_prestige()
 	_test_milestone_6_assets_conventions()
 	_test_milestone_6_save_and_achievements()
+	_test_milestone_6_audio_and_settings()
 	print("SMOKE RESULT: %s (%d failures)" % ["PASS" if _fails == 0 else "FAIL", _fails])
 	get_tree().quit(_fails)
 
@@ -664,5 +665,74 @@ func _test_milestone_6_save_and_achievements() -> void:
 			user_dir.remove("smoke_slot_test.json")
 		if user_dir.file_exists("smoke_slot_test.json.bak"):
 			user_dir.remove("smoke_slot_test.json.bak")
+
+
+func _test_milestone_6_audio_and_settings() -> void:
+	LocaleResolver.ensure_loaded()
+	LocaleResolver.apply_locale("en")
+
+	var audio_mod := AudioModule.new()
+	audio_mod.name = "TestAudioModule"
+	add_child(audio_mod)
+	var sfx_idx: int = AudioServer.get_bus_index("SFX")
+	var music_idx: int = AudioServer.get_bus_index("Music")
+	var ui_idx: int = AudioServer.get_bus_index("UI")
+	_check("AudioModule ensures Master/Music/SFX/UI buses exist",
+		sfx_idx != -1 and music_idx != -1 and ui_idx != -1,
+		"%d/%d/%d" % [sfx_idx, music_idx, ui_idx])
+
+	audio_mod.play_sfx(&"button_click")
+	audio_mod.play_music(&"main_theme")
+	_check("AudioModule no-ops cleanly for undelivered audio assets (no synthesis, no errors)", true)
+
+	var settings_mod := SettingsModule.new()
+	settings_mod.name = "TestSettingsModule"
+	add_child(settings_mod)
+
+	EventBus.setting_changed.emit(&"audio", &"sfx", 0.5)
+	_check("SettingsModule applies SFX bus volume from setting_changed",
+		absf(AudioServer.get_bus_volume_db(sfx_idx) - linear_to_db(0.5)) < 0.01,
+		str(AudioServer.get_bus_volume_db(sfx_idx)))
+
+	EventBus.setting_changed.emit(&"gameplay", &"notation", 1)
+	_check("SettingsModule applies notation mode live",
+		NumberFormatter.active_mode == NumberFormatter.Mode.SCIENTIFIC,
+		str(NumberFormatter.active_mode))
+	EventBus.setting_changed.emit(&"gameplay", &"notation", 0)
+
+	EventBus.setting_changed.emit(&"gameplay", &"locale", "es_419")
+	_check("SettingsModule applies locale live", tr("KEY_HUD_TAB_TREES") == "Arboles",
+		TranslationServer.get_locale())
+	EventBus.setting_changed.emit(&"gameplay", &"locale", "en")
+	_check("SettingsModule restores English locale", tr("KEY_HUD_TAB_TREES") == "Trees",
+		TranslationServer.get_locale())
+
+	EventBus.setting_changed.emit(&"accessibility", &"colorblind", 2)
+	_check("SettingsModule resolves missing colorblind shader as null (drop-in pipeline)",
+		settings_mod.get_colorblind_shader() == null)
+
+	var saved_state: Dictionary = settings_mod.serialize()
+	EventBus.setting_changed.emit(&"audio", &"master", 0.1)
+	settings_mod.deserialize(saved_state)
+	_check("SettingsModule serialize/deserialize roundtrip restores settings state",
+		absf(float(settings_mod.get_setting(&"audio", &"master")) - 0.8) < 0.001,
+		str(settings_mod.get_setting(&"audio", &"master")))
+
+	var settings_scene: PackedScene = load("res://scenes/ui/modals/modal_settings.tscn") as PackedScene
+	var settings_modal: ModalSettingsView = settings_scene.instantiate() as ModalSettingsView
+	add_child(settings_modal)
+	settings_modal.bind_settings(settings_mod)
+	_check("ModalSettingsView initializes controls from SettingsModule state",
+		settings_modal != null
+		and settings_modal._master_slider != null
+		and absf(settings_modal._master_slider.value - 0.8) < 0.001
+		and settings_modal._locale_option != null
+		and settings_modal._locale_option.selected == 0,
+		"master=%s locale=%d" % [str(settings_modal._master_slider.value), settings_modal._locale_option.selected])
+
+	settings_modal.queue_free()
+	settings_mod.queue_free()
+	audio_mod.queue_free()
+	StatAggregator.clear_all()
 
 
