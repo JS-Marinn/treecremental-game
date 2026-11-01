@@ -1,14 +1,21 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://src/features/logging/logging_camp_module.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/world/clearing_terrain.tscn" id="2"]
 [ext_resource type="Script" path="res://src/features/logging/synergy_controller.gd" id="3"]
+[ext_resource type="Script" path="res://src/features/logging/compound_landmark.gd" id="4"]
 
 [node name="LoggingClearing" type="Node2D"]
 script = ExtResource("1")
 
 [node name="ClearingTerrain" parent="." instance=ExtResource("2")]
 unique_name_in_owner = true
+
+[node name="CompoundLandmark" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(8, 250)
+z_index = 2
+script = ExtResource("4")
 
 [node name="EntitiesRoot" type="Node2D" parent="."]
 unique_name_in_owner = true
